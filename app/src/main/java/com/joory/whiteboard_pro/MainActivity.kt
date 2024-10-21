@@ -3,6 +3,7 @@ package com.joory.whiteboard_pro
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
+import android.graphics.Color
 import android.graphics.Paint
 import android.os.Build
 import android.os.Bundle
@@ -10,14 +11,19 @@ import android.view.View
 import android.widget.*
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.github.dhaval2404.imagepicker.ImagePicker
+import com.google.android.material.badge.BadgeDrawable
+import com.google.android.material.badge.BadgeUtils
+import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.joory.whiteboard_pro.shapes.Shapes
 import com.skydoves.colorpickerview.ColorEnvelope
 import com.skydoves.colorpickerview.ColorPickerDialog
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
+import kotlinx.coroutines.DelicateCoroutinesApi
 import java.io.InputStream
 
 
@@ -27,22 +33,25 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dialog: Dialog
     private lateinit var colorButton: ImageButton
     private lateinit var styleButton: ImageButton
-    private lateinit var colorbg: ImageButton
+    private lateinit var colorBg: ImageButton
     private lateinit var scroll: HorizontalScrollView
     private lateinit var toolButton: ImageButton
+    private lateinit var badgeDrawable:BadgeDrawable
+
+
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId", "UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         dialog = BottomSheetDialog(this)
         canvas = findViewById(R.id.canvas)
         colorButton = findViewById(R.id.color)
         styleButton = findViewById(R.id.style)
-        colorbg = findViewById(R.id.colorbg)
+        colorBg = findViewById(R.id.colorbg)
         scroll = findViewById(R.id.myscroll)
         canvas.dialog = dialog
+        badgeDrawable= BadgeDrawable.create(this)
         supportActionBar?.hide()
         hideButtons()
         backgroundColor()
@@ -59,17 +68,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun saveImage() {
-        findViewById<ImageButton>(R.id.save).setOnClickListener{
+        findViewById<ImageButton>(R.id.save).setOnClickListener {
             canvas.saveImage()
         }
     }
 
+    @kotlin.OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     private fun textSize() {
         findViewById<ImageButton>(R.id.textSize).setOnClickListener {
-            bottomSheet(R.layout.size_dailog)
-            val title=dialog.findViewById<TextView>(R.id.title)
+
+                bottomSheet(R.layout.size_dailog)
+
+
+
+            val title = dialog.findViewById<TextView>(R.id.title)
             title.text = "Text Size"
             val seek = dialog.findViewById<SeekBar>(R.id.sizeSeek)
             seek.max = 75
@@ -98,12 +112,14 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    @kotlin.OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     // change Sizes
     fun strokeWidth() {
         findViewById<ImageButton>(R.id.strokewidth).setOnClickListener {
-            bottomSheet(R.layout.size_dailog)
-            val title=dialog.findViewById<TextView>(R.id.title)
+                bottomSheet(R.layout.size_dailog)
+
+            val title = dialog.findViewById<TextView>(R.id.title)
             title.text = "Stroke Width"
             val seek = dialog.findViewById<SeekBar>(R.id.sizeSeek)
             seek.progress = canvas.paint.strokeWidth.toInt()
@@ -152,7 +168,7 @@ class MainActivity : AppCompatActivity() {
         }))
     }
 
-    // set object color
+    // set object colorBg
     private fun objectColor() {
         colorButton.setOnClickListener {
             colorsDialog(::objectColorSet)
@@ -163,9 +179,9 @@ class MainActivity : AppCompatActivity() {
         canvas.paint.color = envelope.color
     }
 
-    // set background color
+    // set background colorBg
     private fun backgroundColor() {
-        colorbg.setOnClickListener {
+        colorBg.setOnClickListener {
             colorsDialog(::backgroundColorSet)
         }
     }
@@ -181,22 +197,26 @@ class MainActivity : AppCompatActivity() {
             canvas.objectIndex = null
             hideButtons()
             canvas.invalidate()
-            dialog.hide()
+//            dialog.hide()
         }
     }
 
     // show tools dialog
+    @kotlin.OptIn(DelicateCoroutinesApi::class)
     private fun toolsDialog() {
         findViewById<ImageButton>(R.id.tools).setOnClickListener((View.OnClickListener {
-            bottomSheet(R.layout.tools_dailog)
-            choseTool(Shapes.Line, R.id.line)
-            choseTool(Shapes.Circle, R.id.circle)
-            choseTool(Shapes.Rect, R.id.rect)
-            choseTool(Shapes.Arrow, R.id.arrow)
-            choseTool(Shapes.Brush, R.id.brush)
-            choseTool(Shapes.Select, R.id.select)
-            choseTool(Shapes.Text, R.id.texts)
-            choseTool(Shapes.Triangle, R.id.tringle)
+               bottomSheet(R.layout.tools_dailog)
+                indicator(R.id.rect)
+                choseTool(Shapes.Line, R.id.line)
+                choseTool(Shapes.Circle, R.id.circle)
+                choseTool(Shapes.Rect, R.id.rect)
+                choseTool(Shapes.Arrow, R.id.arrow)
+                choseTool(Shapes.Brush, R.id.brush)
+                choseTool(Shapes.Select, R.id.select)
+                choseTool(Shapes.Text, R.id.texts)
+                choseTool(Shapes.Triangle, R.id.tringle)
+
+
         }))
     }
 
@@ -213,7 +233,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // a color dialog for all
+    // a colorBg dialog for all
     private fun colorsDialog(func: (input: ColorEnvelope) -> Unit) {
         ColorPickerDialog.Builder(this)
             .setTitle("Pick a Color")
@@ -249,9 +269,11 @@ class MainActivity : AppCompatActivity() {
                     val imgs: InputStream? = contentResolver.openInputStream(data.data!!)
                     canvas.setImageBackground(imgs!!)
                 }
+
                 ImagePicker.RESULT_ERROR -> {
                     Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
                 }
+
                 else -> {
                     Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
                 }
@@ -262,15 +284,20 @@ class MainActivity : AppCompatActivity() {
         dialog.setContentView(layoutInflater.inflate(layout, null))
         dialog.show()
     }
-    private fun hideButtons(){
-        val textSizeButton=findViewById<ImageButton>(R.id.textSize)
-        val styleButton=findViewById<ImageButton>(R.id.style)
-        textSizeButton.visibility= if (canvas.tool==Shapes.Text) View.VISIBLE else View.GONE
-        styleButton.visibility= if (canvas.tool==Shapes.Brush)View.GONE else View.VISIBLE
+
+    private fun hideButtons() {
+        val textSizeButton = findViewById<ImageButton>(R.id.textSize)
+        val styleButton = findViewById<ImageButton>(R.id.style)
+        textSizeButton.visibility = if (canvas.tool == Shapes.Text) View.VISIBLE else View.GONE
+        styleButton.visibility = if (canvas.tool == Shapes.Brush) View.GONE else View.VISIBLE
     }
 
-    fun indcatore(new:Int,old:Int){
-        findViewById<ImageButton>(new)
-        findViewById<ImageButton>(old)
+    @OptIn(ExperimentalBadgeUtils::class)
+    fun indicator(new: Int) {
+        badgeDrawable.isVisible = true
+        badgeDrawable.backgroundColor = Color.RED
+        badgeDrawable.verticalOffset = 20
+        badgeDrawable.horizontalOffset = 10
+        BadgeUtils.attachBadgeDrawable(badgeDrawable, dialog.findViewById(new))
     }
 }
