@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.gridlayout.widget.GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:padding="5dp"
+    app:columnCount="2"
+    app:rowCount="3">
+
+    <ImageView
+        android:id="@+id/brush"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"
+        app:srcCompat="@drawable/brush" />
+
+    <ImageView
+        android:id="@+id/line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"
+        app:srcCompat="@drawable/compass_11546804" />
+
+    <ImageView
+        android:id="@+id/rect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"
+        app:srcCompat="@drawable/square_5853903" />
+
+    <ImageView
+        android:id="@+id/circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:scaleType="centerInside"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"
+        app:srcCompat="@drawable/circle_5853934" />
+
+    <ImageView
+        android:id="@+id/arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"
+        app:srcCompat="@drawable/arrow" />
+
+    <ImageView
+        android:id="@+id/texts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:cropToPadding="false"
+        android:scaleType="centerInside"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"
+        app:srcCompat="@drawable/text" />
+
+    <ImageView
+        android:id="@+id/select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"
+        app:srcCompat="@drawable/point__1_" />
+
+    <ImageView
+        android:id="@+id/tringle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"
+        app:srcCompat="@drawable/yield_2439704" />
+
+</androidx.gridlayout.widget.GridLayout>

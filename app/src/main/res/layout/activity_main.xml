@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="?attr/colorPrimary"
+            android:orientation="horizontal"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp">
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="bottom|top"
+                android:text="My Joory"
+                android:textAlignment="viewStart"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp" />
+
+            <ImageView
+                android:id="@+id/undo"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/undo" />
+
+            <ImageView
+                android:id="@+id/redo"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/redo" />
+
+        </LinearLayout>
+
+        <com.joory.whiteboard_pro.MyCanvas
+            android:id="@+id/canvas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+        </com.joory.whiteboard_pro.MyCanvas>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/purple_500"
+            app:itemHorizontalTranslationEnabled="false">
+
+            <HorizontalScrollView
+                android:id="@+id/myscroll"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:touchscreenBlocksFocus="false">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/tools"
+                        android:layout_width="72dp"
+                        android:layout_height="match_parent"
+                        android:background="#00FFFFFF"
+                        android:contentDescription="TODO"
+                        android:padding="10dp"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/stationery" />
+
+                    <ImageButton
+                        android:id="@+id/color"
+                        android:layout_width="72dp"
+                        android:layout_height="match_parent"
+                        android:background="#00FFFFFF"
+                        android:contentDescription="TODO"
+                        android:padding="10dp"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/color" />
+
+                    <ImageButton
+                        android:id="@+id/style"
+                        android:layout_width="72dp"
+                        android:layout_height="match_parent"
+                        android:background="#00FFFFFF"
+                        android:contentDescription="TODO"
+                        android:padding="10dp"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/shapes_white" />
+
+                    <ImageButton
+                        android:id="@+id/strokewidth"
+                        android:layout_width="72dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="#00FFFFFF"
+                        android:padding="10dp"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/shrink" />
+
+                    <ImageButton
+                        android:id="@+id/textSize"
+                        android:layout_width="72dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="#00FFFFFF"
+                        android:padding="10dp"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/text_size" />
+
+                    <ImageButton
+                        android:id="@+id/colorbg"
+                        android:layout_width="72dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="#00FFFFFF"
+                        android:contentDescription="TODO"
+                        android:padding="10dp"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/colorbg" />
+
+                    <ImageButton
+                        android:id="@+id/imgbg"
+                        android:layout_width="72dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="#00FFFFFF"
+                        android:padding="10dp"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/imgbg" />
+
+                    <ImageButton
+                        android:id="@+id/clear"
+                        android:layout_width="72dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="#00FFFFFF"
+                        android:padding="10dp"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/bin" />
+
+                    <ImageButton
+                        android:id="@+id/save"
+                        android:layout_width="72dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="#00FFFFFF"
+                        android:padding="10dp"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/save" />
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+        </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
