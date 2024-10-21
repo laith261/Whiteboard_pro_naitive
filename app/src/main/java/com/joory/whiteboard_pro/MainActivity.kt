@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var styleButton: ImageButton
     private lateinit var colorbg: ImageButton
     private lateinit var scroll: HorizontalScrollView
-
+    private lateinit var toolButton: ImageButton
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId", "UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -267,6 +267,10 @@ class MainActivity : AppCompatActivity() {
         val styleButton=findViewById<ImageButton>(R.id.style)
         textSizeButton.visibility= if (canvas.tool==Shapes.Text) View.VISIBLE else View.GONE
         styleButton.visibility= if (canvas.tool==Shapes.Brush)View.GONE else View.VISIBLE
+    }
 
+    fun indcatore(new:Int,old:Int){
+        findViewById<ImageButton>(new)
+        findViewById<ImageButton>(old)
     }
 }
