@@ -210,7 +210,13 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
-
+    }
+    fun deleteItem(){
+        if(objectIndex!=null){
+            undo.add(draws.get(objectIndex!!))
+            draws.removeAt(objectIndex!!)
+            objectIndex=null
+            invalidate()
+        }
     }
 }

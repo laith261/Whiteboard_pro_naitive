@@ -8,28 +8,36 @@
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:orientation="vertical"
+        android:paddingBottom="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.06999999">
 
         <EditText
             android:id="@+id/theText"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:ems="10"
+            android:hint="TEXT"
             android:inputType="textPersonName"
             android:visibility="visible"
             tools:ignore="SpeakableTextPresentCheck" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Button" />
+            android:background="@color/purple_500"
+            android:backgroundTint="@color/purple_500"
+            android:text="Button"
+            android:textColor="@color/white"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

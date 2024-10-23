@@ -8,13 +8,20 @@ import android.graphics.Paint
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.widget.*
+import android.widget.HorizontalScrollView
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.SeekBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.github.dhaval2404.imagepicker.ImagePicker
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
 import com.google.android.material.badge.BadgeDrawable
 import com.google.android.material.badge.BadgeUtils
 import com.google.android.material.badge.ExperimentalBadgeUtils
@@ -35,8 +42,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var styleButton: ImageButton
     private lateinit var colorBg: ImageButton
     private lateinit var scroll: HorizontalScrollView
-    private lateinit var toolButton: ImageButton
-    private lateinit var badgeDrawable:BadgeDrawable
+    private lateinit var deleteButton: ImageView
+    private lateinit var badgeDrawable: BadgeDrawable
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -44,6 +51,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val adView = findViewById<AdView>(R.id.adView)
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
         dialog = BottomSheetDialog(this)
         canvas = findViewById(R.id.canvas)
         colorButton = findViewById(R.id.color)
@@ -51,8 +61,9 @@ class MainActivity : AppCompatActivity() {
         colorBg = findViewById(R.id.colorbg)
         scroll = findViewById(R.id.myscroll)
         canvas.dialog = dialog
-        badgeDrawable= BadgeDrawable.create(this)
+        badgeDrawable = BadgeDrawable.create(this)
         supportActionBar?.hide()
+        deleteButton = findViewById(R.id.delete)
         hideButtons()
         backgroundColor()
         toolsDialog()
@@ -60,11 +71,18 @@ class MainActivity : AppCompatActivity() {
         clearCanvas()
         objectColor()
         strokeWidth()
+        deleteItem()
         saveImage()
         textSize()
         pickImg()
         undo()
         redo()
+    }
+
+    private fun deleteItem() {
+        deleteButton.setOnClickListener{
+            canvas.deleteItem()
+        }
     }
 
     private fun saveImage() {
@@ -79,8 +97,7 @@ class MainActivity : AppCompatActivity() {
     private fun textSize() {
         findViewById<ImageButton>(R.id.textSize).setOnClickListener {
 
-                bottomSheet(R.layout.size_dailog)
-
+            bottomSheet(R.layout.size_dailog)
 
 
             val title = dialog.findViewById<TextView>(R.id.title)
@@ -117,7 +134,7 @@ class MainActivity : AppCompatActivity() {
     // change Sizes
     fun strokeWidth() {
         findViewById<ImageButton>(R.id.strokewidth).setOnClickListener {
-                bottomSheet(R.layout.size_dailog)
+            bottomSheet(R.layout.size_dailog)
 
             val title = dialog.findViewById<TextView>(R.id.title)
             title.text = "Stroke Width"
@@ -197,7 +214,8 @@ class MainActivity : AppCompatActivity() {
             canvas.objectIndex = null
             hideButtons()
             canvas.invalidate()
-//            dialog.hide()
+            deleteButton.visibility = if (theShape == Shapes.Select) View.VISIBLE else View.GONE
+            dialog.hide()
         }
     }
 
@@ -205,16 +223,15 @@ class MainActivity : AppCompatActivity() {
     @kotlin.OptIn(DelicateCoroutinesApi::class)
     private fun toolsDialog() {
         findViewById<ImageButton>(R.id.tools).setOnClickListener((View.OnClickListener {
-               bottomSheet(R.layout.tools_dailog)
-                indicator(R.id.rect)
-                choseTool(Shapes.Line, R.id.line)
-                choseTool(Shapes.Circle, R.id.circle)
-                choseTool(Shapes.Rect, R.id.rect)
-                choseTool(Shapes.Arrow, R.id.arrow)
-                choseTool(Shapes.Brush, R.id.brush)
-                choseTool(Shapes.Select, R.id.select)
-                choseTool(Shapes.Text, R.id.texts)
-                choseTool(Shapes.Triangle, R.id.tringle)
+            bottomSheet(R.layout.tools_dailog)
+            choseTool(Shapes.Line, R.id.line)
+            choseTool(Shapes.Circle, R.id.circle)
+            choseTool(Shapes.Rect, R.id.rect)
+            choseTool(Shapes.Arrow, R.id.arrow)
+            choseTool(Shapes.Brush, R.id.brush)
+            choseTool(Shapes.Select, R.id.select)
+            choseTool(Shapes.Text, R.id.texts)
+            choseTool(Shapes.Triangle, R.id.tringle)
 
 
         }))

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -25,14 +26,22 @@
 
             <TextView
                 android:id="@+id/textView"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="bottom|top"
-                android:text="My Joory"
-                android:textAlignment="viewStart"
+                android:gravity="center"
+                android:text="@string/app_name"
+                android:textAlignment="textStart"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp" />
+
+            <ImageView
+                android:id="@+id/delete"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:visibility="visible"
+                app:srcCompat="@drawable/delete" />
 
             <ImageView
                 android:id="@+id/undo"
@@ -51,7 +60,7 @@
         <com.joory.whiteboard_pro.MyCanvas
             android:id="@+id/canvas"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="1">
 
         </com.joory.whiteboard_pro.MyCanvas>
@@ -168,6 +177,14 @@
             </HorizontalScrollView>
 
         </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-3940256099942544/9214589741"
+            />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
