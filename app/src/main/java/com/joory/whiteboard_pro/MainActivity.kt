@@ -94,6 +94,7 @@ class MainActivity : AppCompatActivity() {
     private fun deleteItem() {
         deleteButton.setOnClickListener {
             canvas.deleteItem()
+            deleteButton.visibility=View.GONE
         }
     }
 
@@ -316,11 +317,11 @@ class MainActivity : AppCompatActivity() {
         val textSizeButton = findViewById<ImageButton>(R.id.textSize)
         val styleButton = findViewById<ImageButton>(R.id.style)
         val strokeButton = findViewById<ImageButton>(R.id.strokewidth)
-        strokeButton.visibility = if (canvas.tool != Shapes.Text) View.VISIBLE else View.GONE
+        strokeButton.visibility = if (canvas.tool != Shapes.Text && canvas.tool != Shapes.Select) View.VISIBLE else View.GONE
         textSizeButton.visibility =
-            if (canvas.tool == Shapes.Text || canvas.tool == Shapes.Select) View.VISIBLE else View.GONE
+            if (canvas.tool == Shapes.Text) View.VISIBLE else View.GONE
         styleButton.visibility =
-            if (canvas.tool == Shapes.Brush || canvas.tool == Shapes.Text || canvas.tool == Shapes.Line) View.GONE else View.VISIBLE
+            if (canvas.tool == Shapes.Brush || canvas.tool == Shapes.Text || canvas.tool == Shapes.Line|| canvas.tool == Shapes.Select) View.GONE else View.VISIBLE
         if (canvas.tool == Shapes.Select && canvas.objectIndex != null) {
             strokeButton.visibility =
                 if (canvas.draws[canvas.objectIndex!!]::class == Texts()::class) View.GONE else View.VISIBLE
