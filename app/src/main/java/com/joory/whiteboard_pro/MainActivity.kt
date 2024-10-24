@@ -3,10 +3,10 @@ package com.joory.whiteboard_pro
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
-import android.graphics.Color
 import android.graphics.Paint
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.view.View
 import android.widget.HorizontalScrollView
 import android.widget.ImageButton
@@ -16,54 +16,65 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.material.badge.BadgeDrawable
-import com.google.android.material.badge.BadgeUtils
-import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.joory.whiteboard_pro.shapes.Lines
 import com.joory.whiteboard_pro.shapes.Shapes
+import com.joory.whiteboard_pro.shapes.Texts
 import com.skydoves.colorpickerview.ColorEnvelope
 import com.skydoves.colorpickerview.ColorPickerDialog
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
-import kotlinx.coroutines.DelicateCoroutinesApi
 import java.io.InputStream
+import java.lang.ref.WeakReference
 
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        lateinit var weakActivity: WeakReference<MainActivity>
+        fun getmInstanceActivity(): MainActivity? {
+            return weakActivity.get()
+        }
+    }
 
     lateinit var canvas: MyCanvas
-    private lateinit var dialog: Dialog
+    private lateinit var myDialog: Dialog
     private lateinit var colorButton: ImageButton
     private lateinit var styleButton: ImageButton
     private lateinit var colorBg: ImageButton
     private lateinit var scroll: HorizontalScrollView
-    private lateinit var deleteButton: ImageView
+    lateinit var deleteButton: ImageView
     private lateinit var badgeDrawable: BadgeDrawable
-
+    private var mInterstitialAd: InterstitialAd? = null
+    val mainHandler = android.os.Handler(Looper.getMainLooper())
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId", "UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        weakActivity = WeakReference<MainActivity>(this)
         val adView = findViewById<AdView>(R.id.adView)
         val adRequest = AdRequest.Builder().build()
         adView.loadAd(adRequest)
-        dialog = BottomSheetDialog(this)
+        myDialog = BottomSheetDialog(this)
         canvas = findViewById(R.id.canvas)
         colorButton = findViewById(R.id.color)
         styleButton = findViewById(R.id.style)
         colorBg = findViewById(R.id.colorbg)
         scroll = findViewById(R.id.myscroll)
-        canvas.dialog = dialog
+        canvas.dialog = myDialog
         badgeDrawable = BadgeDrawable.create(this)
         supportActionBar?.hide()
         deleteButton = findViewById(R.id.delete)
+        fullScreenAd()
         hideButtons()
         backgroundColor()
         toolsDialog()
@@ -72,6 +83,7 @@ class MainActivity : AppCompatActivity() {
         objectColor()
         strokeWidth()
         deleteItem()
+        showAdInterval()
         saveImage()
         textSize()
         pickImg()
@@ -80,7 +92,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun deleteItem() {
-        deleteButton.setOnClickListener{
+        deleteButton.setOnClickListener {
             canvas.deleteItem()
         }
     }
@@ -91,25 +103,26 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @kotlin.OptIn(DelicateCoroutinesApi::class)
+
     @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     private fun textSize() {
         findViewById<ImageButton>(R.id.textSize).setOnClickListener {
             bottomSheet(R.layout.size_dailog)
-            val title = dialog.findViewById<TextView>(R.id.title)
+            val title = myDialog.findViewById<TextView>(R.id.title)
             title.text = "Text Size"
-            val seek = dialog.findViewById<SeekBar>(R.id.sizeSeek)
+            val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
             seek.max = 75
             seek.min = 15
-            seek.progress = getPaint().textSize.toInt()
+            seek.progress = canvas.getCanvasPaint().textSize.toInt()
             seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 // Handle when the progress changes
                 override fun onProgressChanged(
                     seek: SeekBar,
                     progress: Int, fromUser: Boolean
                 ) {
-                    getPaint().textSize = progress.toFloat()
+                    canvas.getCanvasPaint().textSize = progress.toFloat()
+                    canvas.invalidate()
                 }
 
                 // Handle when the user starts tracking touch
@@ -126,25 +139,24 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    @kotlin.OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     // change Sizes
     fun strokeWidth() {
         findViewById<ImageButton>(R.id.strokewidth).setOnClickListener {
             bottomSheet(R.layout.size_dailog)
 
-            val title = dialog.findViewById<TextView>(R.id.title)
+            val title = myDialog.findViewById<TextView>(R.id.title)
             title.text = "Stroke Width"
-            val seek = dialog.findViewById<SeekBar>(R.id.sizeSeek)
-            seek.progress = getPaint().strokeWidth.toInt()
+            val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
+            seek.progress = canvas.getCanvasPaint().strokeWidth.toInt()
             seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 // Handle when the progress changes
                 override fun onProgressChanged(
                     seek: SeekBar,
                     progress: Int, fromUser: Boolean
                 ) {
-                    getPaint().strokeWidth = progress.toFloat()
-                    if(canvas.objectIndex==null){
+                    canvas.getCanvasPaint().strokeWidth = progress.toFloat()
+                    if (canvas.objectIndex == null) {
                         canvas.updateExample()
                     }
                     canvas.invalidate()
@@ -153,9 +165,9 @@ class MainActivity : AppCompatActivity() {
                 // Handle when the user starts tracking touch
                 override fun onStartTrackingTouch(seek: SeekBar) {
                     // Write custom code here if needed
-                    if(canvas.objectIndex==null){
-canvas.createExample(canvas.width, canvas.height)
-                    canvas.invalidate()
+                    if (canvas.objectIndex == null) {
+                        canvas.createExample(canvas.width, canvas.height)
+                        canvas.invalidate()
                     }
                 }
 
@@ -170,9 +182,10 @@ canvas.createExample(canvas.width, canvas.height)
     // change style
     private fun changeStyle() {
         styleButton.setOnClickListener((View.OnClickListener {
-            getPaint().style =
-                if (getPaint().style == Paint.Style.STROKE) Paint.Style.FILL else Paint.Style.STROKE
-            styleButton.setImageResource(if (getStyle().style != Paint.Style.STROKE) R.drawable.shapes else R.drawable.shapes_white)
+            canvas.getCanvasPaint().style =
+                if (canvas.getCanvasPaint().style == Paint.Style.STROKE) Paint.Style.FILL else Paint.Style.STROKE
+            styleButton.setImageResource(if (canvas.getCanvasPaint().style != Paint.Style.STROKE) R.drawable.shapes else R.drawable.shapes_white)
+            canvas.invalidate()
         }))
     }
 
@@ -193,7 +206,8 @@ canvas.createExample(canvas.width, canvas.height)
     }
 
     private fun objectColorSet(envelope: ColorEnvelope) {
-        canvas.paint.color = envelope.color
+        canvas.getCanvasPaint().color = envelope.color
+        canvas.invalidate()
     }
 
     // set background colorBg
@@ -209,18 +223,16 @@ canvas.createExample(canvas.width, canvas.height)
 
     // set tool for drawing
     private fun choseTool(theShape: Shapes, id: Int) {
-        dialog.findViewById<ImageView>(id).setOnClickListener {
+        myDialog.findViewById<ImageView>(id).setOnClickListener {
             canvas.tool = theShape
             canvas.objectIndex = null
             hideButtons()
             canvas.invalidate()
-            deleteButton.visibility = if (theShape == Shapes.Select) View.VISIBLE else View.GONE
-            dialog.hide()
+            myDialog.dismiss()
         }
     }
 
-    // show tools dialog
-    @kotlin.OptIn(DelicateCoroutinesApi::class)
+    // show tools myDialog
     private fun toolsDialog() {
         findViewById<ImageButton>(R.id.tools).setOnClickListener((View.OnClickListener {
             bottomSheet(R.layout.tools_dailog)
@@ -232,8 +244,6 @@ canvas.createExample(canvas.width, canvas.height)
             choseTool(Shapes.Select, R.id.select)
             choseTool(Shapes.Text, R.id.texts)
             choseTool(Shapes.Triangle, R.id.tringle)
-
-
         }))
     }
 
@@ -250,7 +260,7 @@ canvas.createExample(canvas.width, canvas.height)
         }
     }
 
-    // a colorBg dialog for all
+    // a colorBg myDialog for all
     private fun colorsDialog(func: (input: ColorEnvelope) -> Unit) {
         ColorPickerDialog.Builder(this)
             .setTitle("Pick a Color")
@@ -298,23 +308,67 @@ canvas.createExample(canvas.width, canvas.height)
         }
 
     private fun bottomSheet(layout: Int) {
-        dialog.setContentView(layoutInflater.inflate(layout, null))
-        dialog.show()
+        myDialog.setContentView(layoutInflater.inflate(layout, null))
+        myDialog.show()
     }
 
-    private fun hideButtons() {
+    fun hideButtons() {
         val textSizeButton = findViewById<ImageButton>(R.id.textSize)
         val styleButton = findViewById<ImageButton>(R.id.style)
-        textSizeButton.visibility = if (canvas.tool == Shapes.Text) View.VISIBLE else View.GONE
-        styleButton.visibility = if (canvas.tool == Shapes.Brush) View.GONE else View.VISIBLE
+        val strokeButton = findViewById<ImageButton>(R.id.strokewidth)
+        strokeButton.visibility = if (canvas.tool != Shapes.Text) View.VISIBLE else View.GONE
+        textSizeButton.visibility =
+            if (canvas.tool == Shapes.Text || canvas.tool == Shapes.Select) View.VISIBLE else View.GONE
+        styleButton.visibility =
+            if (canvas.tool == Shapes.Brush || canvas.tool == Shapes.Text || canvas.tool == Shapes.Line) View.GONE else View.VISIBLE
+        if (canvas.tool == Shapes.Select && canvas.objectIndex != null) {
+            strokeButton.visibility =
+                if (canvas.draws[canvas.objectIndex!!]::class == Texts()::class) View.GONE else View.VISIBLE
+            textSizeButton.visibility =
+                if (canvas.draws[canvas.objectIndex!!]::class == Texts()::class) View.VISIBLE else View.GONE
+            styleButton.visibility =
+                if (canvas.draws[canvas.objectIndex!!]::class == Texts()::class || canvas.draws[canvas.objectIndex!!]::class == Lines()::class) View.GONE else View.VISIBLE
+        }
     }
 
-    @OptIn(ExperimentalBadgeUtils::class)
-    fun indicator(new: Int) {
-        badgeDrawable.isVisible = true
-        badgeDrawable.backgroundColor = Color.RED
-        badgeDrawable.verticalOffset = 20
-        badgeDrawable.horizontalOffset = 10
-        BadgeUtils.attachBadgeDrawable(badgeDrawable, dialog.findViewById(new))
+//    @OptIn(ExperimentalBadgeUtils::class)
+//    fun indicator(new: Int) {
+//        badgeDrawable.isVisible = true
+//        badgeDrawable.backgroundColor = Color.RED
+//        badgeDrawable.verticalOffset = 20
+//        badgeDrawable.horizontalOffset = 10
+//        BadgeUtils.attachBadgeDrawable(badgeDrawable, myDialog.findViewById(new))
+//    }
+
+    private fun fullScreenAd() {
+        val adRequest = AdRequest.Builder().build()
+        InterstitialAd.load(
+            this, "ca-app-pub-3940256099942544/1033173712", adRequest,
+            object : InterstitialAdLoadCallback() {
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    mInterstitialAd = interstitialAd
+                }
+
+                override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                    // Handle the error
+                    mInterstitialAd = null
+                }
+            })
+    }
+
+    fun showAds() {
+        if (mInterstitialAd != null) {
+            mInterstitialAd?.show(this)
+        }
+        fullScreenAd()
+    }
+
+    private fun showAdInterval() {
+        mainHandler.post(object : Runnable {
+            override fun run() {
+                showAds()
+                mainHandler.postDelayed(this, 1000 * 60 * 3)
+            }
+        })
     }
 }

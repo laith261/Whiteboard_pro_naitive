@@ -16,6 +16,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import com.joory.whiteboard_pro.shapes.Arrow
 import com.joory.whiteboard_pro.shapes.Brush
 import com.joory.whiteboard_pro.shapes.Circle
@@ -33,6 +34,7 @@ import java.time.LocalDateTime
 
 
 class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
+    private lateinit var myMain: MainActivity
     var draws = ArrayList<Shape>()
     var paint: Paint = Paint().apply {
         strokeWidth = 5f
@@ -47,7 +49,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     private var imgBG: Bitmap? = null
     lateinit var dialog: Dialog
     var objectIndex: Int? = null
-    var example: Shape? = null
+    private var example: Shape? = null
 
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
@@ -59,6 +61,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         tools[Shapes.Select] = Select()
         tools[Shapes.Text] = Texts()
         tools[Shapes.Triangle] = Triangle()
+        myMain = MainActivity.getmInstanceActivity()!!
         setBG(canvas)
         newDrawing(canvas)
         if (objectIndex != null) {
@@ -74,10 +77,12 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                     draws.add(tools[tool]!!.create(e))
                     updateStyle()
                 }
+
                 MotionEvent.ACTION_MOVE -> {
                     draws.last().update(e)
                     invalidate()
                 }
+
                 MotionEvent.ACTION_UP -> {
                     if (tool == Shapes.Text) {
                         setTextDialog()
@@ -89,6 +94,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 MotionEvent.ACTION_DOWN -> {
                     checkObjectTouching(e)
                 }
+
                 MotionEvent.ACTION_MOVE -> {
                     if (objectIndex != null) {
                         draws[objectIndex!!].move(e)
@@ -159,7 +165,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     }
 
     fun removeExample() {
-            example=null
+        example = null
         invalidate()
     }
 
@@ -171,7 +177,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         dialog.findViewById<Button>(R.id.button).setOnClickListener {
             draws.last().text = text.text.toString()
             invalidate()
-            dialog.hide()
+            dialog.dismiss()
         }
     }
 
@@ -179,9 +185,12 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         for (i in draws) {
             if (i.isTouchingObject(e)) {
                 objectIndex = draws.indexOf(i)
+                myMain.deleteButton.visibility = VISIBLE
+                myMain.hideButtons()
                 invalidate()
                 break
             } else {
+                myMain.deleteButton.visibility = GONE
                 objectIndex = null
                 invalidate()
             }
@@ -199,27 +208,36 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         val canvas = Canvas(bitmap)
         this.draw(canvas)
 
-        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/"+LocalDateTime.now().toString().replace(":",".") +".png")
-        val newFile=FileOutputStream(file);
+        val file = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                .toString() + "/" + LocalDateTime.now().toString().replace(":", ".") + ".png"
+        )
+        val newFile = FileOutputStream(file)
         try {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, newFile)
-            MediaScannerConnection.scanFile(this.context,
-                arrayOf(file.absolutePath), arrayOf("image/png"),null)
+            MediaScannerConnection.scanFile(
+                this.context,
+                arrayOf(file.absolutePath), arrayOf("image/png"), null
+            )
             newFile.flush()
             newFile.close()
+            myMain.showAds()
+            Toast.makeText(this.context, "image Saved", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
-    fun deleteItem(){
-        if(objectIndex!=null){
-            undo.add(draws.get(objectIndex!!))
+
+    fun deleteItem() {
+        if (objectIndex != null) {
+            undo.add(draws[objectIndex!!])
             draws.removeAt(objectIndex!!)
-            objectIndex=null
+            objectIndex = null
             invalidate()
         }
     }
-    fun getPaint():Paint{
-        return if(objectIndex!=null) draws[objectIndex].paint else paint
+
+    fun getCanvasPaint(): Paint {
+        return if (objectIndex != null) draws[objectIndex!!].paint else paint
     }
 }

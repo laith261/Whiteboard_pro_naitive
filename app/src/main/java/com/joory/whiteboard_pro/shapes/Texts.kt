@@ -25,7 +25,6 @@ class Texts : Shape {
     override fun updateObject(paint: Paint?) {
         if (paint!=null){
             this.paint.color=paint.color
-            this.paint.strokeWidth=paint.strokeWidth
             this.paint.style=paint.style
             this.paint.textSize=paint.textSize
         }
