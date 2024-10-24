@@ -219,4 +219,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
             invalidate()
         }
     }
+    fun getPaint():Paint{
+        return if(objectIndex!=null) draws[objectIndex].paint else paint
+    }
 }

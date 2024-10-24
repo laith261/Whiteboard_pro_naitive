@@ -96,23 +96,20 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun textSize() {
         findViewById<ImageButton>(R.id.textSize).setOnClickListener {
-
             bottomSheet(R.layout.size_dailog)
-
-
             val title = dialog.findViewById<TextView>(R.id.title)
             title.text = "Text Size"
             val seek = dialog.findViewById<SeekBar>(R.id.sizeSeek)
             seek.max = 75
             seek.min = 15
-            seek.progress = canvas.paint.textSize.toInt()
+            seek.progress = getPaint().textSize.toInt()
             seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 // Handle when the progress changes
                 override fun onProgressChanged(
                     seek: SeekBar,
                     progress: Int, fromUser: Boolean
                 ) {
-                    canvas.paint.textSize = progress.toFloat()
+                    getPaint().textSize = progress.toFloat()
                 }
 
                 // Handle when the user starts tracking touch
@@ -139,29 +136,32 @@ class MainActivity : AppCompatActivity() {
             val title = dialog.findViewById<TextView>(R.id.title)
             title.text = "Stroke Width"
             val seek = dialog.findViewById<SeekBar>(R.id.sizeSeek)
-            seek.progress = canvas.paint.strokeWidth.toInt()
+            seek.progress = getPaint().strokeWidth.toInt()
             seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 // Handle when the progress changes
                 override fun onProgressChanged(
                     seek: SeekBar,
                     progress: Int, fromUser: Boolean
                 ) {
-                    canvas.paint.strokeWidth = progress.toFloat()
-                    canvas.updateExample()
+                    getPaint().strokeWidth = progress.toFloat()
+                    if(canvas.objectIndex==null){
+                        canvas.updateExample()
+                    }
                     canvas.invalidate()
                 }
 
                 // Handle when the user starts tracking touch
                 override fun onStartTrackingTouch(seek: SeekBar) {
                     // Write custom code here if needed
-                    canvas.createExample(canvas.width, canvas.height)
+                    if(canvas.objectIndex==null){
+canvas.createExample(canvas.width, canvas.height)
                     canvas.invalidate()
+                    }
                 }
 
                 // Handle when the user stops tracking touch
                 override fun onStopTrackingTouch(myseek: SeekBar) {
                     canvas.removeExample()
-                    canvas.invalidate()
                 }
             })
         }
@@ -170,9 +170,9 @@ class MainActivity : AppCompatActivity() {
     // change style
     private fun changeStyle() {
         styleButton.setOnClickListener((View.OnClickListener {
-            canvas.paint.style =
-                if (canvas.paint.style == Paint.Style.STROKE) Paint.Style.FILL else Paint.Style.STROKE
-            styleButton.setImageResource(if (canvas.paint.style != Paint.Style.STROKE) R.drawable.shapes else R.drawable.shapes_white)
+            getPaint().style =
+                if (getPaint().style == Paint.Style.STROKE) Paint.Style.FILL else Paint.Style.STROKE
+            styleButton.setImageResource(if (getStyle().style != Paint.Style.STROKE) R.drawable.shapes else R.drawable.shapes_white)
         }))
     }
 
