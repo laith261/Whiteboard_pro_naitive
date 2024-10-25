@@ -12,6 +12,7 @@ import android.media.MediaScannerConnection
 import android.os.Environment
 import android.util.ArrayMap
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
@@ -185,12 +186,12 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         for (i in draws) {
             if (i.isTouchingObject(e)) {
                 objectIndex = draws.indexOf(i)
-                myMain.deleteButton.visibility = VISIBLE
+                myMain.selectedItemButton(true)
                 myMain.hideButtons()
                 invalidate()
                 break
             } else {
-                myMain.deleteButton.visibility = GONE
+                myMain.selectedItemButton(false)
                 objectIndex = null
                 invalidate()
             }
@@ -239,5 +240,14 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     fun getCanvasPaint(): Paint {
         return if (objectIndex != null) draws[objectIndex!!].paint else paint
+    }
+
+    fun duplicateItem() {
+        if (objectIndex != null) {
+            Log.i("count1", draws.count().toString())
+            draws.add(draws[objectIndex!!].deepCopy())
+            Log.i("count2", draws.count().toString())
+            invalidate()
+        }
     }
 }

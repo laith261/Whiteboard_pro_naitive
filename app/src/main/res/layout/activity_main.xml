@@ -36,6 +36,14 @@
                 android:textSize="20sp" />
 
             <ImageView
+                android:id="@+id/duplicate"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:visibility="gone"
+                app:srcCompat="@drawable/duplicate" />
+
+            <ImageView
                 android:id="@+id/delete"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
@@ -118,6 +126,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="#00FFFFFF"
+                        android:contentDescription="TODO"
                         android:padding="10dp"
                         android:scaleType="centerInside"
                         app:srcCompat="@drawable/shrink" />
@@ -128,6 +137,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="#00FFFFFF"
+                        android:contentDescription="TODO"
                         android:padding="10dp"
                         android:scaleType="centerInside"
                         app:srcCompat="@drawable/text_size" />

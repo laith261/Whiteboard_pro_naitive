@@ -51,6 +51,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var colorBg: ImageButton
     private lateinit var scroll: HorizontalScrollView
     lateinit var deleteButton: ImageView
+    lateinit var duplicateButton: ImageView
     private lateinit var badgeDrawable: BadgeDrawable
     private var mInterstitialAd: InterstitialAd? = null
     val mainHandler = android.os.Handler(Looper.getMainLooper())
@@ -74,16 +75,18 @@ class MainActivity : AppCompatActivity() {
         badgeDrawable = BadgeDrawable.create(this)
         supportActionBar?.hide()
         deleteButton = findViewById(R.id.delete)
+        duplicateButton=findViewById(R.id.duplicate)
+        backgroundColor()
+        showAdInterval()
+        duplicateItem()
         fullScreenAd()
         hideButtons()
-        backgroundColor()
         toolsDialog()
         changeStyle()
         clearCanvas()
         objectColor()
         strokeWidth()
         deleteItem()
-        showAdInterval()
         saveImage()
         textSize()
         pickImg()
@@ -91,10 +94,16 @@ class MainActivity : AppCompatActivity() {
         redo()
     }
 
+    private fun duplicateItem() {
+        duplicateButton.setOnClickListener {
+            canvas.duplicateItem()
+        }
+    }
+
     private fun deleteItem() {
         deleteButton.setOnClickListener {
             canvas.deleteItem()
-            deleteButton.visibility=View.GONE
+            selectedItemButton(false)
         }
     }
 
@@ -371,5 +380,10 @@ class MainActivity : AppCompatActivity() {
                 mainHandler.postDelayed(this, 1000 * 60 * 3)
             }
         })
+    }
+
+    fun selectedItemButton(show:Boolean=false){
+        deleteButton.visibility=if(show) View.VISIBLE else View.GONE
+        duplicateButton.visibility=if(show) View.VISIBLE else View.GONE
     }
 }

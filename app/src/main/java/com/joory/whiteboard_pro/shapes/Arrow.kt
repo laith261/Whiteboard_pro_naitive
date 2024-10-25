@@ -10,7 +10,7 @@ class Arrow : Shape {
     override var paint = Paint()
     private var triangle = Triangle()
     private var line = Lines()
-    private var sideLength = 100f
+    private var sideLength = 75f
 
     override fun draw(canvas: Canvas) {
         triangle.draw(canvas)
@@ -19,7 +19,6 @@ class Arrow : Shape {
 
     override fun updateObject(paint: Paint?) {
         if (paint!=null){
-            Log.i("myoaint", paint.color.toString())
             this.paint.color=paint.color
             this.paint.strokeWidth=paint.strokeWidth
             this.paint.style=paint.style
