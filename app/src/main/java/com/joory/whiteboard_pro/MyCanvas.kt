@@ -72,7 +72,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(e: MotionEvent?): Boolean {
-        if (tool != Shapes.Select) {
+        if (tool != Shapes.Select && objectIndex==null) {
             when (e!!.action) {
                 MotionEvent.ACTION_DOWN -> {
                     draws.add(tools[tool]!!.create(e))
@@ -81,6 +81,8 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
                 MotionEvent.ACTION_MOVE -> {
                     draws.last().update(e)
+                    objectIndex=draws.count()-1
+                    myMain.selectedItemButton(true)
                     invalidate()
                 }
 
@@ -95,7 +97,6 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 MotionEvent.ACTION_DOWN -> {
                     checkObjectTouching(e)
                 }
-
                 MotionEvent.ACTION_MOVE -> {
                     if (objectIndex != null) {
                         draws[objectIndex!!].move(e)

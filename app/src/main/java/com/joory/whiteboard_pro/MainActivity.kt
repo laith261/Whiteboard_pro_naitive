@@ -202,8 +202,12 @@ class MainActivity : AppCompatActivity() {
     // clear canvas
     private fun clearCanvas() {
         findViewById<ImageButton>(R.id.clear).setOnClickListener((View.OnClickListener {
+            canvas.undo.clear()
+            // TO DO
+            canvas.undo=canvas.draws.toList()
             canvas.draws.clear()
             canvas.objectIndex = null
+            selectedItemButton(false)
             canvas.invalidate()
         }))
     }
