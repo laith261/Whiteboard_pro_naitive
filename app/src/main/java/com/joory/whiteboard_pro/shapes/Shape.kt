@@ -14,7 +14,7 @@ interface Shape {
     fun draw(canvas: Canvas)
     fun create(e: MotionEvent): Shape
     fun update(e: MotionEvent)
-    fun updateObject(paint:Paint?=null) {
+    fun updateObject(paint: Paint? = null) {
 
     }
 
@@ -29,9 +29,10 @@ interface Shape {
     fun move(e: MotionEvent) {
 
     }
-    fun deepCopy():Shape {
+
+    fun deepCopy(): Shape {
         val JSON = Gson().toJson(this)
-        var item=Gson().fromJson(JSON, this::class.java)
+        var item = Gson().fromJson(JSON, this::class.java)
         item.paint.set(this.paint)
         return item
     }

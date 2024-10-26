@@ -42,7 +42,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         color = Color.BLACK
         style = Paint.Style.FILL
     }
-    private var undo = ArrayList<Shape>()
+    var undo = ArrayList<Shape>()
     var tool: Shapes = Shapes.Brush
     var tools = ArrayMap<Shapes, Shape>()
     private var colorBG: Int = Color.WHITE
@@ -72,40 +72,40 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(e: MotionEvent?): Boolean {
-        if (tool != Shapes.Select && objectIndex==null) {
-            when (e!!.action) {
-                MotionEvent.ACTION_DOWN -> {
+
+        when (e!!.action) {
+            MotionEvent.ACTION_DOWN -> {
+                if (tool == Shapes.Select || objectIndex != null) {
+                    checkObjectTouching(e)
+//                    return true
+                }
+                if (tool != Shapes.Select && objectIndex == null) {
                     draws.add(tools[tool]!!.create(e))
                     updateStyle()
-                }
-
-                MotionEvent.ACTION_MOVE -> {
-                    draws.last().update(e)
-                    objectIndex=draws.count()-1
-                    myMain.selectedItemButton(true)
-                    invalidate()
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    if (tool == Shapes.Text) {
-                        setTextDialog()
-                    }
+                    return true
                 }
             }
-        } else {
-            when (e!!.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    checkObjectTouching(e)
+
+            MotionEvent.ACTION_MOVE -> {
+                if (objectIndex == null) {
+                    draws.last().update(e)
+                } else {
+                    draws[objectIndex!!].move(e)
                 }
-                MotionEvent.ACTION_MOVE -> {
-                    if (objectIndex != null) {
-                        draws[objectIndex!!].move(e)
-                        invalidate()
-                    }
+                invalidate()
+            }
+
+            MotionEvent.ACTION_UP -> {
+                if (tool == Shapes.Text && objectIndex == null) {
+                    setTextDialog()
+                }
+                if (tool != Shapes.Select && objectIndex == null) {
+                    objectIndex = draws.indexOf(draws.last())
+                    myMain.selectedItemButton()
+                    invalidate()
                 }
             }
         }
-
         return true
     }
 
@@ -183,21 +183,20 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         }
     }
 
-    private fun checkObjectTouching(e: MotionEvent) {
+    private fun checkObjectTouching(e: MotionEvent): Boolean {
         for (i in draws) {
             if (i.isTouchingObject(e)) {
                 objectIndex = draws.indexOf(i)
-                myMain.selectedItemButton(true)
+                myMain.selectedItemButton()
                 myMain.hideButtons()
                 invalidate()
-                break
-            } else {
-                myMain.selectedItemButton(false)
-                objectIndex = null
-                invalidate()
+                return true
             }
         }
-
+        myMain.selectedItemButton()
+        objectIndex = null
+        invalidate()
+        return false
     }
 
     private fun drawSelectedBox(canvas: Canvas) {

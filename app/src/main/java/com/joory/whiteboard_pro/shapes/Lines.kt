@@ -14,7 +14,7 @@ class Lines : Shape {
     private var start: PointF = PointF(0f, 0f)
     private var end: PointF = PointF(0f, 0f)
     private var angle = 0f
-    private var inSerine=false
+    private var inSerine = false
     private var dist: PointF = PointF(0f, 0f)
 
     override fun draw(canvas: Canvas) {
@@ -37,33 +37,39 @@ class Lines : Shape {
     override fun update(e: MotionEvent) {
         end = PointF(e.x, e.y)
         angle = angle()
-        inSerine=inSerineAngle()
+        inSerine = inSerineAngle()
         dist = PointF(end.x - start.x, end.y - start.y)
     }
 
     private fun getRectBorder(): RectF {
         val leftTop =
-            PointF(if (end.x > start.x) start.x else end.x, if (end.y > start.y) start.y else end.y).apply {
-                if (inSerine){
-                    x-=15
-                    y-=15
+            PointF(
+                if (end.x > start.x) start.x else end.x,
+                if (end.y > start.y) start.y else end.y
+            ).apply {
+                if (inSerine) {
+                    x -= 15
+                    y -= 15
                 }
             }
         val rightBottom =
-            PointF(if (end.x < start.x) start.x else end.x, if (end.y < start.y) start.y else end.y).apply {
-                if (inSerine){
-                    x+=15
-                    y+=15
+            PointF(
+                if (end.x < start.x) start.x else end.x,
+                if (end.y < start.y) start.y else end.y
+            ).apply {
+                if (inSerine) {
+                    x += 15
+                    y += 15
                 }
             }
         return RectF(leftTop.x, leftTop.y, rightBottom.x, rightBottom.y)
     }
 
-    private fun inSerineAngle():Boolean{
-        val angles = arrayOf(355..365, 85..95,175..185, 265.. 275)
-        for (angle in angles){
-            if (this.angle.toInt() in angle){
-               return true
+    private fun inSerineAngle(): Boolean {
+        val angles = arrayOf(355..365, 85..95, 175..185, 265..275)
+        for (angle in angles) {
+            if (this.angle.toInt() in angle) {
+                return true
             }
         }
         return false
@@ -93,10 +99,10 @@ class Lines : Shape {
         val deltaX = start.x - end.x
         val deltaY = start.y - end.y
         val theAngle = toDegrees(kotlin.math.atan2(deltaY.toDouble(), deltaX.toDouble())).toFloat()
-        if(angle<5) {
-            return angle+365
+        if (angle < 5) {
+            return angle + 365
         }
-        return if (theAngle < 0) theAngle+ 360 else theAngle
+        return if (theAngle < 0) theAngle + 360 else theAngle
     }
 
     override fun move(e: MotionEvent) {

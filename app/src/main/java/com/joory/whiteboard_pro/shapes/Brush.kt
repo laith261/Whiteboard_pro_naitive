@@ -15,14 +15,14 @@ class Brush : Shape {
     }
 
     override fun updateObject(paint: Paint?) {
-        if (paint!=null){
-            this.paint.color=paint.color
-            this.paint.strokeWidth=paint.strokeWidth
+        if (paint != null) {
+            this.paint.color = paint.color
+            this.paint.strokeWidth = paint.strokeWidth
         }
     }
 
     override fun create(e: MotionEvent): Shape {
-        paint.style=Paint.Style.STROKE
+        paint.style = Paint.Style.STROKE
         path.moveTo(e.x, e.y)
         return this
     }

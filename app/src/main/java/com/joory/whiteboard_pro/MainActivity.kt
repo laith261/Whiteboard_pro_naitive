@@ -50,8 +50,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var styleButton: ImageButton
     private lateinit var colorBg: ImageButton
     private lateinit var scroll: HorizontalScrollView
-    lateinit var deleteButton: ImageView
-    lateinit var duplicateButton: ImageView
+    private lateinit var deleteButton: ImageView
+    private lateinit var duplicateButton: ImageView
     private lateinit var badgeDrawable: BadgeDrawable
     private var mInterstitialAd: InterstitialAd? = null
     val mainHandler = android.os.Handler(Looper.getMainLooper())
@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
         badgeDrawable = BadgeDrawable.create(this)
         supportActionBar?.hide()
         deleteButton = findViewById(R.id.delete)
-        duplicateButton=findViewById(R.id.duplicate)
+        duplicateButton = findViewById(R.id.duplicate)
         backgroundColor()
         showAdInterval()
         duplicateItem()
@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity() {
     private fun deleteItem() {
         deleteButton.setOnClickListener {
             canvas.deleteItem()
-            selectedItemButton(false)
+            selectedItemButton()
         }
     }
 
@@ -203,11 +203,10 @@ class MainActivity : AppCompatActivity() {
     private fun clearCanvas() {
         findViewById<ImageButton>(R.id.clear).setOnClickListener((View.OnClickListener {
             canvas.undo.clear()
-            // TO DO
-            canvas.undo=canvas.draws.toList()
+            canvas.undo.addAll(canvas.draws)
             canvas.draws.clear()
             canvas.objectIndex = null
-            selectedItemButton(false)
+            selectedItemButton()
             canvas.invalidate()
         }))
     }
@@ -330,11 +329,12 @@ class MainActivity : AppCompatActivity() {
         val textSizeButton = findViewById<ImageButton>(R.id.textSize)
         val styleButton = findViewById<ImageButton>(R.id.style)
         val strokeButton = findViewById<ImageButton>(R.id.strokewidth)
-        strokeButton.visibility = if (canvas.tool != Shapes.Text && canvas.tool != Shapes.Select) View.VISIBLE else View.GONE
+        strokeButton.visibility =
+            if (canvas.tool != Shapes.Text && canvas.tool != Shapes.Select) View.VISIBLE else View.GONE
         textSizeButton.visibility =
             if (canvas.tool == Shapes.Text) View.VISIBLE else View.GONE
         styleButton.visibility =
-            if (canvas.tool == Shapes.Brush || canvas.tool == Shapes.Text || canvas.tool == Shapes.Line|| canvas.tool == Shapes.Select) View.GONE else View.VISIBLE
+            if (canvas.tool == Shapes.Brush || canvas.tool == Shapes.Text || canvas.tool == Shapes.Line || canvas.tool == Shapes.Select) View.GONE else View.VISIBLE
         if (canvas.tool == Shapes.Select && canvas.objectIndex != null) {
             strokeButton.visibility =
                 if (canvas.draws[canvas.objectIndex!!]::class == Texts()::class) View.GONE else View.VISIBLE
@@ -386,8 +386,8 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    fun selectedItemButton(show:Boolean=false){
-        deleteButton.visibility=if(show) View.VISIBLE else View.GONE
-        duplicateButton.visibility=if(show) View.VISIBLE else View.GONE
+    fun selectedItemButton() {
+        deleteButton.visibility = if (canvas.objectIndex != null) View.VISIBLE else View.GONE
+        duplicateButton.visibility = if (canvas.objectIndex != null) View.VISIBLE else View.GONE
     }
 }

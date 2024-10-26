@@ -2,7 +2,6 @@ package com.joory.whiteboard_pro.shapes
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.util.Log
 import android.view.MotionEvent
 
 
@@ -18,10 +17,10 @@ class Arrow : Shape {
     }
 
     override fun updateObject(paint: Paint?) {
-        if (paint!=null){
-            this.paint.color=paint.color
-            this.paint.strokeWidth=paint.strokeWidth
-            this.paint.style=paint.style
+        if (paint != null) {
+            this.paint.color = paint.color
+            this.paint.strokeWidth = paint.strokeWidth
+            this.paint.style = paint.style
             triangle.updateObject(paint)
             line.updateObject(paint)
         }

@@ -5,7 +5,8 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
 import android.view.MotionEvent
-import java.lang.Math.*
+import java.lang.Math.toDegrees
+import java.lang.Math.toRadians
 
 class Triangle : Shape {
     var sideLength = 150f
@@ -19,10 +20,10 @@ class Triangle : Shape {
     }
 
     override fun updateObject(paint: Paint?) {
-        if (paint!=null){
-            this.paint.color=paint.color
-            this.paint.strokeWidth=paint.strokeWidth
-            this.paint.style=paint.style
+        if (paint != null) {
+            this.paint.color = paint.color
+            this.paint.strokeWidth = paint.strokeWidth
+            this.paint.style = paint.style
         }
     }
 
@@ -70,7 +71,8 @@ class Triangle : Shape {
         private fun angle() {
             val deltaX = fp.x - cp.x
             val deltaY = fp.y - cp.y
-            val theAngle = toDegrees(kotlin.math.atan2(deltaY.toDouble(), deltaX.toDouble())).toFloat()
+            val theAngle =
+                toDegrees(kotlin.math.atan2(deltaY.toDouble(), deltaX.toDouble())).toFloat()
             angle = (theAngle.toDouble()).toFloat() - 90f
         }
     }

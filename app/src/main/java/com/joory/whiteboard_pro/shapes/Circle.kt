@@ -1,6 +1,10 @@
 package com.joory.whiteboard_pro.shapes
 
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.DashPathEffect
+import android.graphics.Paint
+import android.graphics.PointF
+import android.graphics.RectF
 import android.view.MotionEvent
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -13,13 +17,15 @@ class Circle : Shape {
     override fun draw(canvas: Canvas) {
         canvas.drawCircle(cp.x, cp.y, radius, paint)
     }
+
     override fun updateObject(paint: Paint?) {
-        if (paint!=null){
-            this.paint.color=paint.color
-            this.paint.strokeWidth=paint.strokeWidth
-            this.paint.style=paint.style
+        if (paint != null) {
+            this.paint.color = paint.color
+            this.paint.strokeWidth = paint.strokeWidth
+            this.paint.style = paint.style
         }
     }
+
     override fun create(e: MotionEvent): Shape {
         cp = PointF(e.x, e.y)
         return this
