@@ -184,9 +184,9 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     }
 
     private fun checkObjectTouching(e: MotionEvent): Boolean {
-        for (i in draws) {
-            if (i.isTouchingObject(e)) {
-                objectIndex = draws.indexOf(i)
+        for (var i=draws.count(); 0<i;i--) {
+            if (draws[i].isTouchingObject(e)) {
+                objectIndex = i
                 myMain.selectedItemButton()
                 myMain.hideButtons()
                 invalidate()
