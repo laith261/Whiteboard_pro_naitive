@@ -72,18 +72,19 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(e: MotionEvent?): Boolean {
-
         when (e!!.action) {
             MotionEvent.ACTION_DOWN -> {
-                if (tool == Shapes.Select || objectIndex != null) {
+                if (tool == Shapes.Select) {
                     checkObjectTouching(e)
-//                    return true
                 }
-                if (tool != Shapes.Select && objectIndex == null) {
+
+                if (tool != Shapes.Select || !isTouchingSameObject(e)) {
+                    objectIndex=null
+                    myMain.selectedItemButton()
                     draws.add(tools[tool]!!.create(e))
                     updateStyle()
-                    return true
                 }
+
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -99,7 +100,8 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 if (tool == Shapes.Text && objectIndex == null) {
                     setTextDialog()
                 }
-                if (tool != Shapes.Select && objectIndex == null) {
+
+                if (tool != Shapes.Select) {
                     objectIndex = draws.indexOf(draws.last())
                     myMain.selectedItemButton()
                     invalidate()
@@ -107,6 +109,18 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
             }
         }
         return true
+    }
+
+    private fun isTouchingSameObject(e: MotionEvent): Boolean {
+        if (objectIndex==null) return false
+        for (i in draws.reversed()) {
+            if (i.isTouchingObject(e)) {
+                if (objectIndex == draws.indexOf(i)) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     private fun newDrawing(canvas: Canvas) {
@@ -143,6 +157,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         if (draws.isNotEmpty()) {
             undo.add(draws.last())
             draws.remove(draws.last())
+            objectIndex = null
             invalidate()
         }
     }
@@ -184,9 +199,9 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     }
 
     private fun checkObjectTouching(e: MotionEvent): Boolean {
-        for (var i=draws.count(); 0<i;i--) {
-            if (draws[i].isTouchingObject(e)) {
-                objectIndex = i
+        for (i in draws.reversed()) {
+            if (i.isTouchingObject(e)) {
+                objectIndex = draws.indexOf(i)
                 myMain.selectedItemButton()
                 myMain.hideButtons()
                 invalidate()

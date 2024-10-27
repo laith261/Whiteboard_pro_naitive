@@ -238,6 +238,7 @@ class MainActivity : AppCompatActivity() {
         myDialog.findViewById<ImageView>(id).setOnClickListener {
             canvas.tool = theShape
             canvas.objectIndex = null
+            selectedItemButton()
             hideButtons()
             canvas.invalidate()
             myDialog.dismiss()
