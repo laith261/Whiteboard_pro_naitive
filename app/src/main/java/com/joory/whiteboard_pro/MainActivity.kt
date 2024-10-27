@@ -122,8 +122,8 @@ class MainActivity : AppCompatActivity() {
             val title = myDialog.findViewById<TextView>(R.id.title)
             title.text = "Text Size"
             val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
-            seek.max = 75
-            seek.min = 15
+            seek.max = 100
+            seek.min = 25
             seek.progress = canvas.getCanvasPaint().textSize.toInt()
             seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 // Handle when the progress changes
@@ -194,7 +194,6 @@ class MainActivity : AppCompatActivity() {
         styleButton.setOnClickListener((View.OnClickListener {
             canvas.getCanvasPaint().style =
                 if (canvas.getCanvasPaint().style == Paint.Style.STROKE) Paint.Style.FILL else Paint.Style.STROKE
-            styleButton.setImageResource(if (canvas.getCanvasPaint().style != Paint.Style.STROKE) R.drawable.shapes else R.drawable.shapes_white)
             canvas.invalidate()
         }))
     }
@@ -327,8 +326,8 @@ class MainActivity : AppCompatActivity() {
 
     fun hideButtons() {
         val textSizeButton = findViewById<ImageButton>(R.id.textSize)
-        val styleButton = findViewById<ImageButton>(R.id.style)
         val strokeButton = findViewById<ImageButton>(R.id.strokewidth)
+        styleButton.setImageResource(if (canvas.getCanvasPaint().style != Paint.Style.STROKE) R.drawable.shapes else R.drawable.shapes_white)
         strokeButton.visibility =
             if (canvas.tool != Shapes.Text && canvas.tool != Shapes.Select) View.VISIBLE else View.GONE
         textSizeButton.visibility =
@@ -390,4 +389,5 @@ class MainActivity : AppCompatActivity() {
         deleteButton.visibility = if (canvas.objectIndex != null) View.VISIBLE else View.GONE
         duplicateButton.visibility = if (canvas.objectIndex != null) View.VISIBLE else View.GONE
     }
+
 }
