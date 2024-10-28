@@ -131,6 +131,17 @@
                         android:scaleType="centerInside"
                         app:srcCompat="@drawable/shrink" />
 
+                        <ImageButton
+                        android:id="@+id/sideLength"
+                        android:layout_width="72dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="#00FFFFFF"
+                        android:contentDescription="TODO"
+                        android:padding="10dp"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/shrink" />
+
                     <ImageButton
                         android:id="@+id/textSize"
                         android:layout_width="72dp"

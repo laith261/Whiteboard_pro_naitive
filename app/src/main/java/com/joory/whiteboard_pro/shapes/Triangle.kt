@@ -39,6 +39,20 @@ class Triangle : Shape {
         tringle = ATriangle(e.x, e.y, sideLength, fp)
     }
 
+     override fun isTouchingObject(e: MotionEvent): Boolean {
+        var rect=Rect(triangle.cp.x-sideLength,triangle.cp.y-sideLength,triangle.cp.x+sideLength,triangle.cp.y+sideLength)
+        return rect.contains(e.x, e.y)
+    }
+
+    override fun drawSelectedBox(canvas: Canvas) {
+        var rect=Rect(triangle.cp.x-sideLength-10,triangle.cp.y-sideLength-10,triangle.cp.x+sideLength+10,triangle.cp.y+sideLength+10)
+        val selectedPaint = Paint()
+        selectedPaint.pathEffect = DashPathEffect(FloatArray(10), 5f)
+        selectedPaint.style = Paint.Style.STROKE
+        canvas.drawRect(rect, selectedPaint)
+
+    }
+
     class ATriangle(px: Float, py: Float, sideLength: Float, private var fp: PointF) {
         private var cp: PointF = PointF(px, py)
         private var p1: PointF = PointF(px, py - sideLength)

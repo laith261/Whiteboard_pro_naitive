@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var scroll: HorizontalScrollView
     private lateinit var deleteButton: ImageView
     private lateinit var duplicateButton: ImageView
+    private lateinit var sideLength: ImageView
     private lateinit var badgeDrawable: BadgeDrawable
     private var mInterstitialAd: InterstitialAd? = null
     val mainHandler = android.os.Handler(Looper.getMainLooper())
@@ -69,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         canvas = findViewById(R.id.canvas)
         colorButton = findViewById(R.id.color)
         styleButton = findViewById(R.id.style)
+        sideLength = findViewById(R.id.sideLength)
         colorBg = findViewById(R.id.colorbg)
         scroll = findViewById(R.id.myscroll)
         canvas.dialog = myDialog
@@ -86,6 +88,7 @@ class MainActivity : AppCompatActivity() {
         clearCanvas()
         objectColor()
         strokeWidth()
+        sideLength()
         deleteItem()
         saveImage()
         textSize()
@@ -184,6 +187,43 @@ class MainActivity : AppCompatActivity() {
                 // Handle when the user stops tracking touch
                 override fun onStopTrackingTouch(myseek: SeekBar) {
                     canvas.removeExample()
+                }
+            })
+        }
+    }
+
+     fun sideLength() {
+        sideLength.setOnClickListener {
+            bottomSheet(R.layout.size_dailog)
+
+            val title = myDialog.findViewById<TextView>(R.id.title)
+            title.text = "Side Length"
+            val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
+            seek.progress = if(objectIndex!=null) canvas.draws[objectIndex].sideLength else canvas.sideLength
+            seek.min=100f
+            seek.max=300f
+            seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                // Handle when the progress changes
+                override fun onProgressChanged(
+                    seek: SeekBar,
+                    progress: Int, fromUser: Boolean
+                ) {
+                    if(objectIndex!=null){
+                    canvas.draws[objectIndex].sideLength = progress.toFloat()
+                    }else{
+                        canvas.sideLength=progress.toFloat()
+                    }
+                    canvas.invalidate()
+                }
+
+                // Handle when the user starts tracking touch
+                override fun onStartTrackingTouch(seek: SeekBar) {
+                   
+                }
+
+                // Handle when the user stops tracking touch
+                override fun onStopTrackingTouch(myseek: SeekBar) {
+                    
                 }
             })
         }
@@ -328,6 +368,7 @@ class MainActivity : AppCompatActivity() {
     fun hideButtons() {
         val textSizeButton = findViewById<ImageButton>(R.id.textSize)
         val strokeButton = findViewById<ImageButton>(R.id.strokewidth)
+        sideLength.visibility=if (canvas.tool == Shapes.Arrow && canvas.tool == Shapes.Triangle) View.VISIBLE else View.GONE
         styleButton.setImageResource(if (canvas.getCanvasPaint().style != Paint.Style.STROKE) R.drawable.shapes else R.drawable.shapes_white)
         strokeButton.visibility =
             if (canvas.tool != Shapes.Text && canvas.tool != Shapes.Select) View.VISIBLE else View.GONE

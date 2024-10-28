@@ -51,6 +51,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     lateinit var dialog: Dialog
     var objectIndex: Int? = null
     private var example: Shape? = null
+    var dideLength: =100f
 
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
@@ -132,6 +133,9 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     private fun updateStyle() {
         draws.last().updateObject(paint)
+        if(tool == shapes.Arrow || tool == shapes.Triangle){
+            draws.last().sideLength=sideLength
+        }
     }
 
     fun setColorBackground(color: Int) {
