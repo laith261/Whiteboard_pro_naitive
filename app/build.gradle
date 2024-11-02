@@ -11,8 +11,8 @@ android {
         applicationId "com.joory.whiteboard_pro"
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode 5
+        versionName "2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,12 +33,12 @@ android {
 }
 
 dependencies {
+    implementation 'com.github.krAbhiDev:ColorPicker-Android:2.0.1'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation("com.google.android.gms:play-services-ads:23.3.0")
     implementation 'com.google.android.material:material:1.2.0'
     implementation "androidx.fragment:fragment-ktx:1.7.0"
     implementation 'com.github.dhaval2404:imagepicker:2.1'
-    implementation "com.github.skydoves:colorpickerview:2.3.0"
     implementation "androidx.activity:activity-ktx:1.9.2"
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.6.0'

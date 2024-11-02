@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import com.google.gson.Gson
 
 interface Shape {
+    var sideLength: Float
     var paint: Paint
     var text: String
         get() = ""
@@ -28,6 +29,10 @@ interface Shape {
 
     fun move(e: MotionEvent) {
 
+    }
+
+    fun updateSideLength(length:Float){
+        sideLength=length
     }
 
     fun deepCopy(): Shape {

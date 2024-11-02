@@ -55,12 +55,14 @@
                 android:id="@+id/undo"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
+                android:alpha=".5"
                 app:srcCompat="@drawable/undo" />
 
             <ImageView
                 android:id="@+id/redo"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
+                android:alpha=".5"
                 app:srcCompat="@drawable/redo" />
 
         </LinearLayout>
@@ -131,7 +133,7 @@
                         android:scaleType="centerInside"
                         app:srcCompat="@drawable/shrink" />
 
-                        <ImageButton
+                    <ImageButton
                         android:id="@+id/sideLength"
                         android:layout_width="72dp"
                         android:layout_height="match_parent"
@@ -140,7 +142,7 @@
                         android:contentDescription="TODO"
                         android:padding="10dp"
                         android:scaleType="centerInside"
-                        app:srcCompat="@drawable/shrink" />
+                        app:srcCompat="@drawable/ruler" />
 
                     <ImageButton
                         android:id="@+id/textSize"
@@ -208,8 +210,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             ads:adSize="BANNER"
-            ads:adUnitId="ca-app-pub-3940256099942544/9214589741"
-            />
+            app:adUnitId="ca-app-pub-1226999690478326/7689081156" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

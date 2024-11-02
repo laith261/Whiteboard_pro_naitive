@@ -1,22 +1,25 @@
 package com.joory.whiteboard_pro.shapes
 
 import android.graphics.Canvas
+import android.graphics.DashPathEffect
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
+import android.graphics.RectF
+import android.util.Log
 import android.view.MotionEvent
 import java.lang.Math.toDegrees
 import java.lang.Math.toRadians
 
 class Triangle : Shape {
-    var sideLength = 150f
+    override var sideLength = 150f
     override var paint = Paint()
-    private var fp = PointF(0f, 0f)
-    private var tringle = ATriangle(0f, 0f, sideLength, fp)
+    var fp = PointF(0f, 0f)
+    private var triangle = ATriangle(0f, 0f, sideLength, fp)
     override lateinit var text: String
 
     override fun draw(canvas: Canvas) {
-        canvas.drawPath(tringle.path, paint)
+        canvas.drawPath(triangle.path, paint)
     }
 
     override fun updateObject(paint: Paint?) {
@@ -36,25 +39,36 @@ class Triangle : Shape {
     }
 
     override fun update(e: MotionEvent) {
-        tringle = ATriangle(e.x, e.y, sideLength, fp)
+        triangle = ATriangle(e.x, e.y, sideLength, fp)
     }
 
-     override fun isTouchingObject(e: MotionEvent): Boolean {
-        var rect=Rect(triangle.cp.x-sideLength,triangle.cp.y-sideLength,triangle.cp.x+sideLength,triangle.cp.y+sideLength)
-        return rect.contains(e.x, e.y)
-    }
-
-    override fun drawSelectedBox(canvas: Canvas) {
-        var rect=Rect(triangle.cp.x-sideLength-10,triangle.cp.y-sideLength-10,triangle.cp.x+sideLength+10,triangle.cp.y+sideLength+10)
-        val selectedPaint = Paint()
-        selectedPaint.pathEffect = DashPathEffect(FloatArray(10), 5f)
-        selectedPaint.style = Paint.Style.STROKE
-        canvas.drawRect(rect, selectedPaint)
-
-    }
-
-    class ATriangle(px: Float, py: Float, sideLength: Float, private var fp: PointF) {
-        private var cp: PointF = PointF(px, py)
+//     override fun isTouchingObject(e: MotionEvent): Boolean {
+//        val rect= RectF(triangle.cp.x-(sideLength/2),triangle.cp.y-(sideLength/2),triangle.cp.x+(sideLength/2),triangle.cp.y+(sideLength/2))
+//        return rect.contains(e.x, e.y)
+//    }
+//
+//    override fun drawSelectedBox(canvas: Canvas) {
+//        val rect=RectF(triangle.cp.x-(sideLength/2)-10,triangle.cp.y-sideLength-10,triangle.cp.x+(sideLength/2)+10,triangle.cp.y+10).apply {
+//            val xy=triangle.rotate(PointF(left,top))
+//            val yx=triangle.rotate(PointF(right,bottom))
+//            left=xy.x
+//            top=xy.y
+//            right=yx.x
+//            bottom=yx.y
+//        }
+//        val selectedPaint = Paint()
+//        selectedPaint.pathEffect = DashPathEffect(FloatArray(10), 5f)
+//        selectedPaint.style = Paint.Style.STROKE
+//        canvas.drawRect(rect, selectedPaint)
+//
+//    }
+//
+//    override fun updateSideLength(length: Float) {
+//        super.updateSideLength(length)
+//        triangle=ATriangle(triangle.cp.x,triangle.cp.y,sideLength,fp)
+//    }
+    class ATriangle(px: Float, py: Float, var sideLength: Float, private var fp: PointF) {
+        var cp: PointF = PointF(px, py)
         private var p1: PointF = PointF(px, py - sideLength)
         private var p2: PointF = PointF(px + (sideLength / 2), py)
         private var p3: PointF = PointF(px - (sideLength / 2), py)
@@ -72,7 +86,7 @@ class Triangle : Shape {
             path.close()
         }
 
-        private fun rotate(point: PointF): PointF {
+         fun rotate(point: PointF): PointF {
             val s = kotlin.math.sin(toRadians(angle.toDouble())).toFloat()
             val c = kotlin.math.cos(toRadians(angle.toDouble())).toFloat()
             point.x -= cp.x

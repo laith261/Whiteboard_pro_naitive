@@ -51,7 +51,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     lateinit var dialog: Dialog
     var objectIndex: Int? = null
     private var example: Shape? = null
-    var dideLength: =100f
+    var sideLength: Float = 100f
 
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
@@ -62,7 +62,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         tools[Shapes.Brush] = Brush()
         tools[Shapes.Select] = Select()
         tools[Shapes.Text] = Texts()
-        tools[Shapes.Triangle] = Triangle()
+//        tools[Shapes.Triangle] = Triangle()
         myMain = MainActivity.getmInstanceActivity()!!
         setBG(canvas)
         newDrawing(canvas)
@@ -79,8 +79,8 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                     checkObjectTouching(e)
                 }
 
-                if (tool != Shapes.Select || !isTouchingSameObject(e)) {
-                    objectIndex=null
+                if (tool != Shapes.Select && !isTouchingSameObject(e)) {
+                    objectIndex = null
                     myMain.selectedItemButton()
                     draws.add(tools[tool]!!.create(e))
                     updateStyle()
@@ -102,18 +102,19 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                     setTextDialog()
                 }
 
-                if (tool != Shapes.Select) {
+                if (tool in arrayOf(Shapes.Text,Shapes.Circle,Shapes.Rect) ) {
                     objectIndex = draws.indexOf(draws.last())
                     myMain.selectedItemButton()
                     invalidate()
                 }
+                myMain.doButtonsAlpha()
             }
         }
         return true
     }
 
     private fun isTouchingSameObject(e: MotionEvent): Boolean {
-        if (objectIndex==null) return false
+        if (objectIndex == null) return false
         for (i in draws.reversed()) {
             if (i.isTouchingObject(e)) {
                 if (objectIndex == draws.indexOf(i)) {
@@ -133,9 +134,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     private fun updateStyle() {
         draws.last().updateObject(paint)
-        if(tool == shapes.Arrow || tool == shapes.Triangle){
-            draws.last().sideLength=sideLength
-        }
+        draws.last().updateSideLength(sideLength)
     }
 
     fun setColorBackground(color: Int) {

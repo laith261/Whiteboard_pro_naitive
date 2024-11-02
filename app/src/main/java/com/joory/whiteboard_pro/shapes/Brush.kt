@@ -9,6 +9,7 @@ class Brush : Shape {
     override var paint: Paint = Paint()
     private var path = Path()
     override lateinit var text: String
+    override var sideLength: Float = 0.0f
 
     override fun draw(canvas: Canvas) {
         canvas.drawPath(path, paint)

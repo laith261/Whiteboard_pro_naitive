@@ -29,9 +29,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.joory.whiteboard_pro.shapes.Lines
 import com.joory.whiteboard_pro.shapes.Shapes
 import com.joory.whiteboard_pro.shapes.Texts
-import com.skydoves.colorpickerview.ColorEnvelope
-import com.skydoves.colorpickerview.ColorPickerDialog
-import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import java.io.InputStream
 import java.lang.ref.WeakReference
 
@@ -50,9 +47,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var styleButton: ImageButton
     private lateinit var colorBg: ImageButton
     private lateinit var scroll: HorizontalScrollView
+    private lateinit var undoButton: ImageView
+    private lateinit var redoButton: ImageView
     private lateinit var deleteButton: ImageView
     private lateinit var duplicateButton: ImageView
-    private lateinit var sideLength: ImageView
+    private lateinit var sideLength: ImageButton
     private lateinit var badgeDrawable: BadgeDrawable
     private var mInterstitialAd: InterstitialAd? = null
     val mainHandler = android.os.Handler(Looper.getMainLooper())
@@ -73,6 +72,8 @@ class MainActivity : AppCompatActivity() {
         sideLength = findViewById(R.id.sideLength)
         colorBg = findViewById(R.id.colorbg)
         scroll = findViewById(R.id.myscroll)
+        undoButton = findViewById(R.id.undo)
+        redoButton = findViewById(R.id.redo)
         canvas.dialog = myDialog
         badgeDrawable = BadgeDrawable.create(this)
         supportActionBar?.hide()
@@ -192,38 +193,40 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-     fun sideLength() {
+    @RequiresApi(Build.VERSION_CODES.O)
+    @SuppressLint("SetTextI18n")
+    fun sideLength() {
         sideLength.setOnClickListener {
             bottomSheet(R.layout.size_dailog)
-
             val title = myDialog.findViewById<TextView>(R.id.title)
             title.text = "Side Length"
             val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
-            seek.progress = if(objectIndex!=null) canvas.draws[objectIndex].sideLength else canvas.sideLength
-            seek.min=100f
-            seek.max=300f
+            seek.min = 100
+            seek.max = 300
+            seek.progress =
+                if (canvas.objectIndex != null) canvas.draws[canvas.objectIndex!!].sideLength.toInt() else canvas.sideLength.toInt()
             seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 // Handle when the progress changes
                 override fun onProgressChanged(
                     seek: SeekBar,
                     progress: Int, fromUser: Boolean
                 ) {
-                    if(objectIndex!=null){
-                    canvas.draws[objectIndex].sideLength = progress.toFloat()
-                    }else{
-                        canvas.sideLength=progress.toFloat()
+                    if (canvas.objectIndex != null) {
+                        canvas.draws[canvas.objectIndex!!].updateSideLength(progress.toFloat())
+                    } else {
+                        canvas.sideLength = progress.toFloat()
                     }
                     canvas.invalidate()
                 }
 
                 // Handle when the user starts tracking touch
                 override fun onStartTrackingTouch(seek: SeekBar) {
-                   
+
                 }
 
                 // Handle when the user stops tracking touch
                 override fun onStopTrackingTouch(myseek: SeekBar) {
-                    
+
                 }
             })
         }
@@ -245,6 +248,7 @@ class MainActivity : AppCompatActivity() {
             canvas.undo.addAll(canvas.draws)
             canvas.draws.clear()
             canvas.objectIndex = null
+            doButtonsAlpha()
             selectedItemButton()
             canvas.invalidate()
         }))
@@ -257,8 +261,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun objectColorSet(envelope: ColorEnvelope) {
-        canvas.getCanvasPaint().color = envelope.color
+    private fun objectColorSet(color: Int) {
+        canvas.getCanvasPaint().color = color
         canvas.invalidate()
     }
 
@@ -269,8 +273,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun backgroundColorSet(envelope: ColorEnvelope) {
-        canvas.setColorBackground(envelope.color)
+    private fun backgroundColorSet(color: Int) {
+        canvas.setColorBackground(color)
     }
 
     // set tool for drawing
@@ -296,37 +300,34 @@ class MainActivity : AppCompatActivity() {
             choseTool(Shapes.Brush, R.id.brush)
             choseTool(Shapes.Select, R.id.select)
             choseTool(Shapes.Text, R.id.texts)
-            choseTool(Shapes.Triangle, R.id.tringle)
+//            choseTool(Shapes.Triangle, R.id.tringle)
         }))
     }
 
     // undo and redo
     private fun undo() {
-        findViewById<ImageView>(R.id.undo).setOnClickListener {
+        undoButton.setOnClickListener {
             canvas.undo()
+            doButtonsAlpha()
         }
     }
 
     private fun redo() {
-        findViewById<ImageView>(R.id.redo).setOnClickListener {
+        redoButton.setOnClickListener {
             canvas.redo()
+            doButtonsAlpha()
         }
     }
 
     // a colorBg myDialog for all
-    private fun colorsDialog(func: (input: ColorEnvelope) -> Unit) {
-        ColorPickerDialog.Builder(this)
-            .setTitle("Pick a Color")
-            .setPreferenceName("MyColorPickerDialog")
-            .setPositiveButton("select",
-                ColorEnvelopeListener { envelope, _ -> func(envelope) })
-            .setNegativeButton(
-                "cancel"
-            ) { dialogInterface, _ -> dialogInterface.dismiss() }
-            .attachAlphaSlideBar(true) // the default value is true.
-            .attachBrightnessSlideBar(true) // the default value is true.
-            .setBottomSpace(12) // set a bottom space between the last sidebar and buttons.
-            .show()
+    private fun colorsDialog(func: (input: Int) -> Unit) {
+        val dialog = com.abhishek.colorpicker.ColorPickerDialog()
+        dialog.setOnOkCancelListener { isOk, color ->
+            if (isOk){
+                func(color)
+            }
+        }
+        dialog.show(supportFragmentManager)
     }
 
     // pick image
@@ -368,7 +369,8 @@ class MainActivity : AppCompatActivity() {
     fun hideButtons() {
         val textSizeButton = findViewById<ImageButton>(R.id.textSize)
         val strokeButton = findViewById<ImageButton>(R.id.strokewidth)
-        sideLength.visibility=if (canvas.tool == Shapes.Arrow && canvas.tool == Shapes.Triangle) View.VISIBLE else View.GONE
+        sideLength.visibility =
+            if (canvas.tool == Shapes.Arrow /*|| canvas.tool == Shapes.Triangle*/) View.VISIBLE else View.GONE
         styleButton.setImageResource(if (canvas.getCanvasPaint().style != Paint.Style.STROKE) R.drawable.shapes else R.drawable.shapes_white)
         strokeButton.visibility =
             if (canvas.tool != Shapes.Text && canvas.tool != Shapes.Select) View.VISIBLE else View.GONE
@@ -398,15 +400,15 @@ class MainActivity : AppCompatActivity() {
     private fun fullScreenAd() {
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(
-            this, "ca-app-pub-3940256099942544/1033173712", adRequest,
+            this, "ca-app-pub-1226999690478326/5310835378", adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(interstitialAd: InterstitialAd) {
                     mInterstitialAd = interstitialAd
                 }
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                    // Handle the error
                     mInterstitialAd = null
+                    fullScreenAd()
                 }
             })
     }
@@ -431,5 +433,8 @@ class MainActivity : AppCompatActivity() {
         deleteButton.visibility = if (canvas.objectIndex != null) View.VISIBLE else View.GONE
         duplicateButton.visibility = if (canvas.objectIndex != null) View.VISIBLE else View.GONE
     }
-
+     fun doButtonsAlpha(){
+        undoButton.alpha=if(canvas.draws.isEmpty()) 0.5F else 1F
+        redoButton.alpha=if(canvas.undo.isEmpty()) 0.5F else 1F
+    }
 }

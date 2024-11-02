@@ -14,6 +14,7 @@ class Texts : Shape {
     override var paint: Paint = Paint()
     override var text: String = ""
     private var point = PointF(0f, 0f)
+    override var sideLength: Float = 0.0f
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun draw(canvas: Canvas) {

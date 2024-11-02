@@ -11,11 +11,12 @@ import java.lang.Math.toDegrees
 
 class Lines : Shape {
     override var paint = Paint()
-    private var start: PointF = PointF(0f, 0f)
+    var start: PointF = PointF(0f, 0f)
     private var end: PointF = PointF(0f, 0f)
     private var angle = 0f
     private var inSerine = false
     private var dist: PointF = PointF(0f, 0f)
+    override var sideLength: Float = 0.0f
 
     override fun draw(canvas: Canvas) {
         canvas.drawLine(start.x, start.y, end.x, end.y, paint)

@@ -8,5 +8,5 @@ enum class Shapes(shape: Shape) {
     Brush(Brush()),
     Text(Texts()),
     Select(Select()),
-    Triangle(Triangle())
+//    Triangle(Triangle())
 }

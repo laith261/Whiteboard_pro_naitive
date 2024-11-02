@@ -9,6 +9,15 @@
     app:rowCount="3">
 
     <ImageView
+        android:id="@+id/brush"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:scaleType="centerInside"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"
+        app:srcCompat="@drawable/brush" />
+
+    <ImageView
         android:id="@+id/rect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,20 +37,14 @@
         app:srcCompat="@drawable/circle_5853934" />
 
     <ImageView
-        android:id="@+id/tringle"
+        android:id="@+id/arrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="18dp"
+        android:scaleType="centerInside"
         app:layout_columnWeight="1"
         app:layout_rowWeight="1"
-        app:srcCompat="@drawable/tringle" />
-
-    <ImageView
-        android:id="@+id/brush"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_columnWeight="1"
-        app:layout_rowWeight="1"
-        app:srcCompat="@drawable/brush" />
+        app:srcCompat="@drawable/arrow" />
 
     <ImageView
         android:id="@+id/line"
@@ -52,16 +55,6 @@
         app:layout_columnWeight="1"
         app:layout_rowWeight="1"
         app:srcCompat="@drawable/compass_11546804" />
-
-    <ImageView
-        android:id="@+id/arrow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="18dp"
-        android:scaleType="centerInside"
-        app:layout_columnWeight="1"
-        app:layout_rowWeight="1"
-        app:srcCompat="@drawable/arrow" />
 
     <ImageView
         android:id="@+id/texts"
@@ -80,5 +73,14 @@
         app:layout_columnWeight="1"
         app:layout_rowWeight="1"
         app:srcCompat="@drawable/point__1_" />
+
+    <ImageView
+        android:id="@+id/tringle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1"
+        app:srcCompat="@drawable/tringle" />
 
 </androidx.gridlayout.widget.GridLayout>

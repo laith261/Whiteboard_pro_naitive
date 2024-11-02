@@ -1,15 +1,17 @@
 package com.joory.whiteboard_pro.shapes
 
 import android.graphics.Canvas
+import android.graphics.DashPathEffect
 import android.graphics.Paint
+import android.graphics.RectF
 import android.view.MotionEvent
 
 
 class Arrow : Shape {
+    override var sideLength = 100f
     override var paint = Paint()
     private var triangle = Triangle()
     private var line = Lines()
-    private var sideLength = 75f
 
     override fun draw(canvas: Canvas) {
         triangle.draw(canvas)
@@ -42,25 +44,29 @@ class Arrow : Shape {
         triangle.update(e)
     }
 
-    override fun isTouchingObject(e: MotionEvent): Boolean {
-        if(triangle.fp.y < line.start.y){
-        var rect=Rect(triangle.fp.x-(sideLength/2)-5,triangle.fp.y-(sideLength/2)-5,line.start.x+(sideLength/2)+5,line.start.y+5)
-        }else{
-        var rect=Rect(line.start.x-(sideLength/2)-5,line.start.y-5,triangle.cp.x+(sideLength/2)+5,triangle.cp.y+(sideLength/2)+5)
-        }
-        return rect.contains(e.x, e.y)
+    override fun updateSideLength(length: Float) {
+        super.updateSideLength(length)
+        triangle.updateSideLength(sideLength)
     }
-
-    override fun drawSelectedBox(canvas: Canvas) {
-         if(triangle.fp.y < line.start.y){
-        var rect=Rect(triangle.fp.x-(sideLength/2)-5,triangle.fp.y-(sideLength/2)-5,line.start.x+(sideLength/2)+5,line.start.y+5)
-        }else{
-        var rect=Rect(line.start.x-(sideLength/2)-5,line.start.y-5,triangle.cp.x+(sideLength/2)+5,triangle.cp.y+(sideLength/2)+5)
-        }
-        val selectedPaint = Paint()
-        selectedPaint.pathEffect = DashPathEffect(FloatArray(10), 5f)
-        selectedPaint.style = Paint.Style.STROKE
-        canvas.drawRect(rect, selectedPaint)
-
-    }
+//
+//    override fun isTouchingObject(e: MotionEvent): Boolean {
+//       val rect = if(triangle.fp.y < line.start.y){
+//            RectF(triangle.fp.x-(sideLength/2)-5,triangle.fp.y-sideLength-5,line.start.x+(sideLength/2)+5,line.start.y+5)
+//        }else{
+//            RectF(line.start.x-(sideLength/2)-5,line.start.y-5,triangle.fp.x+(sideLength/2)+5,triangle.fp.y+(sideLength/2)+5)
+//        }
+//        return rect.contains(e.x, e.y)
+//    }
+//
+//    override fun drawSelectedBox(canvas: Canvas) {
+//        val rect = if(triangle.fp.y < line.start.y){
+//            RectF(triangle.fp.x-(sideLength/2)-5,triangle.fp.y-(sideLength/2)-5,line.start.x+(sideLength/2)+5,line.start.y+5)
+//        }else{
+//            RectF(line.start.x-(sideLength/2)-5,line.start.y-5,triangle.fp.x+(sideLength/2)+5,triangle.fp.y+(sideLength/2)+5)
+//        }
+//        val selectedPaint = Paint()
+//        selectedPaint.pathEffect = DashPathEffect(FloatArray(10), 5f)
+//        selectedPaint.style = Paint.Style.STROKE
+//        canvas.drawRect(rect, selectedPaint)
+//    }
 }
