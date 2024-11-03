@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.media.MediaScannerConnection
 import android.os.Environment
@@ -15,8 +16,8 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import com.joory.whiteboard_pro.shapes.Arrow
 import com.joory.whiteboard_pro.shapes.Brush
@@ -27,11 +28,11 @@ import com.joory.whiteboard_pro.shapes.Select
 import com.joory.whiteboard_pro.shapes.Shape
 import com.joory.whiteboard_pro.shapes.Shapes
 import com.joory.whiteboard_pro.shapes.Texts
-import com.joory.whiteboard_pro.shapes.Triangle
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.time.LocalDateTime
+import kotlin.math.min
 
 
 class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
@@ -46,8 +47,9 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     var tool: Shapes = Shapes.Brush
     var tools = ArrayMap<Shapes, Shape>()
     private var colorBG: Int = Color.WHITE
-    private lateinit var bitmap: Bitmap
-    private var imgBG: Bitmap? = null
+    private val myMatrix = Matrix()
+    private var imgBGh: Bitmap? = null
+    private var imgBGv: Bitmap? = null
     lateinit var dialog: Dialog
     var objectIndex: Int? = null
     private var example: Shape? = null
@@ -102,7 +104,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                     setTextDialog()
                 }
 
-                if (tool in arrayOf(Shapes.Text,Shapes.Circle,Shapes.Rect) ) {
+                if (tool in arrayOf(Shapes.Text, Shapes.Circle, Shapes.Rect)) {
                     objectIndex = draws.indexOf(draws.last())
                     myMain.selectedItemButton()
                     invalidate()
@@ -139,20 +141,49 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     fun setColorBackground(color: Int) {
         colorBG = color
-        imgBG = null
+        imgBGv = null
+        imgBGh = null
         invalidate()
     }
 
-    fun setImageBackground(img: InputStream) {
-        bitmap = BitmapFactory.decodeStream(img)
-        imgBG = Bitmap.createScaledBitmap(bitmap, width, height, true)
+    fun setImageBackground(img: InputStream, oren: Int) {
+        val bitmap = BitmapFactory.decodeStream(img)!!
+        myMatrix.setRotate(oren.toFloat())
+        val theWidth = if (oren > 0 && oren != 180) bitmap.height else bitmap.width
+        val theHeight = if (oren > 0 && oren != 180) bitmap.width else bitmap.height
+        if (theWidth > theHeight) {
+            imgBGv = null
+            val scale = min(width.toFloat() / bitmap.width, height.toFloat() / bitmap.height)
+            myMatrix.postScale(scale, scale)
+            myMatrix.postTranslate(0f, (height.toFloat() - bitmap.height * scale) / 2)
+            imgBGh = Bitmap.createBitmap(bitmap)
+        } else {
+            imgBGh = null
+            imgBGv = Bitmap.createScaledBitmap(
+                Bitmap.createBitmap(
+                    bitmap,
+                    0,
+                    0,
+                    bitmap.width,
+                    bitmap.height,
+                    myMatrix,
+                    true
+                ),
+                width, height, true
+            )
+        }
+
         invalidate()
     }
+
 
     private fun setBG(canvas: Canvas) {
         canvas.drawColor(colorBG)
-        if (imgBG != null) {
-            canvas.drawBitmap(imgBG!!, 0f, 0f, null)
+        if (imgBGh != null) {
+            canvas.drawBitmap(imgBGh!!, myMatrix, null)
+        }
+        if (imgBGv != null) {
+            canvas.drawBitmap(imgBGv!!, 0f, 0f, null)
         }
     }
 
@@ -194,7 +225,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         dialog.create()
         dialog.show()
         val text = dialog.findViewById<EditText>(R.id.theText)
-        dialog.findViewById<Button>(R.id.button).setOnClickListener {
+        dialog.findViewById<ImageView>(R.id.addText).setOnClickListener {
             draws.last().text = text.text.toString()
             invalidate()
             dialog.dismiss()
@@ -268,4 +299,5 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
             invalidate()
         }
     }
+
 }

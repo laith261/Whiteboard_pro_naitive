@@ -1,9 +1,9 @@
 package com.joory.whiteboard_pro
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
 import android.graphics.Paint
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
@@ -14,11 +14,11 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.github.dhaval2404.imagepicker.ImagePicker
+import androidx.exifinterface.media.ExifInterface
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
@@ -107,6 +107,7 @@ class MainActivity : AppCompatActivity() {
     private fun deleteItem() {
         deleteButton.setOnClickListener {
             canvas.deleteItem()
+            doButtonsAlpha()
             selectedItemButton()
         }
     }
@@ -263,6 +264,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun objectColorSet(color: Int) {
         canvas.getCanvasPaint().color = color
+        canvas.paint.color = color
         canvas.invalidate()
     }
 
@@ -323,7 +325,7 @@ class MainActivity : AppCompatActivity() {
     private fun colorsDialog(func: (input: Int) -> Unit) {
         val dialog = com.abhishek.colorpicker.ColorPickerDialog()
         dialog.setOnOkCancelListener { isOk, color ->
-            if (isOk){
+            if (isOk) {
                 func(color)
             }
         }
@@ -331,35 +333,38 @@ class MainActivity : AppCompatActivity() {
     }
 
     // pick image
+    @SuppressLint("InlinedApi")
     private fun pickImg() {
         findViewById<ImageButton>(R.id.imgbg).setOnClickListener((View.OnClickListener {
-            ImagePicker.with(this)
-                .galleryOnly()    //User can only select image from Gallery
-                .createIntent { intent ->
-                    startForProfileImageResult.launch(intent)
-                }
+            startForProfileImageResult.launch(
+                PickVisualMediaRequest.Builder()
+                    .setMediaType(PickVisualMedia.ImageOnly)
+                    .build()
+            )
         }))
     }
 
+    private fun normalizeImageForUri(file: InputStream): Int {
+        val exif = ExifInterface(file)
+        return exif.rotationDegrees
+    }
+
+
     private val startForProfileImageResult =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            val resultCode = result.resultCode
-            val data = result.data!!
-            when (resultCode) {
-                Activity.RESULT_OK -> {
-                    val imgs: InputStream? = contentResolver.openInputStream(data.data!!)
-                    canvas.setImageBackground(imgs!!)
-                }
-
-                ImagePicker.RESULT_ERROR -> {
-                    Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
-                }
-
-                else -> {
+        registerForActivityResult(PickVisualMedia()) { result: Uri? ->
+            if (result != null) {
+                val fileStream: InputStream? = contentResolver.openInputStream(result)
+                if (fileStream != null) {
+                    val oren = normalizeImageForUri(fileStream)
+                    canvas.setImageBackground(contentResolver.openInputStream(result)!!, oren)
+                } else {
                     Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
                 }
+            } else {
+                Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
             }
         }
+
 
     private fun bottomSheet(layout: Int) {
         myDialog.setContentView(layoutInflater.inflate(layout, null))
@@ -433,8 +438,9 @@ class MainActivity : AppCompatActivity() {
         deleteButton.visibility = if (canvas.objectIndex != null) View.VISIBLE else View.GONE
         duplicateButton.visibility = if (canvas.objectIndex != null) View.VISIBLE else View.GONE
     }
-     fun doButtonsAlpha(){
-        undoButton.alpha=if(canvas.draws.isEmpty()) 0.5F else 1F
-        redoButton.alpha=if(canvas.undo.isEmpty()) 0.5F else 1F
+
+    fun doButtonsAlpha() {
+        undoButton.alpha = if (canvas.draws.isEmpty()) 0.5F else 1F
+        redoButton.alpha = if (canvas.undo.isEmpty()) 0.5F else 1F
     }
 }
