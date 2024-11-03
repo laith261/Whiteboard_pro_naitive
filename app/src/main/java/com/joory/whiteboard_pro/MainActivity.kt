@@ -236,22 +236,14 @@ class MainActivity : AppCompatActivity() {
     // change style
     private fun changeStyle() {
         styleButton.setOnClickListener((View.OnClickListener {
-            canvas.getCanvasPaint().style =
-                if (canvas.getCanvasPaint().style == Paint.Style.STROKE) Paint.Style.FILL else Paint.Style.STROKE
-            canvas.invalidate()
+            canvas.changeStyle()
         }))
     }
 
     // clear canvas
     private fun clearCanvas() {
         findViewById<ImageButton>(R.id.clear).setOnClickListener((View.OnClickListener {
-            canvas.undo.clear()
-            canvas.undo.addAll(canvas.draws)
-            canvas.draws.clear()
-            canvas.objectIndex = null
-            doButtonsAlpha()
-            selectedItemButton()
-            canvas.invalidate()
+            canvas.clearCanvas()
         }))
     }
 
@@ -263,9 +255,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun objectColorSet(color: Int) {
-        canvas.getCanvasPaint().color = color
-        canvas.paint.color = color
-        canvas.invalidate()
+       canvas.objectColorSet(color)
     }
 
     // set background colorBg

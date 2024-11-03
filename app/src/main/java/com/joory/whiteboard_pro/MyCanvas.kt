@@ -300,4 +300,28 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         }
     }
 
+    fun clearCanvas() {
+        undo.clear()
+        undo.addAll(draws)
+        draws.clear()
+        objectIndex = null
+        myMain.doButtonsAlpha()
+        myMain.selectedItemButton()
+        imgBGh=null
+        imgBGv=null
+        invalidate()
+    }
+
+    fun changeStyle() {
+        getCanvasPaint().style =
+            if (getCanvasPaint().style == Paint.Style.STROKE) Paint.Style.FILL else Paint.Style.STROKE
+        invalidate()
+    }
+
+    fun objectColorSet(color: Int) {
+        getCanvasPaint().color = color
+        paint.color = color
+        invalidate()
+    }
+
 }
