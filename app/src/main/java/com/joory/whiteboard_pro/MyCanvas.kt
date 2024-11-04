@@ -47,9 +47,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     var tool: Shapes = Shapes.Brush
     var tools = ArrayMap<Shapes, Shape>()
     private var colorBG: Int = Color.WHITE
-    private val myMatrix = Matrix()
-    private var imgBGh: Bitmap? = null
-    private var imgBGv: Bitmap? = null
+    private var imgBG: Bitmap? = null
     lateinit var dialog: Dialog
     var objectIndex: Int? = null
     private var example: Shape? = null
@@ -141,49 +139,44 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     fun setColorBackground(color: Int) {
         colorBG = color
-        imgBGv = null
-        imgBGh = null
+        imgBG = null
         invalidate()
     }
 
     fun setImageBackground(img: InputStream, oren: Int) {
         val bitmap = BitmapFactory.decodeStream(img)!!
+        val myMatrix = Matrix()
         myMatrix.setRotate(oren.toFloat())
         val theWidth = if (oren > 0 && oren != 180) bitmap.height else bitmap.width
         val theHeight = if (oren > 0 && oren != 180) bitmap.width else bitmap.height
+
         if (theWidth > theHeight) {
-            imgBGv = null
-            val scale = min(width.toFloat() / bitmap.width, height.toFloat() / bitmap.height)
-            myMatrix.postScale(scale, scale)
-            myMatrix.postTranslate(0f, (height.toFloat() - bitmap.height * scale) / 2)
-            imgBGh = Bitmap.createBitmap(bitmap)
-        } else {
-            imgBGh = null
-            imgBGv = Bitmap.createScaledBitmap(
-                Bitmap.createBitmap(
-                    bitmap,
-                    0,
-                    0,
-                    bitmap.width,
-                    bitmap.height,
-                    myMatrix,
-                    true
-                ),
-                width, height, true
+        val widthAspict=width/theHeight.toFloat()
+            imgBG=Bitmap.createScaledBitmap(
+                Bitmap.createBitmap(bitmap,0,0,
+                    bitmap.width,bitmap.height,
+                    myMatrix,true
+                )
+                , width, (height-(theHeight*widthAspict)).toInt(),true
+            )
+        }else{
+        val heightAspict=height/theWidth.toFloat()
+            imgBG=Bitmap.createScaledBitmap(
+                Bitmap.createBitmap(bitmap,0,0,
+                    bitmap.width,bitmap.height,
+                    myMatrix,true
+                )
+                , (width-(theWidth*heightAspict)).toInt(),height,true
             )
         }
-
         invalidate()
     }
 
 
     private fun setBG(canvas: Canvas) {
         canvas.drawColor(colorBG)
-        if (imgBGh != null) {
-            canvas.drawBitmap(imgBGh!!, myMatrix, null)
-        }
-        if (imgBGv != null) {
-            canvas.drawBitmap(imgBGv!!, 0f, 0f, null)
+        if(imgBG!=null){
+        canvas.drawBitmap(imgBG!!,0f,0f,null)
         }
     }
 
@@ -307,8 +300,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         objectIndex = null
         myMain.doButtonsAlpha()
         myMain.selectedItemButton()
-        imgBGh=null
-        imgBGv=null
+        imgBG=null
         invalidate()
     }
 
