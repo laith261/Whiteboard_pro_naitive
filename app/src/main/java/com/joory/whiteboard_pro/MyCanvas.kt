@@ -149,18 +149,24 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         myMatrix.setRotate(oren.toFloat())
         val theWidth = if (oren > 0 && oren != 180) bitmap.height else bitmap.width
         val theHeight = if (oren > 0 && oren != 180) bitmap.width else bitmap.height
+
         if (theWidth > theHeight) {
-        val widthAspict=theHeight/imgWidth
-            imgBG=Bitmap.create(
-                bitmap,0,0,
-            width,(imgWidth*widthAspict),
-            myMatrix,null
+        val widthAspict=width/theHeight.toFloat()
+            imgBG=Bitmap.createScaledBitmap(
+                Bitmap.createBitmap(bitmap,0,0,
+                    bitmap.width,bitmap.height,
+                    myMatrix,true
+                )
+                , width, (height-(theHeight*widthAspict)).toInt(),true
             )
         }else{
-        val heightAspict=imgWidth/height
-            imgBG=Bitmap.create(bitmap,0,0,
-            (height*widthAspict),height,
-            myMatrix,null
+        val heightAspict=height/theWidth.toFloat()
+            imgBG=Bitmap.createScaledBitmap(
+                Bitmap.createBitmap(bitmap,0,0,
+                    bitmap.width,bitmap.height,
+                    myMatrix,true
+                )
+                , (width-(theWidth*heightAspict)).toInt(),height,true
             )
         }
         invalidate()
@@ -170,7 +176,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     private fun setBG(canvas: Canvas) {
         canvas.drawColor(colorBG)
         if(imgBG!=null){
-        canvas.drawBitmap(imgBG)
+        canvas.drawBitmap(imgBG!!,0f,0f,null)
         }
     }
 
