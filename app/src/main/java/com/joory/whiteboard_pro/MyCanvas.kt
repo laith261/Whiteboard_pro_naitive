@@ -32,7 +32,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.time.LocalDateTime
-import kotlin.math.min
 
 
 class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
@@ -151,22 +150,23 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         val theHeight = if (oren > 0 && oren != 180) bitmap.width else bitmap.height
 
         if (theWidth > theHeight) {
-        val widthAspict=width/theHeight.toFloat()
+        val widthAspect=width/theHeight.toFloat()
             imgBG=Bitmap.createScaledBitmap(
                 Bitmap.createBitmap(bitmap,0,0,
                     bitmap.width,bitmap.height,
                     myMatrix,true
                 )
-                , width, (height-(theHeight*widthAspict)).toInt(),true
+                , width, (height-(theHeight*widthAspect)).toInt(),true
             )
         }else{
-        val heightAspict=height/theWidth.toFloat()
+            myMatrix.postScale(-1f,1f)
+        val heightAspect=height/theWidth.toFloat()
             imgBG=Bitmap.createScaledBitmap(
                 Bitmap.createBitmap(bitmap,0,0,
                     bitmap.width,bitmap.height,
                     myMatrix,true
                 )
-                , (width-(theWidth*heightAspict)).toInt(),height,true
+                , (width-(theWidth*heightAspect)).toInt(),height,true
             )
         }
         invalidate()

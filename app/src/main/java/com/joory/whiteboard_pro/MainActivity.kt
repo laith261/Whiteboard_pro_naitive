@@ -334,7 +334,7 @@ class MainActivity : AppCompatActivity() {
         }))
     }
 
-    private fun normalizeImageForUri(file: InputStream): Int {
+    private fun theOren(file: InputStream): Int {
         val exif = ExifInterface(file)
         return exif.rotationDegrees
     }
@@ -345,7 +345,7 @@ class MainActivity : AppCompatActivity() {
             if (result != null) {
                 val fileStream: InputStream? = contentResolver.openInputStream(result)
                 if (fileStream != null) {
-                    val oren = normalizeImageForUri(fileStream)
+                    val oren = theOren(fileStream)
                     canvas.setImageBackground(contentResolver.openInputStream(result)!!, oren)
                 } else {
                     Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
