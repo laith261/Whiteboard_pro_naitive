@@ -41,6 +41,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         strokeWidth = 5f
         color = Color.BLACK
         style = Paint.Style.FILL
+        textSize=50f
     }
     var undo = ArrayList<Shape>()
     var tool: Shapes = Shapes.Brush
@@ -101,7 +102,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                     setTextDialog()
                 }
 
-                if (tool in arrayOf(Shapes.Text, Shapes.Circle, Shapes.Rect)) {
+                if (tool in arrayOf(Shapes.Circle, Shapes.Rect)) {
                     objectIndex = draws.indexOf(draws.last())
                     myMain.selectedItemButton()
                     invalidate()
@@ -150,23 +151,22 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         val theHeight = if (oren > 0 && oren != 180) bitmap.width else bitmap.height
 
         if (theWidth > theHeight) {
-        val widthAspect=width/theHeight.toFloat()
+        val widthAspect=theHeight.toFloat()/theWidth
             imgBG=Bitmap.createScaledBitmap(
                 Bitmap.createBitmap(bitmap,0,0,
                     bitmap.width,bitmap.height,
                     myMatrix,true
                 )
-                , width, (height-(theHeight*widthAspect)).toInt(),true
+                , width, (width*widthAspect).toInt(),true
             )
         }else{
-            myMatrix.postScale(-1f,1f)
-        val heightAspect=height/theWidth.toFloat()
+        val heightAspect=theWidth.toFloat()/theHeight
             imgBG=Bitmap.createScaledBitmap(
                 Bitmap.createBitmap(bitmap,0,0,
                     bitmap.width,bitmap.height,
                     myMatrix,true
                 )
-                , (width-(theWidth*heightAspect)).toInt(),height,true
+                , (height*heightAspect).toInt(),height,true
             )
         }
         invalidate()
@@ -176,7 +176,9 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     private fun setBG(canvas: Canvas) {
         canvas.drawColor(colorBG)
         if(imgBG!=null){
-        canvas.drawBitmap(imgBG!!,0f,0f,null)
+            val left=(width-imgBG!!.width)/2
+            val top=(height-imgBG!!.height)/2
+        canvas.drawBitmap(imgBG!!,left.toFloat(),top.toFloat(),null)
         }
     }
 
@@ -219,7 +221,11 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         dialog.show()
         val text = dialog.findViewById<EditText>(R.id.theText)
         dialog.findViewById<ImageView>(R.id.addText).setOnClickListener {
-            draws.last().text = text.text.toString()
+            if (text.text.isNotEmpty()) {
+                draws.last().text = text.text.toString()
+                objectIndex=draws.indexOf(draws.last())
+                myMain.selectedItemButton()
+            }
             invalidate()
             dialog.dismiss()
         }
@@ -307,6 +313,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     fun changeStyle() {
         getCanvasPaint().style =
             if (getCanvasPaint().style == Paint.Style.STROKE) Paint.Style.FILL else Paint.Style.STROKE
+        myMain.hideButtons()
         invalidate()
     }
 

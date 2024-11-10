@@ -16,13 +16,13 @@ class Texts : Shape {
     private var point = PointF(0f, 0f)
     override var sideLength: Float = 0.0f
 
-    @RequiresApi(Build.VERSION_CODES.Q)
+
     override fun draw(canvas: Canvas) {
         canvas.drawText(text, point.x, point.y, paint)
     }
 
     override fun create(e: MotionEvent): Shape {
-        paint.textSize = 50f
+        paint.textSize=50f
         point = PointF(e.x, e.y)
         return this
     }
@@ -30,7 +30,6 @@ class Texts : Shape {
     override fun updateObject(paint: Paint?) {
         if (paint != null) {
             this.paint.color = paint.color
-            this.paint.style = paint.style
             this.paint.textSize = paint.textSize
         }
     }
@@ -44,8 +43,6 @@ class Texts : Shape {
         val rect = Rect()
         paint.getTextBounds(text, 0, text.length, rect)
         rect.offsetTo(point.x.toInt(), point.y.toInt() - rect.height())
-        Log.i("touchin", "${rect.left} ${rect.top} ${rect.right} ${rect.bottom} ")
-        Log.i("isTouching", rect.contains(e.x.toInt(), e.y.toInt()).toString())
         return rect.contains(e.x.toInt(), e.y.toInt())
     }
 
