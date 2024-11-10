@@ -125,7 +125,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<ImageButton>(R.id.textSize).setOnClickListener {
             bottomSheet(R.layout.size_dailog)
             val title = myDialog.findViewById<TextView>(R.id.title)
-            title.text = "Text Size"
+            title.text = R.string.text_size
             val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
             seek.max = 100
             seek.min = 25
@@ -161,7 +161,7 @@ class MainActivity : AppCompatActivity() {
             bottomSheet(R.layout.size_dailog)
 
             val title = myDialog.findViewById<TextView>(R.id.title)
-            title.text = "Stroke Width"
+            title.text = R.string.stroke_width
             val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
             seek.progress = canvas.getCanvasPaint().strokeWidth.toInt()
             seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity() {
         sideLength.setOnClickListener {
             bottomSheet(R.layout.size_dailog)
             val title = myDialog.findViewById<TextView>(R.id.title)
-            title.text = "Side Length"
+            title.text = R.string.arrow_side
             val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
             seek.min = 100
             seek.max = 300

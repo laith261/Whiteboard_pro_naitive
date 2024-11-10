@@ -25,7 +25,7 @@
             android:layout_height="50dp"
             android:layout_weight="1"
             android:ems="10"
-            android:hint="TEXT"
+            android:hint="@string/text_size"
             android:inputType="textPersonName"
             android:visibility="visible"
             tools:ignore="SpeakableTextPresentCheck" />
