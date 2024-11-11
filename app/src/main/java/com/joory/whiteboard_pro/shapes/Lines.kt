@@ -107,7 +107,7 @@ class Lines : Shape {
     }
 
     override fun move(e: MotionEvent) {
-        start = PointF(e.x, e.y)
+        start = PointF(e.x-(dist.x/2), e.y-(dist.y/2))
         end = PointF(start.x + dist.x, start.y + dist.y)
     }
 }

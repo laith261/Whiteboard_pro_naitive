@@ -55,6 +55,8 @@ class Rects : Shape {
     }
 
     override fun move(e: MotionEvent) {
-        rect.offsetTo(e.x, e.y)
+        var Thewidth=rect.right-rect.left
+        var Theheight=rect.bottom-rect.top
+        rect.offsetTo(e.x-(Thewidth/2), e.y-(Theheight/2))
     }
 }

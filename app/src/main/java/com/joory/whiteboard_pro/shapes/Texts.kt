@@ -59,6 +59,10 @@ class Texts : Shape {
     }
 
     override fun move(e: MotionEvent) {
-        point = PointF(e.x, e.y)
+        val rect = Rect()
+        paint.getTextBounds(text, 0, text.length, rect)
+        var Thewidth=rect.right-rect.left
+        var Theheight=rect.bottom-rect.top
+        point = PointF(e.x-(Thewidth/2), e.y-(Theheight/2))
     }
 }
