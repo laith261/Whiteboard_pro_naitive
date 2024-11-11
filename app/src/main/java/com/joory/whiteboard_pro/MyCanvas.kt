@@ -311,8 +311,11 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     }
 
     fun changeStyle() {
-        getCanvasPaint().style =
-            if (getCanvasPaint().style == Paint.Style.STROKE) Paint.Style.FILL else Paint.Style.STROKE
+        val style=if (getCanvasPaint().style == Paint.Style.STROKE) Paint.Style.FILL else Paint.Style.STROKE
+        paint.style =style
+        if (objectIndex!=null){
+            draws[objectIndex!!].paint.style=style
+        }
         myMain.hideButtons()
         invalidate()
     }
