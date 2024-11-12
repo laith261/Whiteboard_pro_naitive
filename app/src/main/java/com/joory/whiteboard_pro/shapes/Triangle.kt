@@ -1,12 +1,9 @@
 package com.joory.whiteboard_pro.shapes
 
 import android.graphics.Canvas
-import android.graphics.DashPathEffect
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
-import android.graphics.RectF
-import android.util.Log
 import android.view.MotionEvent
 import java.lang.Math.toDegrees
 import java.lang.Math.toRadians
@@ -42,7 +39,7 @@ class Triangle : Shape {
         triangle = ATriangle(e.x, e.y, sideLength, fp)
     }
 
-//     override fun isTouchingObject(e: MotionEvent): Boolean {
+    //     override fun isTouchingObject(e: MotionEvent): Boolean {
 //        val rect= RectF(triangle.cp.x-(sideLength/2),triangle.cp.y-(sideLength/2),triangle.cp.x+(sideLength/2),triangle.cp.y+(sideLength/2))
 //        return rect.contains(e.x, e.y)
 //    }
@@ -86,7 +83,7 @@ class Triangle : Shape {
             path.close()
         }
 
-         fun rotate(point: PointF): PointF {
+        private fun rotate(point: PointF): PointF {
             val s = kotlin.math.sin(toRadians(angle.toDouble())).toFloat()
             val c = kotlin.math.cos(toRadians(angle.toDouble())).toFloat()
             point.x -= cp.x

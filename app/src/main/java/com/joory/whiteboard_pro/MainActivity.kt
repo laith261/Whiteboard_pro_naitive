@@ -13,14 +13,15 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.exifinterface.media.ExifInterface
+import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
@@ -54,20 +55,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sideLength: ImageButton
     private lateinit var badgeDrawable: BadgeDrawable
     private var mInterstitialAd: InterstitialAd? = null
-    var mainHandler = android.os.Handler(Looper.getMainLooper())
-    val r=Runnable {
-            override fun run() {
-                showAds()
-            }
-        }
+    private var mainHandler = android.os.Handler(Looper.getMainLooper())
+    private val showAdDelay = Runnable {
+        showAds()
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId", "UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        
-        // varbales declear
+
+        // variables declare
         weakActivity = WeakReference<MainActivity>(this)
         val adView = findViewById<AdView>(R.id.adView)
         val adRequest = AdRequest.Builder().build()
@@ -263,7 +262,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun objectColorSet(color: Int) {
-       canvas.objectColorSet(color)
+        canvas.objectColorSet(color)
     }
 
     // set background colorBg
@@ -355,11 +354,7 @@ class MainActivity : AppCompatActivity() {
                 if (fileStream != null) {
                     val oren = theOren(fileStream)
                     canvas.setImageBackground(contentResolver.openInputStream(result)!!, oren)
-                } else {
-                    Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
                 }
-            } else {
-                Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -419,39 +414,34 @@ class MainActivity : AppCompatActivity() {
 
     fun showAds() {
         if (mInterstitialAd != null) {
-            mInterstitialAd.setFullScreenContentCallback(FullScreenContentCallback(){
-  @Override
-  public void onAdClicked() {}
+            mInterstitialAd!!.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdClicked() {}
 
-  @Override
-  public void onAdDismissedFullScreenContent() {
-    mInterstitialAd = null;
-    loadFullScreenAd()
-  }
+                override fun onAdDismissedFullScreenContent() {
+                    mInterstitialAd = null
+                    loadFullScreenAd()
+                }
 
-  @Override
-  public void onAdFailedToShowFullScreenContent(AdError adError) {
-    mInterstitialAd = null;
-    loadFullScreenAd()
-  }
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    mInterstitialAd = null
+                    loadFullScreenAd()
+                }
 
-  @Override
-  public void onAdImpression() {}
+                override fun onAdImpression() {}
 
-  @Override
-  public void onAdShowedFullScreenContent() {}
-});
+                override fun onAdShowedFullScreenContent() {}
+            }
             mInterstitialAd?.show(this)
         }
         loadFullScreenAd()
     }
 
     private fun showAdInterval() {
-        mainHandler.postDelayed(object : r,1000 * 60 * 3)
+        mainHandler.postDelayed(showAdDelay, 1000 * 60 * 3)
     }
 
-    private fun resetAdInterval(){
-        mainHandler.removeCallBacks(r)
+    private fun resetAdInterval() {
+        mainHandler.removeCallbacks(showAdDelay)
         showAdInterval()
     }
 

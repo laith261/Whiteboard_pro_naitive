@@ -31,13 +31,13 @@ interface Shape {
 
     }
 
-    fun updateSideLength(length:Float){
-        sideLength=length
+    fun updateSideLength(length: Float) {
+        sideLength = length
     }
 
     fun deepCopy(): Shape {
         val JSON = Gson().toJson(this)
-        var item = Gson().fromJson(JSON, this::class.java)
+        val item = Gson().fromJson(JSON, this::class.java)
         item.paint.set(this.paint)
         return item
     }
