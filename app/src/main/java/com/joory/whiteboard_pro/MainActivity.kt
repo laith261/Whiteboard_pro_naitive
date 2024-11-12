@@ -54,13 +54,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sideLength: ImageButton
     private lateinit var badgeDrawable: BadgeDrawable
     private var mInterstitialAd: InterstitialAd? = null
-    val mainHandler = android.os.Handler(Looper.getMainLooper())
+    var mainHandler = android.os.Handler(Looper.getMainLooper())
+    val r=Runnable {
+            override fun run() {
+                showAds()
+            }
+        }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId", "UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        
+        // varbales declear
         weakActivity = WeakReference<MainActivity>(this)
         val adView = findViewById<AdView>(R.id.adView)
         val adRequest = AdRequest.Builder().build()
@@ -79,10 +86,11 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
         deleteButton = findViewById(R.id.delete)
         duplicateButton = findViewById(R.id.duplicate)
+
+        // functions
+        loadFullScreenAd()
         backgroundColor()
-        showAdInterval()
         duplicateItem()
-        fullScreenAd()
         hideButtons()
         toolsDialog()
         changeStyle()
@@ -392,36 +400,59 @@ class MainActivity : AppCompatActivity() {
 //        BadgeUtils.attachBadgeDrawable(badgeDrawable, myDialog.findViewById(new))
 //    }
 
-    private fun fullScreenAd() {
+    private fun loadFullScreenAd() {
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(
             this, "ca-app-pub-1226999690478326/5310835378", adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(interstitialAd: InterstitialAd) {
                     mInterstitialAd = interstitialAd
+                    resetAdInterval()
                 }
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                     mInterstitialAd = null
-                    fullScreenAd()
+                    loadFullScreenAd()
                 }
             })
     }
 
     fun showAds() {
         if (mInterstitialAd != null) {
+            mInterstitialAd.setFullScreenContentCallback(FullScreenContentCallback(){
+  @Override
+  public void onAdClicked() {}
+
+  @Override
+  public void onAdDismissedFullScreenContent() {
+    mInterstitialAd = null;
+    loadFullScreenAd()
+  }
+
+  @Override
+  public void onAdFailedToShowFullScreenContent(AdError adError) {
+    mInterstitialAd = null;
+    loadFullScreenAd()
+  }
+
+  @Override
+  public void onAdImpression() {}
+
+  @Override
+  public void onAdShowedFullScreenContent() {}
+});
             mInterstitialAd?.show(this)
         }
-        fullScreenAd()
+        loadFullScreenAd()
     }
 
     private fun showAdInterval() {
-        mainHandler.post(object : Runnable {
-            override fun run() {
-                showAds()
-                mainHandler.postDelayed(this, 1000 * 60 * 3)
-            }
-        })
+        mainHandler.postDelayed(object : r,1000 * 60 * 3)
+    }
+
+    private fun resetAdInterval(){
+        mainHandler.removeCallBacks(r)
+        showAdInterval()
     }
 
     fun selectedItemButton() {
