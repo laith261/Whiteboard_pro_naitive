@@ -89,9 +89,10 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
             }
 
             MotionEvent.ACTION_MOVE -> {
-                if (objectIndex == null) {
+                if (objectIndex == null && tool != Shapes.Select) {
                     draws.last().update(e)
-                } else {
+                } 
+                if(objectIndex != null) {
                     draws[objectIndex!!].move(e)
                 }
                 invalidate()
@@ -102,7 +103,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                     setTextDialog()
                 }
 
-                if (tool in arrayOf(Shapes.Circle, Shapes.Rect)) {
+                if (tool in arrayOf(Shapes.Circle, Shapes.Rect,Shapes.Line)) {
                     objectIndex = draws.indexOf(draws.last())
                     myMain.selectedItemButton()
                     invalidate()
@@ -241,8 +242,8 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 return true
             }
         }
-        myMain.selectedItemButton()
         objectIndex = null
+        myMain.selectedItemButton()
         invalidate()
         return false
     }
