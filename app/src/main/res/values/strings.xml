@@ -4,4 +4,5 @@
     <string name="text_size">Text Size</string>
     <string name="arrow_side">Arrow Side Length</string>
     <string name="text_hint">Type Here</string>
+    <string name="image_saved">image Saved</string>
 </resources>

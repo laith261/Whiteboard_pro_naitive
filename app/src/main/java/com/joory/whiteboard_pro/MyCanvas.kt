@@ -13,7 +13,6 @@ import android.media.MediaScannerConnection
 import android.os.Environment
 import android.util.ArrayMap
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.EditText
@@ -50,6 +49,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     private var imgBG: Bitmap? = null
     lateinit var dialog: Dialog
     var objectIndex: Int? = null
+    var tmpObjectIndex: Int? = null
     private var example: Shape? = null
     var sideLength: Float = 100f
 
@@ -253,6 +253,11 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     @SuppressLint("SdCardPath", "NewApi")
     fun saveImage() {
+        if(objectIndex!=null){
+            tmpObjectIndex=objectIndex
+            objectIndex=null
+            invalidate()
+        }
         val bitmap = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         this.draw(canvas)
@@ -271,7 +276,12 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
             newFile.flush()
             newFile.close()
             myMain.showAds()
-            Toast.makeText(this.context, "image Saved", Toast.LENGTH_SHORT).show()
+            if(tmpObjectIndex!=null){
+            objectIndex=tmpObjectIndex
+            tmpObjectIndex=null
+            invalidate()
+        }
+            Toast.makeText(this.context, resresources.getText(R.string.image_saved), Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -292,9 +302,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     fun duplicateItem() {
         if (objectIndex != null) {
-            Log.i("count1", draws.count().toString())
             draws.add(draws[objectIndex!!].deepCopy())
-            Log.i("count2", draws.count().toString())
             invalidate()
         }
     }

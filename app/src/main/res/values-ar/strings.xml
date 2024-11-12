@@ -4,4 +4,5 @@
     <string name="text_size">حجم النص</string>
     <string name="arrow_side">طول ضلع المثلث</string>
     <string name="text_hint">اكتب هنا</string>
+    <string name="image_saved">تم حفظ الصورة</string>
 </resources>
