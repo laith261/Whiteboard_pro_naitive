@@ -35,42 +35,43 @@ import java.time.LocalDateTime
 
 class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     private lateinit var myMain: MainActivity
+    private var tmpObjectIndex: Int? = null
+    private var colorBG: Int = Color.WHITE
+    var tools = ArrayMap<Shapes, Shape>()
+    private var example: Shape? = null
+    private var imgBG: Bitmap? = null
+    var tool: Shapes = Shapes.Brush
     var draws = ArrayList<Shape>()
+    var undo = ArrayList<Shape>()
+    var objectIndex: Int? = null
+    var sideLength: Float = 100f
+    lateinit var dialog: Dialog
+    
     var paint: Paint = Paint().apply {
-        strokeWidth = 5f
-        color = Color.BLACK
         style = Paint.Style.FILL
+        color = Color.BLACK
+        strokeWidth = 5f
         textSize = 50f
     }
-    var undo = ArrayList<Shape>()
-    var tool: Shapes = Shapes.Brush
-    var tools = ArrayMap<Shapes, Shape>()
-    private var colorBG: Int = Color.WHITE
-    private var imgBG: Bitmap? = null
-    lateinit var dialog: Dialog
-    var objectIndex: Int? = null
-    private var tmpObjectIndex: Int? = null
-    private var example: Shape? = null
-    var sideLength: Float = 100f
 
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
-        tools[Shapes.Rect] = Rects()
-        tools[Shapes.Arrow] = Arrow()
-        tools[Shapes.Circle] = Circle()
-        tools[Shapes.Line] = Lines()
-        tools[Shapes.Brush] = Brush()
-        tools[Shapes.Select] = Select()
-        tools[Shapes.Text] = Texts()
-//        tools[Shapes.Triangle] = Triangle()
         myMain = MainActivity.getmInstanceActivity()!!
+        tools[Shapes.Circle] = Circle()
+        tools[Shapes.Select] = Select()
+        tools[Shapes.Arrow] = Arrow()
+        tools[Shapes.Brush] = Brush()
+        tools[Shapes.Text] = Texts()
+        tools[Shapes.Rect] = Rects()
+        tools[Shapes.Line] = Lines()
+//        tools[Shapes.Triangle] = Triangle()
+
+        // functions
+        startDrawing(canvas)
         setBG(canvas)
-        newDrawing(canvas)
-        if (objectIndex != null) {
-            drawSelectedBox(canvas)
-        }
     }
 
+    // the touching events 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(e: MotionEvent?): Boolean {
         when (e!!.action) {
@@ -114,144 +115,63 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         return true
     }
 
-    private fun isTouchingSameObject(e: MotionEvent): Boolean {
-        if (objectIndex == null) return false
-        for (i in draws.reversed()) {
-            if (i.isTouchingObject(e)) {
-                if (objectIndex == draws.indexOf(i)) {
-                    return true
-                }
-            }
+
+// finished functions
+
+// set object color
+fun objectColorSet(color: Int) {
+        getCanvasPaint().color = color
+        paint.color = color
+        invalidate()
+    }
+
+    // set object style
+    fun changeStyle() {
+        val style =
+            if (getCanvasPaint().style == Paint.Style.STROKE) Paint.Style.FILL else Paint.Style.STROKE
+        paint.style = style
+        if (objectIndex != null) {
+            draws[objectIndex!!].paint.style = style
         }
-        return false
+        myMain.hideButtons()
+        invalidate()
     }
 
-    private fun newDrawing(canvas: Canvas) {
-        for (i in draws) {
-            i.draw(canvas)
-        }
-        example?.draw(canvas)
-    }
-
-    private fun updateStyle() {
-        draws.last().updateObject(paint)
-        draws.last().updateSideLength(sideLength)
-    }
-
-    fun setColorBackground(color: Int) {
-        colorBG = color
+    // clear canvas
+        fun clearCanvas() {
+        undo.clear()
+        undo.addAll(draws)
+        draws.clear()
+        objectIndex = null
+        myMain.doButtonsAlpha()
+        myMain.selectedItemButton()
         imgBG = null
         invalidate()
     }
 
-    fun setImageBackground(img: InputStream, oren: Int) {
-        val bitmap = BitmapFactory.decodeStream(img)!!
-        val myMatrix = Matrix()
-        myMatrix.setRotate(oren.toFloat())
-        val theWidth = if (oren > 0 && oren != 180) bitmap.height else bitmap.width
-        val theHeight = if (oren > 0 && oren != 180) bitmap.width else bitmap.height
-
-        if (theWidth > theHeight) {
-            val widthAspect = theHeight.toFloat() / theWidth
-            imgBG = Bitmap.createScaledBitmap(
-                Bitmap.createBitmap(
-                    bitmap, 0, 0,
-                    bitmap.width, bitmap.height,
-                    myMatrix, true
-                ), width, (width * widthAspect).toInt(), true
-            )
-        } else {
-            val heightAspect = theWidth.toFloat() / theHeight
-            imgBG = Bitmap.createScaledBitmap(
-                Bitmap.createBitmap(
-                    bitmap, 0, 0,
-                    bitmap.width, bitmap.height,
-                    myMatrix, true
-                ), (height * heightAspect).toInt(), height, true
-            )
-        }
-        invalidate()
-    }
-
-
-    private fun setBG(canvas: Canvas) {
-        canvas.drawColor(colorBG)
-        if (imgBG != null) {
-            val left = (width - imgBG!!.width) / 2
-            val top = (height - imgBG!!.height) / 2
-            canvas.drawBitmap(imgBG!!, left.toFloat(), top.toFloat(), null)
+    // duplicate object
+        fun duplicateItem() {
+        if (objectIndex != null) {
+            draws.add(draws[objectIndex!!].deepCopy())
+            invalidate()
         }
     }
 
-    fun undo() {
-        if (draws.isNotEmpty()) {
-            undo.add(draws.last())
-            draws.remove(draws.last())
+    // delect object
+        fun deleteItem() {
+        if (objectIndex != null) {
+            undo.add(draws[objectIndex!!])
+            draws.removeAt(objectIndex!!)
             objectIndex = null
             invalidate()
         }
     }
-
-    fun redo() {
-        if (undo.isNotEmpty()) {
-            draws.add(undo.last())
-            undo.remove(draws.last())
-            invalidate()
-        }
+    // select get paint
+    fun getCanvasPaint(): Paint {
+        return if (objectIndex != null) draws[objectIndex!!].paint else paint
     }
 
-    fun createExample(width: Int, height: Int) {
-        example = Lines().example(width, height)
-    }
-
-    fun updateExample() {
-        if (example != null) {
-            example!!.updateObject(paint.apply { color = Color.BLACK })
-            invalidate()
-        }
-    }
-
-    fun removeExample() {
-        example = null
-        invalidate()
-    }
-
-    private fun setTextDialog() {
-        dialog.setContentView(R.layout.text_dialog)
-        dialog.create()
-        dialog.show()
-        val text = dialog.findViewById<EditText>(R.id.theText)
-        dialog.findViewById<ImageView>(R.id.addText).setOnClickListener {
-            if (text.text.isNotEmpty()) {
-                draws.last().text = text.text.toString()
-                objectIndex = draws.indexOf(draws.last())
-                myMain.selectedItemButton()
-            }
-            invalidate()
-            dialog.dismiss()
-        }
-    }
-
-    private fun checkObjectTouching(e: MotionEvent): Boolean {
-        for (i in draws.reversed()) {
-            if (i.isTouchingObject(e)) {
-                objectIndex = draws.indexOf(i)
-                myMain.selectedItemButton()
-                myMain.hideButtons()
-                invalidate()
-                return true
-            }
-        }
-        objectIndex = null
-        myMain.selectedItemButton()
-        invalidate()
-        return false
-    }
-
-    private fun drawSelectedBox(canvas: Canvas) {
-        draws[objectIndex!!].drawSelectedBox(canvas)
-    }
-
+    // save image
     @SuppressLint("SdCardPath", "NewApi")
     fun saveImage() {
         if (objectIndex != null) {
@@ -292,52 +212,152 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         }
     }
 
-    fun deleteItem() {
-        if (objectIndex != null) {
-            undo.add(draws[objectIndex!!])
-            draws.removeAt(objectIndex!!)
+    // check is touchinge the same selected object
+    private fun isTouchingSameObject(e: MotionEvent): Boolean {
+        if (objectIndex == null) return false
+        for (i in draws.reversed()) {
+            if (i.isTouchingObject(e)) {
+                if (objectIndex == draws.indexOf(i)) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    // is the user touching an object
+        private fun checkObjectTouching(e: MotionEvent): Boolean {
+        for (i in draws.reversed()) {
+            if (i.isTouchingObject(e)) {
+                objectIndex = draws.indexOf(i)
+                myMain.selectedItemButton()
+                myMain.hideButtons()
+                invalidate()
+                return true
+            }
+        }
+        objectIndex = null
+        myMain.selectedItemButton()
+        invalidate()
+        return false
+    }
+
+    // text dialog
+        private fun setTextDialog() {
+        dialog.setContentView(R.layout.text_dialog)
+        dialog.create()
+        dialog.show()
+        val text = dialog.findViewById<EditText>(R.id.theText)
+        dialog.findViewById<ImageView>(R.id.addText).setOnClickListener {
+            if (text.text.isNotEmpty()) {
+                draws.last().text = text.text.toString()
+                objectIndex = draws.indexOf(draws.last())
+                myMain.selectedItemButton()
+            }
+            invalidate()
+            dialog.dismiss()
+        }
+    }
+
+    // set background
+        private fun setBG(canvas: Canvas) {
+        canvas.drawColor(colorBG)
+        if (imgBG != null) {
+            val left = (width - imgBG!!.width) / 2
+            val top = (height - imgBG!!.height) / 2
+            canvas.drawBitmap(imgBG!!, left.toFloat(), top.toFloat(), null)
+        }
+    }
+
+    // preper color background
+    fun setColorBackground(color: Int) {
+        colorBG = color
+        imgBG = null
+        invalidate()
+    }
+
+    // preper image background
+    fun setImageBackground(img: InputStream, oren: Int) {
+        val bitmap = BitmapFactory.decodeStream(img)!!
+        val myMatrix = Matrix()
+        myMatrix.setRotate(oren.toFloat())
+        val theWidth = if (oren > 0 && oren != 180) bitmap.height else bitmap.width
+        val theHeight = if (oren > 0 && oren != 180) bitmap.width else bitmap.height
+
+        if (theWidth > theHeight) {
+            val widthAspect = theHeight.toFloat() / theWidth
+            imgBG = Bitmap.createScaledBitmap(
+                Bitmap.createBitmap(
+                    bitmap, 0, 0,
+                    bitmap.width, bitmap.height,
+                    myMatrix, true
+                ), width, (width * widthAspect).toInt(), true
+            )
+        } else {
+            val heightAspect = theWidth.toFloat() / theHeight
+            imgBG = Bitmap.createScaledBitmap(
+                Bitmap.createBitmap(
+                    bitmap, 0, 0,
+                    bitmap.width, bitmap.height,
+                    myMatrix, true
+                ), (height * heightAspect).toInt(), height, true
+            )
+        }
+        invalidate()
+    }
+
+    // undo action
+    fun undo() {
+        if (draws.isNotEmpty()) {
+            undo.add(draws.last())
+            draws.remove(draws.last())
             objectIndex = null
             invalidate()
         }
     }
 
-    fun getCanvasPaint(): Paint {
-        return if (objectIndex != null) draws[objectIndex!!].paint else paint
-    }
-
-    fun duplicateItem() {
-        if (objectIndex != null) {
-            draws.add(draws[objectIndex!!].deepCopy())
+    // redo action
+    fun redo() {
+        if (undo.isNotEmpty()) {
+            draws.add(undo.last())
+            undo.remove(draws.last())
             invalidate()
         }
     }
 
-    fun clearCanvas() {
-        undo.clear()
-        undo.addAll(draws)
-        draws.clear()
-        objectIndex = null
-        myMain.doButtonsAlpha()
-        myMain.selectedItemButton()
-        imgBG = null
-        invalidate()
+    // create example
+    fun createExample(width: Int, height: Int) {
+        example = Lines().example(width, height)
     }
 
-    fun changeStyle() {
-        val style =
-            if (getCanvasPaint().style == Paint.Style.STROKE) Paint.Style.FILL else Paint.Style.STROKE
-        paint.style = style
-        if (objectIndex != null) {
-            draws[objectIndex!!].paint.style = style
+    // update example
+    fun updateExample() {
+        if (example != null) {
+            example!!.updateObject(paint.apply { color = Color.BLACK })
+            invalidate()
         }
-        myMain.hideButtons()
+    }
+
+    // remove example
+    fun removeExample() {
+        example = null
         invalidate()
     }
 
-    fun objectColorSet(color: Int) {
-        getCanvasPaint().color = color
-        paint.color = color
-        invalidate()
+    // update object paint
+    private fun updateStyle() {
+        draws.last().updateObject(paint)
+        draws.last().updateSideLength(sideLength)
     }
 
+    // drwe the objects
+    private fun startDrawing(canvas: Canvas) {
+        for (shape in draws) {
+            shape.draw(canvas)
+        }
+        if (objectIndex != null) {
+        draws[objectIndex!!].drawSelectedBox(canvas)
+        }
+        example?.draw(canvas)
+    }
 }
