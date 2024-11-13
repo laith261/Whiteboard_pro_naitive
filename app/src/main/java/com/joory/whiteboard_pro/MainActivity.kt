@@ -56,9 +56,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var badgeDrawable: BadgeDrawable
     private var mInterstitialAd: InterstitialAd? = null
     private var mainHandler = android.os.Handler(Looper.getMainLooper())
-    private val showAdDelay = Runnable {
-        showAds()
-    }
+    private val showAdDelay = Runnable { showAds() }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId", "UseCompatLoadingForDrawables")
@@ -87,7 +85,7 @@ class MainActivity : AppCompatActivity() {
         duplicateButton = findViewById(R.id.duplicate)
 
         // functions
-        loadFullScreenAd()
+//        loadFullScreenAd()
         backgroundColor()
         duplicateItem()
         hideButtons()
@@ -105,25 +103,24 @@ class MainActivity : AppCompatActivity() {
         redo()
     }
 
-   
 
     fun hideButtons() {
-        // declear buttons
+        // declare buttons
         val textSizeButton = findViewById<ImageButton>(R.id.textSize)
         val strokeButton = findViewById<ImageButton>(R.id.strokewidth)
 
-        // declear lists
-        var arrowSizeList = arrayOf(Shapes.Arrow /*, canvas.tool == Shapes.Triangle*/)
-        var strokeWidthList = arrayOf(Shapes.Text,Shapes.Select)
-        var styleList = arrayOf(Shapes.Rect,Shapes.Circle,Shapes.Arrow)
+        // declare lists
+        val arrowSizeList = arrayOf(Shapes.Arrow /*, canvas.tool == Shapes.Triangle*/)
+        val strokeWidthList = arrayOf(Shapes.Text, Shapes.Select)
+        val styleList = arrayOf(Shapes.Rect, Shapes.Circle, Shapes.Arrow)
 
         // set the state
         styleButton.setImageResource(if (canvas.getCanvasPaint().style != Paint.Style.STROKE) R.drawable.shapes else R.drawable.shapes_white)
-        sideLength.visibility = if (canvas.tool in arrowSizeList ) View.VISIBLE else View.GONE
-        strokeButton.visibility = if (canvas.tool !in strokeWidthList ) View.VISIBLE else View.GONE
-        textSizeButton.visibility =if (canvas.tool == Shapes.Text) View.VISIBLE else View.GONE
-        styleButton.visibility = if (canvas.tool in styleList) View.VISIBLE else View.GONE  
-        
+        sideLength.visibility = if (canvas.tool in arrowSizeList) View.VISIBLE else View.GONE
+        strokeButton.visibility = if (canvas.tool !in strokeWidthList) View.VISIBLE else View.GONE
+        textSizeButton.visibility = if (canvas.tool == Shapes.Text) View.VISIBLE else View.GONE
+        styleButton.visibility = if (canvas.tool in styleList) View.VISIBLE else View.GONE
+
         if (canvas.tool == Shapes.Select && canvas.objectIndex != null) {
             strokeButton.visibility =
                 if (canvas.draws[canvas.objectIndex!!]::class == Texts()::class) View.GONE else View.VISIBLE
@@ -146,7 +143,7 @@ class MainActivity : AppCompatActivity() {
 
     // finished functions 
 
-        // duplicate object
+    // duplicate object
     private fun duplicateItem() {
         duplicateButton.setOnClickListener {
             canvas.duplicateItem()
@@ -170,10 +167,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     // show action button for selected object
-        fun selectedItemButton() {
+    fun selectedItemButton() {
         deleteButton.visibility = if (canvas.objectIndex != null) View.VISIBLE else View.GONE
         duplicateButton.visibility = if (canvas.objectIndex != null) View.VISIBLE else View.GONE
     }
+
     // change opacity of undo and redo buttons
     fun doButtonsAlpha() {
         undoButton.alpha = if (canvas.draws.isEmpty()) 0.5F else 1F
@@ -181,7 +179,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // full screen ads load
-        private fun loadFullScreenAd() {
+    private fun loadFullScreenAd() {
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(
             this, "ca-app-pub-1226999690478326/5310835378", adRequest,
@@ -235,12 +233,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     // show bottom sheet dialog
-        private fun bottomSheet(layout: Int) {
+    private fun bottomSheet(layout: Int) {
         myDialog.setContentView(layoutInflater.inflate(layout, null))
         myDialog.show()
     }
 
-        // pick image
+    // pick image
     @SuppressLint("InlinedApi")
     private fun pickImg() {
         findViewById<ImageButton>(R.id.imgbg).setOnClickListener((View.OnClickListener {
@@ -264,20 +262,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // check image rotation
-        private fun theOren(file: InputStream): Int {
+    // check image rotation
+    private fun theOren(file: InputStream): Int {
         val exif = ExifInterface(file)
         return exif.rotationDegrees
     }
 
-        // undo action
+    // undo action
     private fun undo() {
         undoButton.setOnClickListener {
             canvas.undo()
             doButtonsAlpha()
         }
     }
-    
+
     // undo action
     private fun redo() {
         redoButton.setOnClickListener {
@@ -285,7 +283,7 @@ class MainActivity : AppCompatActivity() {
             doButtonsAlpha()
         }
     }
-    
+
     // pick color Dialog 
     private fun colorsDialog(func: (input: Int) -> Unit) {
         val dialog = com.abhishek.colorpicker.ColorPickerDialog()
@@ -296,7 +294,8 @@ class MainActivity : AppCompatActivity() {
         }
         dialog.show(supportFragmentManager)
     }
-        // show tools dialog
+
+    // show tools dialog
     private fun toolsDialog() {
         findViewById<ImageButton>(R.id.tools).setOnClickListener((View.OnClickListener {
             bottomSheet(R.layout.tools_dailog)
@@ -312,7 +311,7 @@ class MainActivity : AppCompatActivity() {
         }))
     }
 
-        // set tool for drawing
+    // set tool for drawing
     private fun choseTool(theShape: Shapes, id: Int) {
         myDialog.findViewById<ImageView>(id).setOnClickListener {
             canvas.objectIndex = null
@@ -324,7 +323,8 @@ class MainActivity : AppCompatActivity() {
             myDialog.dismiss()
         }
     }
-      // change paint
+
+    // change paint
     private fun changeStyle() {
         styleButton.setOnClickListener((View.OnClickListener {
             canvas.changeStyle()
@@ -402,7 +402,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-     // change border width
+    // change border width
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     fun strokeWidth() {
         findViewById<ImageButton>(R.id.strokewidth).setOnClickListener {
@@ -441,7 +441,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-     // set text size
+    // set text size
     @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     private fun textSize() {
