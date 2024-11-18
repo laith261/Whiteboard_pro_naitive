@@ -1,7 +1,9 @@
 package com.joory.whiteboard_pro
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.pm.PackageManager
 import android.graphics.Paint
 import android.net.Uri
 import android.os.Build
@@ -17,6 +19,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -85,6 +89,7 @@ class MainActivity : AppCompatActivity() {
         duplicateButton = findViewById(R.id.duplicate)
 
         // functions
+        hasWriteStoragePermission()
 //        loadFullScreenAd()
         backgroundColor()
         duplicateItem()
@@ -473,6 +478,22 @@ class MainActivity : AppCompatActivity() {
 
                 }
             })
+        }
+    }
+
+    private fun hasWriteStoragePermission() {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_DENIED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    101
+                )
+            }
         }
     }
 

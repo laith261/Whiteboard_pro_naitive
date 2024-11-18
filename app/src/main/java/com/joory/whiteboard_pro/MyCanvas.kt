@@ -258,10 +258,12 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         val bitmap = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         this.draw(canvas)
-
-        val file = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                .toString() + "/" + LocalDateTime.now().toString().replace(":", ".") + ".png"
+        val imagePath=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+            .toString() + "/Whiteboard/"
+        if(!File(imagePath).exists()){
+            File(imagePath).mkdirs()
+        }
+        val file = File(imagePath + LocalDateTime.now().toString().replace(":", ".") + ".png"
         )
         val newFile = FileOutputStream(file)
         try {
