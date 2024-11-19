@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity() {
 
         // functions
         hasWriteStoragePermission()
-//        loadFullScreenAd()
+        loadFullScreenAd()
         backgroundColor()
         duplicateItem()
         hideButtons()
