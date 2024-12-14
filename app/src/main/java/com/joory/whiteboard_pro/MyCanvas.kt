@@ -127,7 +127,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         for (i in draws) {
             i.draw(canvas)
         }
-        if (objectIndex!=null){
+        if (objectIndex != null) {
             draws[objectIndex!!].drawSelectedBox(canvas)
         }
         example?.draw(canvas)
@@ -258,12 +258,14 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         val bitmap = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         this.draw(canvas)
-        val imagePath=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-            .toString() + "/Whiteboard/"
-        if(!File(imagePath).exists()){
+        val imagePath =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                .toString() + "/Whiteboard/"
+        if (!File(imagePath).exists()) {
             File(imagePath).mkdirs()
         }
-        val file = File(imagePath + LocalDateTime.now().toString().replace(":", ".") + ".png"
+        val file = File(
+            imagePath + LocalDateTime.now().toString().replace(":", ".") + ".png"
         )
         val newFile = FileOutputStream(file)
         try {
@@ -322,7 +324,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     }
 
     fun changeStyle() {
-        val isFill=getCanvasPaint().style == Paint.Style.STROKE
+        val isFill = getCanvasPaint().style == Paint.Style.STROKE
         val style = if (isFill) Paint.Style.FILL else Paint.Style.STROKE
         paint.style = style
         if (objectIndex != null) {

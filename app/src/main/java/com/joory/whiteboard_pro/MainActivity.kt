@@ -3,12 +3,14 @@ package com.joory.whiteboard_pro
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Paint
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
+import android.os.Parcelable
 import android.view.View
 import android.widget.HorizontalScrollView
 import android.widget.ImageButton
@@ -67,13 +69,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-when{
-intent?.action == Intent.ACTION_SEND -> {
-            if (intent.type?.startsWith("image/") == true) {
-                handleSendImage(intent) 
-            }
-        }
-}
         // variables declare
         weakActivity = WeakReference<MainActivity>(this)
         val adView = findViewById<AdView>(R.id.adView)
@@ -112,8 +107,25 @@ intent?.action == Intent.ACTION_SEND -> {
         pickImg()
         undo()
         redo()
+        when {
+            intent?.action == Intent.ACTION_SEND -> {
+                if (intent.type?.startsWith("image/") == true) {
+                    handleSendImage(intent)
+                }
+            }
+        }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        when {
+            intent.action == Intent.ACTION_SEND -> {
+                if (intent.type?.startsWith("image/") == true) {
+                    handleSendImage(intent)
+                }
+            }
+        }
+    }
 
     fun hideButtons() {
         // declare buttons
@@ -264,14 +276,18 @@ intent?.action == Intent.ACTION_SEND -> {
     // resolve the image
     private val startForProfileImageResult =
         registerForActivityResult(PickVisualMedia()) { result: Uri? ->
-            if (result != null) {
-                val fileStream: InputStream? = contentResolver.openInputStream(result)
-                if (fileStream != null) {
-                    val oren = theOren(fileStream)
-                    canvas.setImageBackground(contentResolver.openInputStream(result)!!, oren)
-                }
+            setImageBack(result)
+        }
+
+    private fun setImageBack(result: Uri?) {
+        if (result != null) {
+            val fileStream: InputStream? = contentResolver.openInputStream(result)
+            if (fileStream != null) {
+                val oren = theOren(fileStream)
+                canvas.setImageBackground(contentResolver.openInputStream(result)!!, oren)
             }
         }
+    }
 
     // check image rotation
     private fun theOren(file: InputStream): Int {
@@ -502,9 +518,10 @@ intent?.action == Intent.ACTION_SEND -> {
             }
         }
     }
-private fun handleSendImage(intent: Intent) {
-    (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
-        // Update UI to reflect image being shared
+
+    private fun handleSendImage(intent: Intent) {
+        (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
+            setImageBack(it)
+        }
     }
-}
 }
