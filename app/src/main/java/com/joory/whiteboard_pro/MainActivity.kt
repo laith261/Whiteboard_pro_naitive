@@ -67,7 +67,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+when{
+intent?.action == Intent.ACTION_SEND -> {
+            if (intent.type?.startsWith("image/") == true) {
+                handleSendImage(intent) 
+            }
+        }
+}
         // variables declare
         weakActivity = WeakReference<MainActivity>(this)
         val adView = findViewById<AdView>(R.id.adView)
@@ -496,5 +502,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
+private fun handleSendImage(intent: Intent) {
+    (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
+        // Update UI to reflect image being shared
+    }
+}
 }
