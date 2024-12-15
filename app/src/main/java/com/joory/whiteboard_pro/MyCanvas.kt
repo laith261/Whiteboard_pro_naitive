@@ -145,6 +145,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     }
 
     fun setImageBackground(img: InputStream, oren: Int) {
+        if(height>0 && width>0){
         val bitmap = BitmapFactory.decodeStream(img)!!
         val myMatrix = Matrix()
         myMatrix.setRotate(oren.toFloat())
@@ -171,6 +172,12 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
             )
         }
         invalidate()
+        }else{
+            lifecycleScope.launch {
+                delay(2000) 
+                setImageBackground(img, oren)
+                }
+        }
     }
 
 
