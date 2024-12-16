@@ -52,6 +52,8 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     private var tmpObjectIndex: Int? = null
     private var example: Shape? = null
     var sideLength: Float = 100f
+    private var file: InputStream? = null
+    private var oren: Int = 0
 
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
@@ -64,6 +66,9 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         tools[Shapes.Text] = Texts()
 //        tools[Shapes.Triangle] = Triangle()
         myMain = MainActivity.getmInstanceActivity()!!
+        if (file != null) {
+            setImageBackgroundProcess()
+        }
         setBG(canvas)
         startDrawing(canvas)
     }
@@ -145,8 +150,13 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     }
 
     fun setImageBackground(img: InputStream, oren: Int) {
-        if(height>0 && width>0){
-        val bitmap = BitmapFactory.decodeStream(img)!!
+        file = img
+        this.oren = oren
+        invalidate()
+    }
+
+    private fun setImageBackgroundProcess() {
+        val bitmap = BitmapFactory.decodeStream(file)!!
         val myMatrix = Matrix()
         myMatrix.setRotate(oren.toFloat())
         val theWidth = if (oren > 0 && oren != 180) bitmap.height else bitmap.width
@@ -171,15 +181,9 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 ), (height * heightAspect).toInt(), height, true
             )
         }
+        file = null
         invalidate()
-        }else{
-            lifecycleScope.launch {
-                delay(2000) 
-                setImageBackground(img, oren)
-                }
-        }
     }
-
 
     private fun setBG(canvas: Canvas) {
         canvas.drawColor(colorBG)
