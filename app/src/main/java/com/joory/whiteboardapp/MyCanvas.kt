@@ -1,4 +1,4 @@
-package com.joory.whiteboard_pro
+package com.joory.whiteboardapp
 
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -18,19 +18,21 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
-import com.joory.whiteboard_pro.shapes.Arrow
-import com.joory.whiteboard_pro.shapes.Brush
-import com.joory.whiteboard_pro.shapes.Circle
-import com.joory.whiteboard_pro.shapes.Lines
-import com.joory.whiteboard_pro.shapes.Rects
-import com.joory.whiteboard_pro.shapes.Select
-import com.joory.whiteboard_pro.shapes.Shape
-import com.joory.whiteboard_pro.shapes.Shapes
-import com.joory.whiteboard_pro.shapes.Texts
+import com.joory.whiteboardapp.shapes.Arrow
+import com.joory.whiteboardapp.shapes.Brush
+import com.joory.whiteboardapp.shapes.Circle
+import com.joory.whiteboardapp.shapes.Lines
+import com.joory.whiteboardapp.shapes.Rects
+import com.joory.whiteboardapp.shapes.Select
+import com.joory.whiteboardapp.shapes.Shape
+import com.joory.whiteboardapp.shapes.Shapes
+import com.joory.whiteboardapp.shapes.Texts
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.time.LocalDateTime
+import androidx.core.graphics.scale
+import androidx.core.graphics.createBitmap
 
 
 class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
@@ -155,6 +157,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         invalidate()
     }
 
+    @SuppressLint("UseKtx")
     private fun setImageBackgroundProcess() {
         val bitmap = BitmapFactory.decodeStream(file)!!
         val myMatrix = Matrix()
@@ -164,13 +167,11 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
         if (theWidth > theHeight) {
             val widthAspect = theHeight.toFloat() / theWidth
-            imgBG = Bitmap.createScaledBitmap(
-                Bitmap.createBitmap(
-                    bitmap, 0, 0,
-                    bitmap.width, bitmap.height,
-                    myMatrix, true
-                ), width, (width * widthAspect).toInt(), true
-            )
+            imgBG = Bitmap.createBitmap(
+                bitmap, 0, 0,
+                bitmap.width, bitmap.height,
+                myMatrix, true
+            ).scale(width, (width * widthAspect).toInt())
         } else {
             val heightAspect = theWidth.toFloat() / theHeight
             imgBG = Bitmap.createScaledBitmap(
@@ -266,7 +267,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
             objectIndex = null
             invalidate()
         }
-        val bitmap = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(this.width, this.height)
         val canvas = Canvas(bitmap)
         this.draw(canvas)
         val imagePath =

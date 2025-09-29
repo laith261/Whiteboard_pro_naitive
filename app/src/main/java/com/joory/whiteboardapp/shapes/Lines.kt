@@ -1,4 +1,4 @@
-package com.joory.whiteboard_pro.shapes
+package com.joory.whiteboardapp.shapes
 
 import android.graphics.Canvas
 import android.graphics.DashPathEffect
@@ -7,6 +7,7 @@ import android.graphics.PointF
 import android.graphics.RectF
 import android.view.MotionEvent
 import java.lang.Math.toDegrees
+import kotlin.math.atan2
 
 
 class Lines : Shape {
@@ -99,7 +100,7 @@ class Lines : Shape {
     private fun angle(): Float {
         val deltaX = start.x - end.x
         val deltaY = start.y - end.y
-        val theAngle = toDegrees(kotlin.math.atan2(deltaY.toDouble(), deltaX.toDouble())).toFloat()
+        val theAngle = toDegrees(atan2(deltaY.toDouble(), deltaX.toDouble())).toFloat()
         if (angle < 5) {
             return angle + 365
         }

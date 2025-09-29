@@ -1,4 +1,4 @@
-package com.joory.whiteboard_pro.shapes
+package com.joory.whiteboardapp.shapes
 
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -7,6 +7,9 @@ import android.graphics.PointF
 import android.view.MotionEvent
 import java.lang.Math.toDegrees
 import java.lang.Math.toRadians
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 class Triangle : Shape {
     override var sideLength = 150f
@@ -84,8 +87,8 @@ class Triangle : Shape {
         }
 
         private fun rotate(point: PointF): PointF {
-            val s = kotlin.math.sin(toRadians(angle.toDouble())).toFloat()
-            val c = kotlin.math.cos(toRadians(angle.toDouble())).toFloat()
+            val s = sin(toRadians(angle.toDouble())).toFloat()
+            val c = cos(toRadians(angle.toDouble())).toFloat()
             point.x -= cp.x
             point.y -= cp.y
             val xn = point.x * c - point.y * s
@@ -97,7 +100,7 @@ class Triangle : Shape {
             val deltaX = fp.x - cp.x
             val deltaY = fp.y - cp.y
             val theAngle =
-                toDegrees(kotlin.math.atan2(deltaY.toDouble(), deltaX.toDouble())).toFloat()
+                toDegrees(atan2(deltaY.toDouble(), deltaX.toDouble())).toFloat()
             angle = (theAngle.toDouble()).toFloat() - 90f
         }
     }

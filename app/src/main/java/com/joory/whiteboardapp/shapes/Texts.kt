@@ -1,4 +1,4 @@
-package com.joory.whiteboard_pro.shapes
+package com.joory.whiteboardapp.shapes
 
 import android.graphics.Canvas
 import android.graphics.DashPathEffect

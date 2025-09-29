@@ -1,4 +1,4 @@
-package com.joory.whiteboard_pro
+package com.joory.whiteboardapp
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.os.Looper
 import android.os.Parcelable
 import android.view.View
@@ -24,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface
+import com.abhishek.colorpicker.ColorPickerDialog
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
@@ -33,9 +35,9 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.material.badge.BadgeDrawable
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.joory.whiteboard_pro.shapes.Lines
-import com.joory.whiteboard_pro.shapes.Shapes
-import com.joory.whiteboard_pro.shapes.Texts
+import com.joory.whiteboardapp.shapes.Lines
+import com.joory.whiteboardapp.shapes.Shapes
+import com.joory.whiteboardapp.shapes.Texts
 import java.io.InputStream
 import java.lang.ref.WeakReference
 
@@ -61,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sideLength: ImageButton
     private lateinit var badgeDrawable: BadgeDrawable
     private var mInterstitialAd: InterstitialAd? = null
-    private var mainHandler = android.os.Handler(Looper.getMainLooper())
+    private var mainHandler = Handler(Looper.getMainLooper())
     private val showAdDelay = Runnable { showAds() }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -313,7 +315,7 @@ class MainActivity : AppCompatActivity() {
 
     // pick color Dialog 
     private fun colorsDialog(func: (input: Int) -> Unit) {
-        val dialog = com.abhishek.colorpicker.ColorPickerDialog()
+        val dialog = ColorPickerDialog()
         dialog.setOnOkCancelListener { isOk, color ->
             if (isOk) {
                 func(color)

@@ -1,4 +1,4 @@
-package com.joory.whiteboard_pro.shapes
+package com.joory.whiteboardapp.shapes
 
 enum class Shapes(shape: Shape) {
     Rect(Rects()),
