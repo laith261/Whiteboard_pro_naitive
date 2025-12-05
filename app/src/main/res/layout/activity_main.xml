@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -210,7 +211,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             ads:adSize="BANNER"
-            app:adUnitId="ca-app-pub-1226999690478326/7689081156" />
+            app:adUnitId="ca-app-pub-1226999690478326/1224157144" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
