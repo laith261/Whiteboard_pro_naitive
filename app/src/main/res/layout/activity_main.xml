@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
@@ -25,46 +25,54 @@
             android:paddingStart="10dp"
             android:paddingEnd="10dp">
 
-            <TextView
-                android:id="@+id/textView"
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:padding="5dp"
+                app:srcCompat="@mipmap/ic_launcher" />
+
+            <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/app_name"
-                android:textAlignment="textStart"
-                android:textColor="#FFFFFF"
-                android:textSize="20sp" />
+                android:layout_weight="1" />
 
-            <ImageView
-                android:id="@+id/duplicate"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:visibility="gone"
-                app:srcCompat="@drawable/duplicate" />
-
-            <ImageView
-                android:id="@+id/delete"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:visibility="gone"
-                app:srcCompat="@drawable/delete" />
 
             <ImageView
                 android:id="@+id/undo"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
                 android:alpha=".5"
-                app:srcCompat="@drawable/undo" />
+                app:srcCompat="@drawable/ic_undo" />
 
             <ImageView
                 android:id="@+id/redo"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
                 android:alpha=".5"
-                app:srcCompat="@drawable/redo" />
+                app:srcCompat="@drawable/ic_redo" />
+
+            <ImageButton
+                android:id="@+id/clear"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:background="#00FFFFFF"
+                android:padding="10dp"
+                android:scaleType="centerInside"
+                android:scaleX="1.5"
+                android:scaleY="1.5"
+                app:srcCompat="@drawable/ic_delete_outline" />
+
+            <ImageButton
+                android:id="@+id/save"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:background="#00FFFFFF"
+                android:padding="10dp"
+                android:scaleType="centerInside"
+                android:scaleX="1.5"
+                android:scaleY="1.6"
+                app:srcCompat="@drawable/ic_save" />
 
         </LinearLayout>
 
@@ -97,11 +105,24 @@
                         android:id="@+id/tools"
                         android:layout_width="72dp"
                         android:layout_height="match_parent"
+                        android:layout_weight="1"
                         android:background="#00FFFFFF"
                         android:contentDescription="TODO"
                         android:padding="10dp"
                         android:scaleType="centerInside"
-                        app:srcCompat="@drawable/stationery" />
+                        ads:srcCompat="@drawable/stationery" />
+
+
+
+                    <ImageButton
+                        android:id="@+id/crop"
+                        android:layout_width="72dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="#00FFFFFF"
+                        android:padding="10dp"
+                        android:scaleType="centerInside"
+                        ads:srcCompat="@drawable/crop" />
 
                     <ImageButton
                         android:id="@+id/color"
@@ -111,7 +132,9 @@
                         android:contentDescription="TODO"
                         android:padding="10dp"
                         android:scaleType="centerInside"
-                        app:srcCompat="@drawable/color" />
+                        android:scaleX="1.5"
+                        android:scaleY="1.5"
+                        app:srcCompat="@drawable/ic_color_lens" />
 
                     <ImageButton
                         android:id="@+id/style"
@@ -121,7 +144,7 @@
                         android:contentDescription="TODO"
                         android:padding="10dp"
                         android:scaleType="centerInside"
-                        app:srcCompat="@drawable/shapes_white" />
+                        ads:srcCompat="@drawable/style"/>
 
                     <ImageButton
                         android:id="@+id/strokewidth"
@@ -132,18 +155,9 @@
                         android:contentDescription="TODO"
                         android:padding="10dp"
                         android:scaleType="centerInside"
-                        app:srcCompat="@drawable/shrink" />
-
-                    <ImageButton
-                        android:id="@+id/sideLength"
-                        android:layout_width="72dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="#00FFFFFF"
-                        android:contentDescription="TODO"
-                        android:padding="10dp"
-                        android:scaleType="centerInside"
-                        app:srcCompat="@drawable/ruler" />
+                        android:scaleX="1.5"
+                        android:scaleY="1.5"
+                        app:srcCompat="@drawable/ic_line_weight" />
 
                     <ImageButton
                         android:id="@+id/textSize"
@@ -154,7 +168,9 @@
                         android:contentDescription="TODO"
                         android:padding="10dp"
                         android:scaleType="centerInside"
-                        app:srcCompat="@drawable/text_size" />
+                        android:scaleX="1.5"
+                        android:scaleY="1.5"
+                        ads:srcCompat="@drawable/ic_text_fields" />
 
                     <ImageButton
                         android:id="@+id/colorbg"
@@ -162,10 +178,11 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="#00FFFFFF"
-                        android:contentDescription="TODO"
                         android:padding="10dp"
                         android:scaleType="centerInside"
-                        app:srcCompat="@drawable/colorbg" />
+                        android:scaleX="1.5"
+                        android:scaleY="1.5"
+                        app:srcCompat="@drawable/ic_format_color_fill" />
 
                     <ImageButton
                         android:id="@+id/imgbg"
@@ -175,27 +192,7 @@
                         android:background="#00FFFFFF"
                         android:padding="10dp"
                         android:scaleType="centerInside"
-                        app:srcCompat="@drawable/imgbg" />
-
-                    <ImageButton
-                        android:id="@+id/clear"
-                        android:layout_width="72dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="#00FFFFFF"
-                        android:padding="10dp"
-                        android:scaleType="centerInside"
-                        app:srcCompat="@drawable/bin" />
-
-                    <ImageButton
-                        android:id="@+id/save"
-                        android:layout_width="72dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="#00FFFFFF"
-                        android:padding="10dp"
-                        android:scaleType="centerInside"
-                        app:srcCompat="@drawable/save" />
+                        app:srcCompat="@drawable/ic_image" />
 
                 </LinearLayout>
             </HorizontalScrollView>

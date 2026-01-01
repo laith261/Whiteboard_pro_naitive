@@ -1,14 +1,16 @@
 package com.joory.whiteboardapp.shapes
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.DashPathEffect
 import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.RectF
 import android.view.MotionEvent
+import androidx.core.graphics.toColorInt
+import androidx.core.graphics.withRotation
 import java.lang.Math.toDegrees
 import kotlin.math.atan2
-
 
 class Lines : Shape {
     override var paint = Paint()
@@ -19,8 +21,15 @@ class Lines : Shape {
     private var dist: PointF = PointF(0f, 0f)
     override var sideLength: Float = 0.0f
 
+    override var rotation: Float = 0f
+    private var dragOffsetX = 0f
+    private var dragOffsetY = 0f
+    override var shapeTools: MutableList<Tools> = mutableListOf(Tools.Style, Tools.Color)
+
     override fun draw(canvas: Canvas) {
-        canvas.drawLine(start.x, start.y, end.x, end.y, paint)
+        val cx = (start.x + end.x) / 2
+        val cy = (start.y + end.y) / 2
+        canvas.withRotation(rotation, cx, cy) { drawLine(start.x, start.y, end.x, end.y, paint) }
     }
 
     override fun updateObject(paint: Paint?) {
@@ -32,8 +41,11 @@ class Lines : Shape {
     }
 
     override fun create(e: MotionEvent): Shape {
-        start = PointF(e.x, e.y)
-        return this
+        val newLine = Lines()
+        newLine.start = PointF(e.x, e.y)
+        newLine.end = PointF(e.x, e.y) // Avoid 0,0 glitch
+        // newLine.paint.set(this.paint) // Removed
+        return newLine
     }
 
     override fun update(e: MotionEvent) {
@@ -45,25 +57,27 @@ class Lines : Shape {
 
     private fun getRectBorder(): RectF {
         val leftTop =
-            PointF(
-                if (end.x > start.x) start.x else end.x,
-                if (end.y > start.y) start.y else end.y
-            ).apply {
-                if (inSerine) {
-                    x -= 15
-                    y -= 15
-                }
-            }
+                PointF(
+                                if (end.x > start.x) start.x else end.x,
+                                if (end.y > start.y) start.y else end.y
+                        )
+                        .apply {
+                            if (inSerine) {
+                                x -= 15
+                                y -= 15
+                            }
+                        }
         val rightBottom =
-            PointF(
-                if (end.x < start.x) start.x else end.x,
-                if (end.y < start.y) start.y else end.y
-            ).apply {
-                if (inSerine) {
-                    x += 15
-                    y += 15
-                }
-            }
+                PointF(
+                                if (end.x < start.x) start.x else end.x,
+                                if (end.y < start.y) start.y else end.y
+                        )
+                        .apply {
+                            if (inSerine) {
+                                x += 15
+                                y += 15
+                            }
+                        }
         return RectF(leftTop.x, leftTop.y, rightBottom.x, rightBottom.y)
     }
 
@@ -84,17 +98,160 @@ class Lines : Shape {
     }
 
     override fun isTouchingObject(e: MotionEvent): Boolean {
+        val cx = (start.x + end.x) / 2
+        val cy = (start.y + end.y) / 2
+        val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
+
+        // Check if rotated point is near the unrotated line
+        // A simple way for expanded line check is using the rect border of the line
         val rect = getRectBorder()
-        return rect.contains(e.x, e.y)
+        return rect.contains(rotatedPoint.x, rotatedPoint.y)
     }
 
-    override fun drawSelectedBox(canvas: Canvas) {
+    override fun drawSelectedBox(canvas: Canvas, deleteBmp: Bitmap?, duplicateBmp: Bitmap?) {
         val rect = getRectBorder()
-        val selectedPaint = Paint()
-        selectedPaint.pathEffect = DashPathEffect(FloatArray(10), 5f)
-        selectedPaint.style = Paint.Style.STROKE
-        canvas.drawRect(rect, selectedPaint)
+        val cx = (start.x + end.x) / 2
+        val cy = (start.y + end.y) / 2
 
+        canvas.withRotation(rotation, cx, cy) {
+            val selectedPaint = Paint()
+            selectedPaint.pathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
+            selectedPaint.style = Paint.Style.STROKE
+            drawRect(rect, selectedPaint)
+
+            // Draw resize handle at the end point
+            selectedPaint.pathEffect = null
+            selectedPaint.style = Paint.Style.FILL
+            selectedPaint.color = android.graphics.Color.BLUE
+            drawCircle(end.x, end.y, 15f, selectedPaint)
+
+            // Draw rotate handle at the start point
+            selectedPaint.color = android.graphics.Color.RED
+            drawCircle(start.x, start.y, 15f, selectedPaint)
+
+            // Common paint for button backgrounds
+            val btnBgPaint = Paint()
+            btnBgPaint.color = "#5369e7".toColorInt()
+            btnBgPaint.style = Paint.Style.FILL
+
+            if (deleteBmp != null) {
+                drawCircle(rect.left, rect.top, 30f, btnBgPaint)
+                drawBitmap(deleteBmp, rect.left - 30, rect.top - 30, null)
+            }
+            if (duplicateBmp != null) {
+                drawCircle(rect.right, rect.top, 30f, btnBgPaint)
+                drawBitmap(duplicateBmp, rect.right - 30, rect.top - 30, null)
+            }
+        }
+    }
+
+    override fun isTouchingDelete(e: MotionEvent): Boolean {
+        val rect = getRectBorder()
+        val cx = (start.x + end.x) / 2
+        val cy = (start.y + end.y) / 2
+        val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
+
+        val btnX = rect.left
+        val btnY = rect.top
+        val dx = rotatedPoint.x - btnX
+        val dy = rotatedPoint.y - btnY
+        return (dx * dx + dy * dy) <= 2500
+    }
+
+    override fun isTouchingDuplicate(e: MotionEvent): Boolean {
+        val rect = getRectBorder()
+        val cx = (start.x + end.x) / 2
+        val cy = (start.y + end.y) / 2
+        val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
+
+        val btnX = rect.right
+        val btnY = rect.top
+        val dx = rotatedPoint.x - btnX
+        val dy = rotatedPoint.y - btnY
+        return (dx * dx + dy * dy) <= 2500
+    }
+
+    override fun isTouchingResize(e: MotionEvent): Boolean {
+        val cx = (start.x + end.x) / 2
+        val cy = (start.y + end.y) / 2
+        val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
+
+        val dx = rotatedPoint.x - end.x
+        val dy = rotatedPoint.y - end.y
+        return (dx * dx + dy * dy) <= 4900
+    }
+
+    override fun isTouchingRotate(e: MotionEvent): Boolean {
+        val cx = (start.x + end.x) / 2
+        val cy = (start.y + end.y) / 2
+        val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
+
+        val dx = rotatedPoint.x - start.x
+        val dy = rotatedPoint.y - start.y
+        return (dx * dx + dy * dy) <= 4900
+    }
+
+    override fun rotateShape(e: MotionEvent) {
+        val cx = (start.x + end.x) / 2
+        val cy = (start.y + end.y) / 2
+        val dx = e.x - cx
+        val dy = e.y - cy
+
+        // Use angle of start point relative to center as initial handle angle
+        val initialHandleAngle =
+                toDegrees(atan2((start.y - cy).toDouble(), (start.x - cx).toDouble())).toFloat()
+        val currentTouchAngle = toDegrees(atan2(dy.toDouble(), dx.toDouble())).toFloat()
+
+        rotation = currentTouchAngle - initialHandleAngle
+    }
+
+    override fun startMove(e: MotionEvent) {
+        dragOffsetX = e.x - start.x
+        dragOffsetY = e.y - start.y
+        dist = PointF(end.x - start.x, end.y - start.y)
+    }
+
+    private fun rotatePoint(point: PointF, center: PointF, angleDegrees: Float): PointF {
+        val rad = Math.toRadians(angleDegrees.toDouble())
+        val s = kotlin.math.sin(rad)
+        val c = kotlin.math.cos(rad)
+        val px = point.x - center.x
+        val py = point.y - center.y
+        val xnew = px * c - py * s
+        val ynew = px * s + py * c
+        return PointF((xnew + center.x).toFloat(), (ynew + center.y).toFloat())
+    }
+
+    override fun resize(e: MotionEvent) {
+        val cx = (start.x + end.x) / 2
+        val cy = (start.y + end.y) / 2
+        // Get touch point relative to unrotated coordinate system
+        val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
+
+        // Vector of the line
+        val dx = end.x - start.x
+        val dy = end.y - start.y
+        val lineLength = kotlin.math.sqrt(dx * dx + dy * dy)
+
+        // Normalize line vector
+        val ux = dx / lineLength
+        val uy = dy / lineLength
+
+        // Vector from start to touch point
+        val vx = rotatedPoint.x - start.x
+        val vy = rotatedPoint.y - start.y
+
+        // Project v onto u (dot product) to get distance along the line
+        val projection = vx * ux + vy * uy
+
+        // Update end point based on projection, constraining it to the line axis
+        // We enforce a minimum length of 10 to avoid flipping or zero length
+        val newLength = if (projection < 10) 10f else projection
+
+        end = PointF(start.x + ux * newLength, start.y + uy * newLength)
+
+        dist = PointF(end.x - start.x, end.y - start.y)
+        angle = angle()
     }
 
     private fun angle(): Float {
@@ -108,7 +265,7 @@ class Lines : Shape {
     }
 
     override fun move(e: MotionEvent) {
-        start = PointF(e.x - (dist.x / 2), e.y - (dist.y / 2))
+        start = PointF(e.x - dragOffsetX, e.y - dragOffsetY)
         end = PointF(start.x + dist.x, start.y + dist.y)
     }
 }

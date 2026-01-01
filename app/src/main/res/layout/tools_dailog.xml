@@ -2,85 +2,310 @@
 <androidx.gridlayout.widget.GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="250dp"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="5dp"
-    app:columnCount="2"
-    app:rowCount="3">
+    app:columnCount="2">
 
-    <ImageView
-        android:id="@+id/brush"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:scaleType="centerInside"
-        app:layout_columnWeight="1"
-        app:layout_rowWeight="1"
-        app:srcCompat="@drawable/brush" />
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="75dp"
+        applayout_gravity="center"
+        android:layout_margin="5dp"
+        app:layout_columnWeight="1">
 
-    <ImageView
-        android:id="@+id/rect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        app:layout_columnWeight="1"
-        app:layout_rowWeight="1"
-        app:srcCompat="@drawable/square_5853903" />
+        <ImageView
+            android:id="@+id/select"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:rotationY="180"
+            android:scaleX=".6"
+            android:scaleY=".6"
+            app:srcCompat="@drawable/select" />
 
-    <ImageView
-        android:id="@+id/circle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:scaleType="centerInside"
-        app:layout_columnWeight="1"
-        app:layout_rowWeight="1"
-        app:srcCompat="@drawable/circle_5853934" />
+        <ImageView
+            android:id="@+id/select_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="15dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/red_dot" />
+    </FrameLayout>
 
-    <ImageView
-        android:id="@+id/arrow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="18dp"
-        android:scaleType="centerInside"
-        app:layout_columnWeight="1"
-        app:layout_rowWeight="1"
-        app:srcCompat="@drawable/arrow" />
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="75dp"
+        applayout_gravity="center"
+        android:layout_margin="5dp"
+        app:layout_columnWeight="1">
 
-    <ImageView
-        android:id="@+id/line"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:scaleType="centerInside"
-        app:layout_columnWeight="1"
-        app:layout_rowWeight="1"
-        app:srcCompat="@drawable/compass_11546804" />
+        <ImageView
+            android:id="@+id/brush"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="15dp"
+            app:srcCompat="@drawable/brush" />
 
-    <ImageView
-        android:id="@+id/texts"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:cropToPadding="false"
-        android:scaleType="centerInside"
-        app:layout_columnWeight="1"
-        app:layout_rowWeight="1"
-        app:srcCompat="@drawable/text" />
+        <ImageView
+            android:id="@+id/brush_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="15dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/red_dot" />
+    </FrameLayout>
 
-    <ImageView
-        android:id="@+id/select"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_columnWeight="1"
-        app:layout_rowWeight="1"
-        app:srcCompat="@drawable/point__1_" />
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="75dp"
+        applayout_gravity="center"
+        android:layout_margin="5dp"
+        app:layout_columnWeight="1">
 
-    <ImageView
-        android:id="@+id/tringle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_columnWeight="1"
-        app:layout_rowWeight="1"
-        app:srcCompat="@drawable/tringle" />
+        <ImageView
+            android:id="@+id/rect"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="10dp"
+            app:srcCompat="@drawable/ic_square_shape" />
+
+        <ImageView
+            android:id="@+id/rect_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="15dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/red_dot" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="75dp"
+        applayout_gravity="center"
+        android:layout_margin="5dp"
+        app:layout_columnWeight="1">
+
+        <ImageView
+            android:id="@+id/circle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="15dp"
+            app:srcCompat="@drawable/ic_circle_shape" />
+
+        <ImageView
+            android:id="@+id/circle_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="15dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/red_dot" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="75dp"
+        applayout_gravity="center"
+        android:layout_margin="5dp"
+        app:layout_columnWeight="1">
+
+        <ImageView
+            android:id="@+id/arrow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="15dp"
+            android:rotation="45"
+            app:srcCompat="@drawable/arrow" />
+
+        <ImageView
+            android:id="@+id/arrow_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="15dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/red_dot" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="75dp"
+        applayout_gravity="center"
+        android:layout_margin="5dp"
+        app:layout_columnWeight="1">
+
+        <ImageView
+            android:id="@+id/line"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="10dp"
+            app:srcCompat="@drawable/line" />
+
+        <ImageView
+            android:id="@+id/line_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="15dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/red_dot" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="75dp"
+        applayout_gravity="center"
+        android:layout_margin="5dp"
+        app:layout_columnWeight="1">
+
+        <ImageView
+            android:id="@+id/texts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:cropToPadding="false"
+            android:scaleType="centerInside"
+            android:scaleX=".6"
+            android:scaleY=".6"
+            app:srcCompat="@drawable/t" />
+
+        <ImageView
+            android:id="@+id/texts_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="15dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/red_dot" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="75dp"
+        applayout_gravity="center"
+        android:layout_margin="5dp"
+        app:layout_columnWeight="1">
+
+        <ImageView
+            android:id="@+id/tringle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleX=".8"
+            android:scaleY=".8"
+            app:srcCompat="@drawable/ic_triangle_shape" />
+
+        <ImageView
+            android:id="@+id/tringle_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="15dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/red_dot" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="75dp"
+        applayout_gravity="center"
+        android:layout_margin="5dp"
+        app:layout_columnWeight="1">
+
+        <ImageView
+            android:id="@+id/star"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="5dp"
+            app:srcCompat="@drawable/ic_star"
+            app:tint="@color/black" />
+
+        <ImageView
+            android:id="@+id/star_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="15dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/red_dot" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="75dp"
+        applayout_gravity="center"
+        android:layout_margin="5dp"
+        app:layout_columnWeight="1">
+
+        <ImageView
+            android:id="@+id/hexagon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="5dp"
+            app:srcCompat="@drawable/ic_hexagon"
+            app:tint="@color/black" />
+
+        <ImageView
+            android:id="@+id/hexagon_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="15dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/red_dot" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="75dp"
+        applayout_gravity="center"
+        android:layout_margin="5dp"
+        app:layout_columnWeight="1">
+
+        <ImageView
+            android:id="@+id/eraser"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="10dp"
+            app:srcCompat="@drawable/eraser"
+            app:tint="@color/black" />
+
+        <ImageView
+            android:id="@+id/eraser_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="15dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/red_dot" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="75dp"
+        applayout_gravity="center"
+        android:layout_margin="5dp"
+        app:layout_columnWeight="1">
+
+        <ImageView
+            android:id="@+id/add_image_shape"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="10dp"
+            app:srcCompat="@drawable/outline_add_photo_alternate_24" />
+    </FrameLayout>
 
 </androidx.gridlayout.widget.GridLayout>

@@ -1,35 +1,73 @@
 package com.joory.whiteboardapp.shapes
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.view.MotionEvent
 import com.google.gson.Gson
+import com.joory.whiteboardapp.R
 
+enum class Tools(var buttonId: Int){
+    Style(R.id.style),
+    TextSize(R.id.textSize),
+    StrokeWidth(R.id.strokewidth),
+    Color(R.id.color),
+    Crop(R.id.crop),
+}
 interface Shape {
     var sideLength: Float
     var paint: Paint
+    var rotation: Float
+        get() = 0f
+        set(value) {
+            rotation = value
+        }
+
     var text: String
         get() = ""
-        set(value) = TODO()
+        set(value) {
+            text = value
+        }
+
+    // In your Shape interface
+    val shapeTools: MutableList<Tools>
+        get() = mutableListOf()
+
+
+    fun isTouchingRotate(e: MotionEvent): Boolean {
+        return false
+    }
+
+    fun isTouchingDelete(e: MotionEvent): Boolean {
+        return false
+    }
+
+    fun isTouchingDuplicate(e: MotionEvent): Boolean {
+        return false
+    }
+
+    fun rotateShape(e: MotionEvent) {}
 
     fun draw(canvas: Canvas)
     fun create(e: MotionEvent): Shape
     fun update(e: MotionEvent)
-    fun updateObject(paint: Paint? = null) {
-
-    }
+    fun updateObject(paint: Paint? = null) {}
 
     fun isTouchingObject(e: MotionEvent): Boolean {
         return false
     }
 
-    fun drawSelectedBox(canvas: Canvas) {
+    fun drawSelectedBox(canvas: Canvas, deleteBmp: Bitmap? = null, duplicateBmp: Bitmap? = null) {}
 
+    fun startMove(e: MotionEvent) {}
+
+    fun move(e: MotionEvent) {}
+
+    fun isTouchingResize(e: MotionEvent): Boolean {
+        return false
     }
 
-    fun move(e: MotionEvent) {
-
-    }
+    fun resize(e: MotionEvent) {}
 
     fun updateSideLength(length: Float) {
         sideLength = length

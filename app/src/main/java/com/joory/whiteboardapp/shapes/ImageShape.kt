@@ -10,53 +10,70 @@ import android.view.MotionEvent
 import androidx.core.graphics.toColorInt
 import androidx.core.graphics.withRotation
 
-class Rects : Shape {
+class ImageShape(var bitmap: Bitmap? = null) : Shape {
     override var paint = Paint()
-    private var start: PointF = PointF(0f, 0f)
-    private var end: PointF = PointF(0f, 0f)
-    private var rect = RectF(start.x, start.y, end.x, end.y)
+    private var rect = RectF() // Current bounds
     override var sideLength: Float = 0.0f
     override lateinit var text: String
     override var rotation: Float = 0f
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
-    override var shapeTools: MutableList<Tools> =
-            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+    override var shapeTools: MutableList<Tools> = mutableListOf(Tools.Crop)
+
+    init {
+        updateRectFromBitmap()
+    }
+
+    private fun updateRectFromBitmap() {
+        if (bitmap != null) {
+            // Default position (0,0) or we might want to center it later
+            if (rect.isEmpty) {
+                val aspectRatio = bitmap!!.height.toFloat() / bitmap!!.width.toFloat()
+                val w = 150f
+                val h = w * aspectRatio
+                rect.set(0f, 0f, w, h)
+            }
+        }
+    }
+
+    fun setBitmapAndInit(bmp: Bitmap, centerX: Float, centerY: Float) {
+        this.bitmap = bmp
+        val aspectRatio = bmp.height.toFloat() / bmp.width.toFloat()
+        val w = 350f
+        val h = w * aspectRatio
+        rect.set(centerX - w / 2, centerY - h / 2, centerX + w / 2, centerY + h / 2)
+    }
 
     override fun draw(canvas: Canvas) {
+        if (bitmap == null) return
         val cx = (rect.left + rect.right) / 2
         val cy = (rect.top + rect.bottom) / 2
+
         canvas.withRotation(rotation, cx, cy) {
-            drawRect(rect.left, rect.top, rect.right, rect.bottom, paint)
+            val destRect = RectF(rect)
+            // drawBitmap(bitmap, srcRect, destRect, paint)
+            // We use null for srcRect to use entire bitmap
+            canvas.drawBitmap(bitmap!!, null, destRect, paint)
         }
     }
 
     override fun updateObject(paint: Paint?) {
+        // Image doesn't really use paint color/style, but maybe alpha?
         if (paint != null) {
-            this.paint.color = paint.color
-            this.paint.strokeWidth = paint.strokeWidth
-            this.paint.style = paint.style
+            this.paint.alpha = paint.alpha
         }
-        rect =
-                if (start.x > end.x) {
-                    RectF(end.x, start.y, start.x, end.y)
-                } else {
-                    RectF(start.x, start.y, end.x, end.y)
-                }
     }
 
     override fun create(e: MotionEvent): Shape {
-        val newRect = Rects()
-        newRect.start = PointF(e.x, e.y)
-        newRect.end = PointF(e.x, e.y) // Initialize end to start to avoid 0,0 glitch
-        // Do NOT copy this.paint here. It's the prototype paint which is default.
-        // MyCanvas calls updateStyle() immediately after create(), which sets the correct paint.
-        return newRect
+        // This is called by MyCanvas if we selected the tool and touched.
+        // But for ImageShape, we likely add it programmatically.
+        // If we do support touch creation, we would need a bitmap.
+        // Returning this or copy.
+        return this
     }
 
     override fun update(e: MotionEvent) {
-        end = PointF(e.x, e.y)
-        updateObject()
+        // Drag to resize during creation? Not needed for now.
     }
 
     override fun isTouchingObject(e: MotionEvent): Boolean {
@@ -74,6 +91,8 @@ class Rects : Shape {
             val selectedPaint = Paint()
             selectedPaint.pathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
             selectedPaint.style = Paint.Style.STROKE
+            selectedPaint.color = android.graphics.Color.BLACK
+            selectedPaint.strokeWidth = 2f
             drawRect(rect, selectedPaint)
 
             // Draw resize handle
@@ -110,13 +129,11 @@ class Rects : Shape {
         val cy = (rect.top + rect.bottom) / 2
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
-        // Button center is approx (rect.left, rect.top) (offset by image size)
-        // Image drawn at left-30, top-30. Size 60x60. Center is left, top.
         val btnX = rect.left
         val btnY = rect.top
         val dx = rotatedPoint.x - btnX
         val dy = rotatedPoint.y - btnY
-        return (dx * dx + dy * dy) <= 2500 // 50*50 radius approx
+        return (dx * dx + dy * dy) <= 2500
     }
 
     override fun isTouchingDuplicate(e: MotionEvent): Boolean {
@@ -124,7 +141,6 @@ class Rects : Shape {
         val cy = (rect.top + rect.bottom) / 2
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
-        // Button center is approx (rect.right, rect.top)
         val btnX = rect.right
         val btnY = rect.top
         val dx = rotatedPoint.x - btnX
@@ -161,11 +177,6 @@ class Rects : Shape {
         val cy = (rect.top + rect.bottom) / 2
         val dx = e.x - cx
         val dy = e.y - cy
-        // Angle of bottom-left corner relative to center:
-        // atan2(height/2, -width/2). It depends on aspect ratio!
-        // So simply setting rotation = angle - 135 is wrong for non-square rects.
-        // It should be rotation = currentTouchAngle - initialHandleAngle.
-        // Initial Handle Angle = atan2(rect.bottom - cy, rect.left - cx)
 
         val initialHandleAngle =
                 Math.toDegrees(
@@ -193,14 +204,23 @@ class Rects : Shape {
     }
 
     override fun resize(e: MotionEvent) {
+        // This resize is non-uniform scaling if we just move the corner.
+        // Rects.kt does non-uniform.
+        // For images, we probably want to maintain aspect ratio, but user might want to stretch.
+        // Let's mimic Rects.kt for now (free resize).
+        // Improving: Enforce aspect ratio? Maybe later.
         val cx = (rect.left + rect.right) / 2
         val cy = (rect.top + rect.bottom) / 2
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
         rect.right = rotatedPoint.x
         rect.bottom = rotatedPoint.y
-        // Update end point for consistency
-        end = PointF(rect.right, rect.bottom)
+
+        // Ensure width/height are positive if flipped?
+        // Rects.kt creates new RectF if start > end.
+        // Here we modify rect.right/bottom.
+        // If right < left, we should probably flip?
+        // But let's keep it simple.
     }
 
     override fun startMove(e: MotionEvent) {
@@ -210,5 +230,28 @@ class Rects : Shape {
 
     override fun move(e: MotionEvent) {
         rect.offsetTo(e.x - dragOffsetX, e.y - dragOffsetY)
+    }
+
+    override fun deepCopy(): Shape {
+        val newShape = ImageShape(bitmap!!.config?.let { bitmap?.copy(it, true) })
+        newShape.rect = RectF(this.rect)
+        newShape.rotation = this.rotation
+        newShape.paint.set(this.paint)
+        return newShape
+    }
+
+    fun crop(newBitmap: Bitmap) {
+        this.bitmap = newBitmap
+        val aspectRatio = newBitmap.height.toFloat() / newBitmap.width.toFloat()
+        val currentWidth = rect.width()
+        val currentHeight = currentWidth * aspectRatio
+        val cx = (rect.left + rect.right) / 2
+        val cy = (rect.top + rect.bottom) / 2
+        rect.set(
+                cx - currentWidth / 2,
+                cy - currentHeight / 2,
+                cx + currentWidth / 2,
+                cy + currentHeight / 2
+        )
     }
 }
