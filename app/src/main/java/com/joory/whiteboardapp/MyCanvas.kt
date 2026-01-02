@@ -1,7 +1,6 @@
 package com.joory.whiteboardapp
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -53,9 +52,10 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     var undo = ArrayList<Shape>()
     var tool: Shapes = Shapes.Brush
     var tools = ArrayMap<Shapes, Shape>()
+
+    //    var tools = Shapes.entries.toList()
     private var colorBG: Int = Color.WHITE
     private var imgBG: Bitmap? = null
-    lateinit var dialog: Dialog
     var objectIndex: Int? = null
     private var tmpObjectIndex: Int? = null
     private var example: Shape? = null
@@ -331,17 +331,15 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     }
 
     private fun setTextDialog() {
-        dialog.setContentView(R.layout.text_dialog)
-        dialog.create()
-        dialog.show()
-        val text = dialog.findViewById<EditText>(R.id.theText)
-        dialog.findViewById<ImageView>(R.id.addText).setOnClickListener {
+        myMain.dialogs.showDialog(R.layout.text_dialog)
+        val text = myMain.dialogs.dialog.findViewById<EditText>(R.id.theText)
+        myMain.dialogs.dialog.findViewById<ImageView>(R.id.addText).setOnClickListener {
             if (text.text.isNotEmpty()) {
                 draws.last().text = text.text.toString()
                 objectIndex = draws.indexOf(draws.last())
             }
             invalidate()
-            dialog.dismiss()
+            myMain.dialogs.dismiss()
         }
     }
 

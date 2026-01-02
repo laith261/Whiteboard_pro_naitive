@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Whiteboard Pro</string>
-    <string name="stroke_width">ٍStroke Width</string>
+    <string name="stroke_width">Stroke Width</string>
     <string name="text_size">Text Size</string>
     <string name="arrow_side">Arrow Side Length</string>
     <string name="text_hint">Type Here</string>

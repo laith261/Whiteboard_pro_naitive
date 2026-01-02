@@ -37,12 +37,11 @@ class Rects : Shape {
             this.paint.strokeWidth = paint.strokeWidth
             this.paint.style = paint.style
         }
-        rect =
-            if (start.x > end.x) {
-                RectF(end.x, start.y, start.x, end.y)
-            } else {
-                RectF(start.x, start.y, end.x, end.y)
-            }
+        val left = kotlin.math.min(start.x, end.x)
+        val right = kotlin.math.max(start.x, end.x)
+        val top = kotlin.math.min(start.y, end.y)
+        val bottom = kotlin.math.max(start.y, end.y)
+        rect = RectF(left, top, right, bottom)
     }
 
     override fun create(e: MotionEvent): Shape {
@@ -197,9 +196,16 @@ class Rects : Shape {
         val cy = (rect.top + rect.bottom) / 2
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
-        rect.right = rotatedPoint.x
-        rect.bottom = rotatedPoint.y
+        var newRight = rotatedPoint.x
+        var newBottom = rotatedPoint.y
+
+        if (newRight < rect.left + 10) newRight = rect.left + 10
+        if (newBottom < rect.top + 10) newBottom = rect.top + 10
+
+        rect.right = newRight
+        rect.bottom = newBottom
         // Update end point for consistency
+        start = PointF(rect.left, rect.top)
         end = PointF(rect.right, rect.bottom)
     }
 

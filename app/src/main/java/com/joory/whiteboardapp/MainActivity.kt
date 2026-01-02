@@ -2,7 +2,6 @@ package com.joory.whiteboardapp
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
@@ -25,12 +24,13 @@ import androidx.core.content.IntentCompat
 import androidx.exifinterface.media.ExifInterface
 import com.abhishek.colorpicker.ColorPickerDialog
 import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.material.badge.BadgeDrawable
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.joory.whiteboardapp.functions.Ads
+import com.joory.whiteboardapp.functions.Dialogs
 import com.joory.whiteboardapp.shapes.ImageShape
 import com.joory.whiteboardapp.shapes.Shapes
 import java.io.InputStream
@@ -45,9 +45,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var canvas: MyCanvas
-    private lateinit var myDialog: Dialog
     private lateinit var colorButton: ImageButton
-    private lateinit var textSizeButton: ImageButton
     private lateinit var strokeButton: ImageButton
     private lateinit var styleButton: ImageButton
     private lateinit var colorBg: ImageButton
@@ -60,21 +58,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var clear: ImageButton
     private lateinit var crop: ImageButton
     private lateinit var badgeDrawable: BadgeDrawable
-    lateinit var ads: Ads;
+    lateinit var ads: Ads
+    lateinit var dialogs: Dialogs
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId", "UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        // variables declare
         initializeViews()
 
         // functions
         hasWriteStoragePermission()
         ads.loadFullScreenAd()
         showButtons()
-        setupClickListeners()
+
         when {
             intent?.action == Intent.ACTION_SEND -> {
                 if (intent.type?.startsWith("image/") == true) {
@@ -89,11 +87,9 @@ class MainActivity : AppCompatActivity() {
         val adView = findViewById<AdView>(R.id.adView)
         val adRequest = AdRequest.Builder().build()
         adView.loadAd(adRequest)
-        myDialog = BottomSheetDialog(this)
         canvas = findViewById(R.id.canvas)
         colorButton = findViewById(R.id.color)
         styleButton = findViewById(R.id.style)
-        textSizeButton = findViewById(R.id.textSize)
         strokeButton = findViewById(R.id.strokewidth)
         colorBg = findViewById(R.id.colorbg)
         scroll = findViewById(R.id.myscroll)
@@ -104,128 +100,97 @@ class MainActivity : AppCompatActivity() {
         crop = findViewById(R.id.crop)
         tools = findViewById(R.id.tools)
         imageBg = findViewById(R.id.imgbg)
-        canvas.dialog = myDialog
         badgeDrawable = BadgeDrawable.create(this)
         supportActionBar?.hide()
         ads = Ads(this, canvas)
+        dialogs = Dialogs(this)
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        when {
-            intent.action == Intent.ACTION_SEND -> {
-                if (intent.type?.startsWith("image/") == true) {
-                    handleSendImage(intent)
-                }
-            }
-        }
-    }
+    fun View.onToolsClick() {
+        dialogs.showDialog(R.layout.tools_dailog)
+        choseTool(Shapes.Circle, R.id.circle)
+        choseTool(Shapes.Select, R.id.select)
+        choseTool(Shapes.Arrow, R.id.arrow)
+        choseTool(Shapes.Brush, R.id.brush)
+        choseTool(Shapes.Text, R.id.texts)
+        choseTool(Shapes.Line, R.id.line)
+        choseTool(Shapes.Rect, R.id.rect)
+        choseTool(Shapes.Triangle, R.id.tringle)
+        choseTool(Shapes.Star, R.id.star)
+        choseTool(Shapes.Hexagon, R.id.hexagon)
+        choseTool(Shapes.Eraser, R.id.eraser)
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    @SuppressLint("SetTextI18n", "ClickableViewAccessibility", "InlinedApi")
-    private fun setupClickListeners() {
-
-        // crop
-        crop.setOnClickListener { startCrop() }
-
-        // tools
-        tools.setOnClickListener {
-            bottomSheet(R.layout.tools_dailog)
-            choseTool(Shapes.Circle, R.id.circle)
-            choseTool(Shapes.Select, R.id.select)
-            choseTool(Shapes.Arrow, R.id.arrow)
-            choseTool(Shapes.Brush, R.id.brush)
-            choseTool(Shapes.Text, R.id.texts)
-            choseTool(Shapes.Line, R.id.line)
-            choseTool(Shapes.Rect, R.id.rect)
-            choseTool(Shapes.Triangle, R.id.tringle)
-            choseTool(Shapes.Star, R.id.star)
-            choseTool(Shapes.Hexagon, R.id.hexagon)
-            choseTool(Shapes.Eraser, R.id.eraser)
-
-            // details for the chosen tool
-            val currentToolDotId =
-                when (canvas.tool) {
-                    Shapes.Circle -> R.id.circle_dot
-                    Shapes.Select -> R.id.select_dot
-                    Shapes.Arrow -> R.id.arrow_dot
-                    Shapes.Brush -> R.id.brush_dot
-                    Shapes.Text -> R.id.texts_dot
-                    Shapes.Line -> R.id.line_dot
-                    Shapes.Rect -> R.id.rect_dot
-                    Shapes.Triangle -> R.id.tringle_dot
-                    Shapes.Star -> R.id.star_dot
-                    Shapes.Hexagon -> R.id.hexagon_dot
-                    Shapes.Eraser -> R.id.eraser_dot
-                    else -> null
-                }
-
-            if (currentToolDotId != null) {
-                myDialog.findViewById<View>(currentToolDotId)?.visibility = View.VISIBLE
+        // details for the chosen tool
+        val currentToolDotId =
+            when (canvas.tool) {
+                Shapes.Circle -> R.id.circle_dot
+                Shapes.Select -> R.id.select_dot
+                Shapes.Arrow -> R.id.arrow_dot
+                Shapes.Brush -> R.id.brush_dot
+                Shapes.Text -> R.id.texts_dot
+                Shapes.Line -> R.id.line_dot
+                Shapes.Rect -> R.id.rect_dot
+                Shapes.Triangle -> R.id.tringle_dot
+                Shapes.Star -> R.id.star_dot
+                Shapes.Hexagon -> R.id.hexagon_dot
+                Shapes.Eraser -> R.id.eraser_dot
+                else -> null
             }
 
-            myDialog.findViewById<ImageView>(R.id.add_image_shape).setOnClickListener {
-                startForShapeImageResult.launch(
-                    PickVisualMediaRequest.Builder()
-                        .setMediaType(PickVisualMedia.ImageOnly)
-                        .build()
-                )
-                myDialog.dismiss()
-            }
+        if (currentToolDotId != null) {
+            dialogs.dialog.findViewById<View>(currentToolDotId)?.visibility = View.VISIBLE
         }
 
-        // change style
-        styleButton.setOnClickListener { canvas.changeStyle() }
-
-        // clear canvas
-        clear.setOnClickListener { canvas.clearCanvas() }
-
-        // object color
-        colorButton.setOnClickListener {
-            colorsDialog(::objectColorSet)
-        }
-
-        // stroke width
-        strokeButton.setOnClickListener {
-            showStrokeDialog()
-        }
-
-        // save image
-        save.setOnClickListener { canvas.saveImage() }
-
-        // text size
-        textSizeButton.setOnClickListener {
-            sizeDialog()
-        }
-
-        // pick img
-        imageBg.setOnClickListener {
-            startForProfileImageResult.launch(
+        dialogs.dialog.findViewById<ImageView>(R.id.add_image_shape).setOnClickListener {
+            startForShapeImageResult.launch(
                 PickVisualMediaRequest.Builder().setMediaType(PickVisualMedia.ImageOnly).build()
             )
+            dialogs.dismiss()
         }
-
-        // undo
-        undoButton.setOnClickListener {
-            canvas.undo()
-            doButtonsAlpha()
-        }
-
-        // redo
-        redoButton.setOnClickListener {
-            canvas.redo()
-            doButtonsAlpha()
-        }
-
-        // background color
-        colorBg.setOnClickListener { colorsDialog(::backgroundColorSet) }
     }
 
-    private fun showStrokeDialog() {
-        bottomSheet(R.layout.size_dailog)
-        val title = myDialog.findViewById<TextView>(R.id.title)
-        title.text = resources.getText(R.string.stroke_width)
-        val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
+    fun View.onStyleClick() {
+        canvas.changeStyle()
+    }
+
+    fun View.onClearClick() {
+        canvas.clearCanvas()
+    }
+
+    fun View.onColorClick() {
+        colorsDialog(::objectColorSet)
+    }
+
+
+    fun View.onSaveClick() {
+        canvas.saveImage()
+    }
+
+    fun View.onImageBgClick() {
+        startForProfileImageResult.launch(
+            PickVisualMediaRequest.Builder().setMediaType(PickVisualMedia.ImageOnly).build()
+        )
+    }
+
+    fun View.onUndoClick() {
+        canvas.undo()
+        doButtonsAlpha()
+    }
+
+    fun View.onRedoClick() {
+        canvas.redo()
+        doButtonsAlpha()
+    }
+
+    fun View.onColorBgClick() {
+        colorsDialog(::backgroundColorSet)
+    }
+
+    fun View.showStrokeDialog() {
+        dialogs.showDialog(R.layout.size_dailog)
+        val title = dialogs.dialog.findViewById<TextView>(R.id.title)
+        title.text = this@MainActivity.resources.getText(R.string.stroke_width)
+        val seek = dialogs.dialog.findViewById<SeekBar>(R.id.sizeSeek)
         seek.progress = canvas.getCanvasPaint().strokeWidth.toInt()
         seek.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
@@ -257,7 +222,6 @@ class MainActivity : AppCompatActivity() {
 
     fun hideButtons() {
         strokeButton.visibility = View.GONE
-        textSizeButton.visibility = View.GONE
         styleButton.visibility = View.GONE
         colorButton.visibility = View.GONE
         crop.visibility = View.GONE
@@ -267,7 +231,7 @@ class MainActivity : AppCompatActivity() {
         hideButtons()
         val shapeTools = canvas.tools[canvas.tool]
         val selectedShape = canvas.objectIndex?.let { canvas.draws[it] }
-        val tool= selectedShape ?: shapeTools
+        val tool = selectedShape ?: shapeTools
         if (tool != null) {
             for (i in tool.shapeTools) {
                 findViewById<ImageButton>(i.buttonId).visibility = View.VISIBLE
@@ -279,12 +243,6 @@ class MainActivity : AppCompatActivity() {
     fun doButtonsAlpha() {
         undoButton.alpha = if (canvas.draws.isEmpty()) 0.5F else 1F
         redoButton.alpha = if (canvas.undo.isEmpty()) 0.5F else 1F
-    }
-
-    // show bottom sheet dialog
-    private fun bottomSheet(layout: Int) {
-        myDialog.setContentView(layoutInflater.inflate(layout, null))
-        myDialog.show()
     }
 
     // resolve the image
@@ -331,12 +289,12 @@ class MainActivity : AppCompatActivity() {
 
     // set tool for drawing
     private fun choseTool(theShape: Shapes, id: Int) {
-        myDialog.findViewById<ImageView>(id).setOnClickListener {
+        dialogs.dialog.findViewById<ImageView>(id).setOnClickListener {
             canvas.objectIndex = null
             canvas.tool = theShape
             canvas.invalidate()
             showButtons()
-            myDialog.dismiss()
+            dialogs.dismiss()
         }
     }
 
@@ -392,7 +350,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    private fun startCrop() {
+    fun View.startCrop() {
         if (canvas.objectIndex != null) {
             val shape = canvas.draws[canvas.objectIndex!!]
             if (shape is ImageShape) {
@@ -400,7 +358,7 @@ class MainActivity : AppCompatActivity() {
                 if (bitmap != null) {
                     try {
                         // Write to temp file
-                        val file = java.io.File(cacheDir, "crop_temp.png")
+                        val file = java.io.File(this@MainActivity.cacheDir, "crop_temp.png")
                         val fOut = java.io.FileOutputStream(file)
                         bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, fOut)
                         fOut.flush()
@@ -411,7 +369,7 @@ class MainActivity : AppCompatActivity() {
                         options.imageSourceIncludeCamera = true
 
                         cropImage.launch(
-                            com.canhub.cropper.CropImageContractOptions(
+                            CropImageContractOptions(
                                 uri = Uri.fromFile(file),
                                 cropImageOptions = options
                             )
@@ -424,29 +382,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun MainActivity.sizeDialog() {
-        bottomSheet(R.layout.size_dailog)
-        val title = myDialog.findViewById<TextView>(R.id.title)
-        title.text = resources.getText(R.string.text_size)
-        val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
-        seek.max = 100
-        seek.min = 25
-        seek.progress = canvas.getCanvasPaint().textSize.toInt()
-        seek.setOnSeekBarChangeListener(
-            object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(
-                    seek: SeekBar,
-                    progress: Int,
-                    fromUser: Boolean
-                ) {
-                    canvas.getCanvasPaint().textSize = progress.toFloat()
-                    canvas.invalidate()
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        when {
+            intent.action == Intent.ACTION_SEND -> {
+                if (intent.type?.startsWith("image/") == true) {
+                    handleSendImage(intent)
                 }
-
-                override fun onStartTrackingTouch(seek: SeekBar) {}
-                override fun onStopTrackingTouch(myseek: SeekBar) {}
             }
-        )
+        }
     }
 }
