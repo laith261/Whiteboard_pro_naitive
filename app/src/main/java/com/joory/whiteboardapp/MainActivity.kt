@@ -9,8 +9,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.HorizontalScrollView
 import android.widget.ImageButton
@@ -28,15 +26,11 @@ import androidx.exifinterface.media.ExifInterface
 import com.abhishek.colorpicker.ColorPickerDialog
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageOptions
-import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.material.badge.BadgeDrawable
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.joory.whiteboardapp.functions.Ads
 import com.joory.whiteboardapp.shapes.ImageShape
 import com.joory.whiteboardapp.shapes.Shapes
 import java.io.InputStream
@@ -60,16 +54,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var scroll: HorizontalScrollView
     private lateinit var undoButton: ImageView
     private lateinit var redoButton: ImageView
-    private lateinit var imagebg: ImageButton
+    private lateinit var imageBg: ImageButton
     private lateinit var tools: ImageButton
     private lateinit var save: ImageButton
     private lateinit var clear: ImageButton
-    private lateinit var readyShapes: ImageButton
     private lateinit var crop: ImageButton
     private lateinit var badgeDrawable: BadgeDrawable
-    private var mInterstitialAd: InterstitialAd? = null
-    private var mainHandler = Handler(Looper.getMainLooper())
-    private val showAdDelay = Runnable { showAds() }
+    lateinit var ads: Ads;
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId", "UseCompatLoadingForDrawables")
@@ -81,7 +72,7 @@ class MainActivity : AppCompatActivity() {
 
         // functions
         hasWriteStoragePermission()
-        loadFullScreenAd()
+        ads.loadFullScreenAd()
         showButtons()
         setupClickListeners()
         when {
@@ -112,11 +103,11 @@ class MainActivity : AppCompatActivity() {
         clear = findViewById(R.id.clear)
         crop = findViewById(R.id.crop)
         tools = findViewById(R.id.tools)
-        imagebg = findViewById(R.id.imgbg)
-
+        imageBg = findViewById(R.id.imgbg)
         canvas.dialog = myDialog
         badgeDrawable = BadgeDrawable.create(this)
         supportActionBar?.hide()
+        ads = Ads(this, canvas)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -154,20 +145,20 @@ class MainActivity : AppCompatActivity() {
 
             // details for the chosen tool
             val currentToolDotId =
-                    when (canvas.tool) {
-                        Shapes.Circle -> R.id.circle_dot
-                        Shapes.Select -> R.id.select_dot
-                        Shapes.Arrow -> R.id.arrow_dot
-                        Shapes.Brush -> R.id.brush_dot
-                        Shapes.Text -> R.id.texts_dot
-                        Shapes.Line -> R.id.line_dot
-                        Shapes.Rect -> R.id.rect_dot
-                        Shapes.Triangle -> R.id.tringle_dot
-                        Shapes.Star -> R.id.star_dot
-                        Shapes.Hexagon -> R.id.hexagon_dot
-                        Shapes.Eraser -> R.id.eraser_dot
-                        else -> null
-                    }
+                when (canvas.tool) {
+                    Shapes.Circle -> R.id.circle_dot
+                    Shapes.Select -> R.id.select_dot
+                    Shapes.Arrow -> R.id.arrow_dot
+                    Shapes.Brush -> R.id.brush_dot
+                    Shapes.Text -> R.id.texts_dot
+                    Shapes.Line -> R.id.line_dot
+                    Shapes.Rect -> R.id.rect_dot
+                    Shapes.Triangle -> R.id.tringle_dot
+                    Shapes.Star -> R.id.star_dot
+                    Shapes.Hexagon -> R.id.hexagon_dot
+                    Shapes.Eraser -> R.id.eraser_dot
+                    else -> null
+                }
 
             if (currentToolDotId != null) {
                 myDialog.findViewById<View>(currentToolDotId)?.visibility = View.VISIBLE
@@ -175,9 +166,9 @@ class MainActivity : AppCompatActivity() {
 
             myDialog.findViewById<ImageView>(R.id.add_image_shape).setOnClickListener {
                 startForShapeImageResult.launch(
-                        PickVisualMediaRequest.Builder()
-                                .setMediaType(PickVisualMedia.ImageOnly)
-                                .build()
+                    PickVisualMediaRequest.Builder()
+                        .setMediaType(PickVisualMedia.ImageOnly)
+                        .build()
                 )
                 myDialog.dismiss()
             }
@@ -190,41 +181,13 @@ class MainActivity : AppCompatActivity() {
         clear.setOnClickListener { canvas.clearCanvas() }
 
         // object color
-        colorButton.setOnClickListener { colorsDialog(::objectColorSet) }
+        colorButton.setOnClickListener {
+            colorsDialog(::objectColorSet)
+        }
 
         // stroke width
         strokeButton.setOnClickListener {
-            bottomSheet(R.layout.size_dailog)
-            val title = myDialog.findViewById<TextView>(R.id.title)
-            title.text = resources.getText(R.string.stroke_width)
-            val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
-            seek.progress = canvas.getCanvasPaint().strokeWidth.toInt()
-            seek.setOnSeekBarChangeListener(
-                    object : SeekBar.OnSeekBarChangeListener {
-                        override fun onProgressChanged(
-                                seek: SeekBar,
-                                progress: Int,
-                                fromUser: Boolean
-                        ) {
-                            canvas.getCanvasPaint().strokeWidth = progress.toFloat()
-                            if (canvas.objectIndex == null) {
-                                canvas.updateExample()
-                            }
-                            canvas.invalidate()
-                        }
-
-                        override fun onStartTrackingTouch(seek: SeekBar) {
-                            if (canvas.objectIndex == null) {
-                                canvas.createExample(canvas.width, canvas.height)
-                                canvas.invalidate()
-                            }
-                        }
-
-                        override fun onStopTrackingTouch(myseek: SeekBar) {
-                            canvas.removeExample()
-                        }
-                    }
-            )
+            showStrokeDialog()
         }
 
         // save image
@@ -232,34 +195,13 @@ class MainActivity : AppCompatActivity() {
 
         // text size
         textSizeButton.setOnClickListener {
-            bottomSheet(R.layout.size_dailog)
-            val title = myDialog.findViewById<TextView>(R.id.title)
-            title.text = resources.getText(R.string.text_size)
-            val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
-            seek.max = 100
-            seek.min = 25
-            seek.progress = canvas.getCanvasPaint().textSize.toInt()
-            seek.setOnSeekBarChangeListener(
-                    object : SeekBar.OnSeekBarChangeListener {
-                        override fun onProgressChanged(
-                                seek: SeekBar,
-                                progress: Int,
-                                fromUser: Boolean
-                        ) {
-                            canvas.getCanvasPaint().textSize = progress.toFloat()
-                            canvas.invalidate()
-                        }
-
-                        override fun onStartTrackingTouch(seek: SeekBar) {}
-                        override fun onStopTrackingTouch(myseek: SeekBar) {}
-                    }
-            )
+            sizeDialog()
         }
 
         // pick img
-        imagebg.setOnClickListener {
+        imageBg.setOnClickListener {
             startForProfileImageResult.launch(
-                    PickVisualMediaRequest.Builder().setMediaType(PickVisualMedia.ImageOnly).build()
+                PickVisualMediaRequest.Builder().setMediaType(PickVisualMedia.ImageOnly).build()
             )
         }
 
@@ -279,6 +221,40 @@ class MainActivity : AppCompatActivity() {
         colorBg.setOnClickListener { colorsDialog(::backgroundColorSet) }
     }
 
+    private fun showStrokeDialog() {
+        bottomSheet(R.layout.size_dailog)
+        val title = myDialog.findViewById<TextView>(R.id.title)
+        title.text = resources.getText(R.string.stroke_width)
+        val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
+        seek.progress = canvas.getCanvasPaint().strokeWidth.toInt()
+        seek.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(
+                    seek: SeekBar,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    canvas.getCanvasPaint().strokeWidth = progress.toFloat()
+                    if (canvas.objectIndex == null) {
+                        canvas.updateExample()
+                    }
+                    canvas.invalidate()
+                }
+
+                override fun onStartTrackingTouch(seek: SeekBar) {
+                    if (canvas.objectIndex == null) {
+                        canvas.createExample(canvas.width, canvas.height)
+                        canvas.invalidate()
+                    }
+                }
+
+                override fun onStopTrackingTouch(myseek: SeekBar) {
+                    canvas.removeExample()
+                }
+            }
+        )
+    }
+
     fun hideButtons() {
         strokeButton.visibility = View.GONE
         textSizeButton.visibility = View.GONE
@@ -289,9 +265,11 @@ class MainActivity : AppCompatActivity() {
 
     fun showButtons() {
         hideButtons()
-        val shapeTools = canvas.tools[canvas.tool]?.shapeTools
-        if (shapeTools != null) {
-            for (i in shapeTools) {
+        val shapeTools = canvas.tools[canvas.tool]
+        val selectedShape = canvas.objectIndex?.let { canvas.draws[it] }
+        val tool= selectedShape ?: shapeTools
+        if (tool != null) {
+            for (i in tool.shapeTools) {
                 findViewById<ImageButton>(i.buttonId).visibility = View.VISIBLE
             }
         }
@@ -303,64 +281,6 @@ class MainActivity : AppCompatActivity() {
         redoButton.alpha = if (canvas.undo.isEmpty()) 0.5F else 1F
     }
 
-    // full screen ads load
-    private fun loadFullScreenAd() {
-        val adRequest = AdRequest.Builder().build()
-        InterstitialAd.load(
-                this,
-                "ca-app-pub-1226999690478326/4181492971",
-                adRequest,
-                object : InterstitialAdLoadCallback() {
-                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                        mInterstitialAd = interstitialAd
-                        resetAdInterval()
-                    }
-
-                    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                        mInterstitialAd = null
-                        loadFullScreenAd()
-                    }
-                }
-        )
-    }
-
-    // full screen ads show
-    fun showAds() {
-        if (mInterstitialAd != null) {
-            mInterstitialAd!!.fullScreenContentCallback =
-                    object : FullScreenContentCallback() {
-                        override fun onAdClicked() {}
-
-                        override fun onAdDismissedFullScreenContent() {
-                            mInterstitialAd = null
-                            loadFullScreenAd()
-                        }
-
-                        override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                            mInterstitialAd = null
-                            loadFullScreenAd()
-                        }
-
-                        override fun onAdImpression() {}
-
-                        override fun onAdShowedFullScreenContent() {}
-                    }
-            mInterstitialAd?.show(this)
-        }
-        loadFullScreenAd()
-    }
-
-    // set full screen ads time out call
-    private fun showAdInterval() {
-        mainHandler.postDelayed(showAdDelay, 1000 * 60 * 3)
-    }
-
-    // reset full screen ads time out call
-    private fun resetAdInterval() {
-        mainHandler.removeCallbacks(showAdDelay)
-        showAdInterval()
-    }
-
     // show bottom sheet dialog
     private fun bottomSheet(layout: Int) {
         myDialog.setContentView(layoutInflater.inflate(layout, null))
@@ -369,7 +289,7 @@ class MainActivity : AppCompatActivity() {
 
     // resolve the image
     private val startForProfileImageResult =
-            registerForActivityResult(PickVisualMedia()) { result: Uri? -> setImageBack(result) }
+        registerForActivityResult(PickVisualMedia()) { result: Uri? -> setImageBack(result) }
 
     private fun setImageBack(result: Uri?) {
         if (result != null) {
@@ -382,15 +302,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val startForShapeImageResult =
-            registerForActivityResult(PickVisualMedia()) { result: Uri? ->
-                if (result != null) {
-                    val fileStream = contentResolver.openInputStream(result)
-                    val bitmap = BitmapFactory.decodeStream(fileStream)
-                    if (bitmap != null) {
-                        canvas.addImageShape(bitmap)
-                    }
+        registerForActivityResult(PickVisualMedia()) { result: Uri? ->
+            if (result != null) {
+                val fileStream = contentResolver.openInputStream(result)
+                val bitmap = BitmapFactory.decodeStream(fileStream)
+                if (bitmap != null) {
+                    canvas.addImageShape(bitmap)
                 }
             }
+        }
 
     // check image rotation
     private fun theOren(file: InputStream): Int {
@@ -433,14 +353,14 @@ class MainActivity : AppCompatActivity() {
     private fun hasWriteStoragePermission() {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(
-                            this,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ) == PackageManager.PERMISSION_DENIED
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_DENIED
             ) {
                 ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                        101
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    101
                 )
             }
         }
@@ -453,24 +373,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val cropImage =
-            registerForActivityResult(CropImageContract()) { result ->
-                if (result.isSuccessful) {
-                    val uriContent = result.uriContent
-                    if (uriContent != null) {
-                        val fileStream: InputStream? = contentResolver.openInputStream(uriContent)
-                        if (fileStream != null) {
-                            val bitmap = BitmapFactory.decodeStream(fileStream)
-                            if (bitmap != null && canvas.objectIndex != null) {
-                                val shape = canvas.draws[canvas.objectIndex!!]
-                                if (shape is ImageShape) {
-                                    shape.crop(bitmap)
-                                    canvas.invalidate()
-                                }
+        registerForActivityResult(CropImageContract()) { result ->
+            if (result.isSuccessful) {
+                val uriContent = result.uriContent
+                if (uriContent != null) {
+                    val fileStream: InputStream? = contentResolver.openInputStream(uriContent)
+                    if (fileStream != null) {
+                        val bitmap = BitmapFactory.decodeStream(fileStream)
+                        if (bitmap != null && canvas.objectIndex != null) {
+                            val shape = canvas.draws[canvas.objectIndex!!]
+                            if (shape is ImageShape) {
+                                shape.crop(bitmap)
+                                canvas.invalidate()
                             }
                         }
                     }
                 }
             }
+        }
 
     private fun startCrop() {
         if (canvas.objectIndex != null) {
@@ -491,10 +411,10 @@ class MainActivity : AppCompatActivity() {
                         options.imageSourceIncludeCamera = true
 
                         cropImage.launch(
-                                com.canhub.cropper.CropImageContractOptions(
-                                        uri = Uri.fromFile(file),
-                                        cropImageOptions = options
-                                )
+                            com.canhub.cropper.CropImageContractOptions(
+                                uri = Uri.fromFile(file),
+                                cropImageOptions = options
+                            )
                         )
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -502,5 +422,31 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun MainActivity.sizeDialog() {
+        bottomSheet(R.layout.size_dailog)
+        val title = myDialog.findViewById<TextView>(R.id.title)
+        title.text = resources.getText(R.string.text_size)
+        val seek = myDialog.findViewById<SeekBar>(R.id.sizeSeek)
+        seek.max = 100
+        seek.min = 25
+        seek.progress = canvas.getCanvasPaint().textSize.toInt()
+        seek.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(
+                    seek: SeekBar,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    canvas.getCanvasPaint().textSize = progress.toFloat()
+                    canvas.invalidate()
+                }
+
+                override fun onStartTrackingTouch(seek: SeekBar) {}
+                override fun onStopTrackingTouch(myseek: SeekBar) {}
+            }
+        )
     }
 }

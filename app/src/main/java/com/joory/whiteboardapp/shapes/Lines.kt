@@ -57,27 +57,27 @@ class Lines : Shape {
 
     private fun getRectBorder(): RectF {
         val leftTop =
-                PointF(
-                                if (end.x > start.x) start.x else end.x,
-                                if (end.y > start.y) start.y else end.y
-                        )
-                        .apply {
-                            if (inSerine) {
-                                x -= 15
-                                y -= 15
-                            }
-                        }
+            PointF(
+                if (end.x > start.x) start.x else end.x,
+                if (end.y > start.y) start.y else end.y
+            )
+                .apply {
+                    if (inSerine) {
+                        x -= 15
+                        y -= 15
+                    }
+                }
         val rightBottom =
-                PointF(
-                                if (end.x < start.x) start.x else end.x,
-                                if (end.y < start.y) start.y else end.y
-                        )
-                        .apply {
-                            if (inSerine) {
-                                x += 15
-                                y += 15
-                            }
-                        }
+            PointF(
+                if (end.x < start.x) start.x else end.x,
+                if (end.y < start.y) start.y else end.y
+            )
+                .apply {
+                    if (inSerine) {
+                        x += 15
+                        y += 15
+                    }
+                }
         return RectF(leftTop.x, leftTop.y, rightBottom.x, rightBottom.y)
     }
 
@@ -199,7 +199,7 @@ class Lines : Shape {
 
         // Use angle of start point relative to center as initial handle angle
         val initialHandleAngle =
-                toDegrees(atan2((start.y - cy).toDouble(), (start.x - cx).toDouble())).toFloat()
+            toDegrees(atan2((start.y - cy).toDouble(), (start.x - cx).toDouble())).toFloat()
         val currentTouchAngle = toDegrees(atan2(dy.toDouble(), dx.toDouble())).toFloat()
 
         rotation = currentTouchAngle - initialHandleAngle

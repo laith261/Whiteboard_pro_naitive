@@ -20,7 +20,7 @@ class Circle : Shape {
 
     override var rotation: Float = 0f
     override var shapeTools: MutableList<Tools> =
-            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
     override fun draw(canvas: Canvas) {
         // Technically circle rotation doesn't change its look, but we might have text later or
@@ -49,7 +49,7 @@ class Circle : Shape {
 
     private fun distance(center: PointF, end: PointF): Float {
         return sqrt((end.x - center.x).toDouble().pow(2.0) + (end.y - center.y).toDouble().pow(2.0))
-                .toFloat()
+            .toFloat()
     }
 
     override fun isTouchingObject(e: MotionEvent): Boolean {

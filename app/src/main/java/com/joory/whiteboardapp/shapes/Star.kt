@@ -8,10 +8,10 @@ import android.graphics.Path
 import android.graphics.PointF
 import android.graphics.RectF
 import android.view.MotionEvent
+import androidx.core.graphics.toColorInt
 import androidx.core.graphics.withRotation
 import kotlin.math.cos
 import kotlin.math.sin
-import androidx.core.graphics.toColorInt
 
 class Star : Shape {
     override var sideLength = 150f
@@ -21,7 +21,8 @@ class Star : Shape {
     override var rotation: Float = 0f
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
-    override var shapeTools: MutableList<Tools> = mutableListOf(Tools.Style,Tools.StrokeWidth, Tools.Color)
+    override var shapeTools: MutableList<Tools> =
+        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
 
     override fun draw(canvas: Canvas) {

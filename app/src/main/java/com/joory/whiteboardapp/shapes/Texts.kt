@@ -10,8 +10,8 @@ import android.graphics.RectF
 import android.os.Build
 import android.view.MotionEvent
 import androidx.annotation.RequiresApi
-import androidx.core.graphics.withRotation
 import androidx.core.graphics.toColorInt
+import androidx.core.graphics.withRotation
 
 class Texts : Shape {
     override var paint: Paint = Paint()
@@ -22,7 +22,8 @@ class Texts : Shape {
     override var rotation: Float = 0f
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
-    override var shapeTools: MutableList<Tools> = mutableListOf(Tools.Style, Tools.TextSize,Tools.StrokeWidth, Tools.Color)
+    override var shapeTools: MutableList<Tools> =
+        mutableListOf(Tools.Style, Tools.TextSize, Tools.StrokeWidth, Tools.Color)
 
 
     override fun draw(canvas: Canvas) {
@@ -34,9 +35,10 @@ class Texts : Shape {
     }
 
     override fun create(e: MotionEvent): Shape {
-        paint.textSize = 50f
-        point = PointF(e.x, e.y)
-        return this
+        val newText = Texts()
+        newText.paint.textSize = 50f
+        newText.point = PointF(e.x, e.y)
+        return newText
     }
 
     override fun updateObject(paint: Paint?) {
@@ -143,7 +145,7 @@ class Texts : Shape {
         val cx = rawRect.centerX()
         val cy = rawRect.centerY()
         val paddedRect =
-                RectF(rawRect.left - 5, rawRect.top - 5, rawRect.right + 10, rawRect.bottom + 10)
+            RectF(rawRect.left - 5, rawRect.top - 5, rawRect.right + 10, rawRect.bottom + 10)
 
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
@@ -157,7 +159,7 @@ class Texts : Shape {
         val cx = rawRect.centerX()
         val cy = rawRect.centerY()
         val paddedRect =
-                RectF(rawRect.left - 5, rawRect.top - 5, rawRect.right + 10, rawRect.bottom + 10)
+            RectF(rawRect.left - 5, rawRect.top - 5, rawRect.right + 10, rawRect.bottom + 10)
 
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
@@ -178,15 +180,15 @@ class Texts : Shape {
         // Padded Bottom-Left: (l-5, b+10).
         val paddedRect = RectF(rect.left - 5, rect.top - 5, rect.right + 10, rect.bottom + 10)
         val initialHandleAngle =
-                Math.toDegrees(
-                                kotlin.math.atan2(
-                                        (paddedRect.bottom - cy).toDouble(),
-                                        (paddedRect.left - cx).toDouble()
-                                )
-                        )
-                        .toFloat()
+            Math.toDegrees(
+                kotlin.math.atan2(
+                    (paddedRect.bottom - cy).toDouble(),
+                    (paddedRect.left - cx).toDouble()
+                )
+            )
+                .toFloat()
         val currentTouchAngle =
-                Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
+            Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
 
         rotation = currentTouchAngle - initialHandleAngle
     }

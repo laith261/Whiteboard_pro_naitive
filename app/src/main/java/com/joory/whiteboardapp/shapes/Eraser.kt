@@ -13,6 +13,7 @@ class Eraser : Shape {
     override var sideLength: Float = 0.0f
     private var lastTouchX = 0f
     private var lastTouchY = 0f
+
     // Only StrokeWidth is relevant for Eraser, Color is fixed to White
     override var shapeTools: MutableList<Tools> = mutableListOf(Tools.StrokeWidth)
 

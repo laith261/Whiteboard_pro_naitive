@@ -179,15 +179,15 @@ class ImageShape(var bitmap: Bitmap? = null) : Shape {
         val dy = e.y - cy
 
         val initialHandleAngle =
-                Math.toDegrees(
-                                kotlin.math.atan2(
-                                        (rect.bottom - cy).toDouble(),
-                                        (rect.left - cx).toDouble()
-                                )
-                        )
-                        .toFloat()
+            Math.toDegrees(
+                kotlin.math.atan2(
+                    (rect.bottom - cy).toDouble(),
+                    (rect.left - cx).toDouble()
+                )
+            )
+                .toFloat()
         val currentTouchAngle =
-                Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
+            Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
 
         rotation = currentTouchAngle - initialHandleAngle
     }
@@ -248,10 +248,10 @@ class ImageShape(var bitmap: Bitmap? = null) : Shape {
         val cx = (rect.left + rect.right) / 2
         val cy = (rect.top + rect.bottom) / 2
         rect.set(
-                cx - currentWidth / 2,
-                cy - currentHeight / 2,
-                cx + currentWidth / 2,
-                cy + currentHeight / 2
+            cx - currentWidth / 2,
+            cy - currentHeight / 2,
+            cx + currentWidth / 2,
+            cy + currentHeight / 2
         )
     }
 }

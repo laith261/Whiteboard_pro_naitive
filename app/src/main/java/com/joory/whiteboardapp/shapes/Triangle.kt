@@ -22,7 +22,7 @@ class Triangle : Shape {
     override var rotation: Float = 0f
     override lateinit var text: String
     override var shapeTools: MutableList<Tools> =
-            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
     override fun draw(canvas: Canvas) {
         canvas.withRotation(rotation, triangle.cp.x, triangle.cp.y) {
@@ -183,6 +183,7 @@ class Triangle : Shape {
     override fun move(e: MotionEvent) {
         triangle = ATriangle(e.x - dragOffsetX, e.y - dragOffsetY, sideLength)
     }
+
     override fun rotateShape(e: MotionEvent) {
         val cx = triangle.cp.x
         val cy = triangle.cp.y

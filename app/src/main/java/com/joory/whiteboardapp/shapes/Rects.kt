@@ -21,7 +21,7 @@ class Rects : Shape {
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
     override var shapeTools: MutableList<Tools> =
-            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
     override fun draw(canvas: Canvas) {
         val cx = (rect.left + rect.right) / 2
@@ -38,11 +38,11 @@ class Rects : Shape {
             this.paint.style = paint.style
         }
         rect =
-                if (start.x > end.x) {
-                    RectF(end.x, start.y, start.x, end.y)
-                } else {
-                    RectF(start.x, start.y, end.x, end.y)
-                }
+            if (start.x > end.x) {
+                RectF(end.x, start.y, start.x, end.y)
+            } else {
+                RectF(start.x, start.y, end.x, end.y)
+            }
     }
 
     override fun create(e: MotionEvent): Shape {
@@ -168,15 +168,15 @@ class Rects : Shape {
         // Initial Handle Angle = atan2(rect.bottom - cy, rect.left - cx)
 
         val initialHandleAngle =
-                Math.toDegrees(
-                                kotlin.math.atan2(
-                                        (rect.bottom - cy).toDouble(),
-                                        (rect.left - cx).toDouble()
-                                )
-                        )
-                        .toFloat()
+            Math.toDegrees(
+                kotlin.math.atan2(
+                    (rect.bottom - cy).toDouble(),
+                    (rect.left - cx).toDouble()
+                )
+            )
+                .toFloat()
         val currentTouchAngle =
-                Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
+            Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
 
         rotation = currentTouchAngle - initialHandleAngle
     }

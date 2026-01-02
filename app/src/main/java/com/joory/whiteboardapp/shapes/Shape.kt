@@ -7,13 +7,14 @@ import android.view.MotionEvent
 import com.google.gson.Gson
 import com.joory.whiteboardapp.R
 
-enum class Tools(var buttonId: Int){
+enum class Tools(var buttonId: Int) {
     Style(R.id.style),
     TextSize(R.id.textSize),
     StrokeWidth(R.id.strokewidth),
     Color(R.id.color),
     Crop(R.id.crop),
 }
+
 interface Shape {
     var sideLength: Float
     var paint: Paint
