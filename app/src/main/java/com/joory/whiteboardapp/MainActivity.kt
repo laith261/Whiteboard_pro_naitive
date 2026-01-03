@@ -1,9 +1,8 @@
 package com.joory.whiteboardapp
 
-import android.Manifest
+
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
@@ -18,11 +17,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.IntentCompat
 import androidx.exifinterface.media.ExifInterface
-import com.abhishek.colorpicker.ColorPickerDialog
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
@@ -30,7 +26,9 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.material.badge.BadgeDrawable
 import com.joory.whiteboardapp.functions.Ads
+import com.joory.whiteboardapp.functions.ColorPicker
 import com.joory.whiteboardapp.functions.Dialogs
+import com.joory.whiteboardapp.functions.Permission
 import com.joory.whiteboardapp.shapes.ImageShape
 import com.joory.whiteboardapp.shapes.Shapes
 import java.io.InputStream
@@ -60,6 +58,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var badgeDrawable: BadgeDrawable
     lateinit var ads: Ads
     lateinit var dialogs: Dialogs
+    lateinit var permission: Permission
+    lateinit var colorPicker: ColorPicker
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId", "UseCompatLoadingForDrawables")
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         initializeViews()
 
         // functions
-        hasWriteStoragePermission()
+        permission.hasWriteStoragePermission()
         ads.loadFullScreenAd()
         showButtons()
 
@@ -104,44 +104,28 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
         ads = Ads(this, canvas)
         dialogs = Dialogs(this)
+        permission = Permission(this)
+        colorPicker = ColorPicker(supportFragmentManager)
     }
 
     fun View.onToolsClick() {
         dialogs.showDialog(R.layout.tools_dailog)
-        choseTool(Shapes.Circle, R.id.circle)
-        choseTool(Shapes.Select, R.id.select)
-        choseTool(Shapes.Arrow, R.id.arrow)
-        choseTool(Shapes.Brush, R.id.brush)
-        choseTool(Shapes.Text, R.id.texts)
-        choseTool(Shapes.Line, R.id.line)
-        choseTool(Shapes.Rect, R.id.rect)
-        choseTool(Shapes.Triangle, R.id.tringle)
-        choseTool(Shapes.Star, R.id.star)
-        choseTool(Shapes.Hexagon, R.id.hexagon)
-        choseTool(Shapes.Eraser, R.id.eraser)
-
+        choseTool(Shapes.Circle)
+        choseTool(Shapes.Select)
+        choseTool(Shapes.Arrow)
+        choseTool(Shapes.Brush)
+        choseTool(Shapes.Text)
+        choseTool(Shapes.Line)
+        choseTool(Shapes.Rect)
+        choseTool(Shapes.Triangle)
+        choseTool(Shapes.Star)
+        choseTool(Shapes.Hexagon)
+        choseTool(Shapes.Eraser)
+        choseTool(Shapes.Image)
         // details for the chosen tool
-        val currentToolDotId =
-            when (canvas.tool) {
-                Shapes.Circle -> R.id.circle_dot
-                Shapes.Select -> R.id.select_dot
-                Shapes.Arrow -> R.id.arrow_dot
-                Shapes.Brush -> R.id.brush_dot
-                Shapes.Text -> R.id.texts_dot
-                Shapes.Line -> R.id.line_dot
-                Shapes.Rect -> R.id.rect_dot
-                Shapes.Triangle -> R.id.tringle_dot
-                Shapes.Star -> R.id.star_dot
-                Shapes.Hexagon -> R.id.hexagon_dot
-                Shapes.Eraser -> R.id.eraser_dot
-                else -> null
-            }
+        dialogs.dialog.findViewById<View>(canvas.tool.dot).visibility = View.VISIBLE
 
-        if (currentToolDotId != null) {
-            dialogs.dialog.findViewById<View>(currentToolDotId)?.visibility = View.VISIBLE
-        }
-
-        dialogs.dialog.findViewById<ImageView>(R.id.add_image_shape).setOnClickListener {
+        dialogs.dialog.findViewById<ImageView>(Shapes.Image.buttonId).setOnClickListener {
             startForShapeImageResult.launch(
                 PickVisualMediaRequest.Builder().setMediaType(PickVisualMedia.ImageOnly).build()
             )
@@ -158,7 +142,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun View.onColorClick() {
-        colorsDialog(::objectColorSet)
+        colorPicker.colorsDialog(::objectColorSet)
     }
 
 
@@ -183,7 +167,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun View.onColorBgClick() {
-        colorsDialog(::backgroundColorSet)
+        colorPicker.colorsDialog(::backgroundColorSet)
     }
 
     fun View.showStrokeDialog() {
@@ -229,13 +213,11 @@ class MainActivity : AppCompatActivity() {
 
     fun showButtons() {
         hideButtons()
-        val shapeTools = canvas.tools[canvas.tool]
+        val shapeTools = canvas.tool.shape
         val selectedShape = canvas.objectIndex?.let { canvas.draws[it] }
         val tool = selectedShape ?: shapeTools
-        if (tool != null) {
-            for (i in tool.shapeTools) {
-                findViewById<ImageButton>(i.buttonId).visibility = View.VISIBLE
-            }
+        for (i in tool.shapeTools) {
+            findViewById<ImageButton>(i.buttonId).visibility = View.VISIBLE
         }
     }
 
@@ -277,19 +259,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     // pick color Dialog
-    private fun colorsDialog(func: (input: Int) -> Unit) {
-        val dialog = ColorPickerDialog()
-        dialog.setOnOkCancelListener { isOk, color ->
-            if (isOk) {
-                func(color)
-            }
-        }
-        dialog.show(supportFragmentManager)
-    }
 
     // set tool for drawing
-    private fun choseTool(theShape: Shapes, id: Int) {
-        dialogs.dialog.findViewById<ImageView>(id).setOnClickListener {
+    private fun choseTool(theShape: Shapes) {
+        dialogs.dialog.findViewById<ImageView>(theShape.buttonId).setOnClickListener {
             canvas.objectIndex = null
             canvas.tool = theShape
             canvas.invalidate()
@@ -306,22 +279,6 @@ class MainActivity : AppCompatActivity() {
     // background color
     private fun backgroundColorSet(color: Int) {
         canvas.setColorBackground(color)
-    }
-
-    private fun hasWriteStoragePermission() {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_DENIED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    101
-                )
-            }
-        }
     }
 
     private fun handleSendImage(intent: Intent) {

@@ -10,7 +10,6 @@ import android.graphics.Matrix
 import android.graphics.Paint
 import android.media.MediaScannerConnection
 import android.os.Environment
-import android.util.ArrayMap
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -20,20 +19,10 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
-import com.joory.whiteboardapp.shapes.Arrow
-import com.joory.whiteboardapp.shapes.Brush
-import com.joory.whiteboardapp.shapes.Circle
-import com.joory.whiteboardapp.shapes.Eraser
-import com.joory.whiteboardapp.shapes.Hexagon
 import com.joory.whiteboardapp.shapes.ImageShape
 import com.joory.whiteboardapp.shapes.Lines
-import com.joory.whiteboardapp.shapes.Rects
-import com.joory.whiteboardapp.shapes.Select
 import com.joory.whiteboardapp.shapes.Shape
 import com.joory.whiteboardapp.shapes.Shapes
-import com.joory.whiteboardapp.shapes.Star
-import com.joory.whiteboardapp.shapes.Texts
-import com.joory.whiteboardapp.shapes.Triangle
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -51,9 +40,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
             }
     var undo = ArrayList<Shape>()
     var tool: Shapes = Shapes.Brush
-    var tools = ArrayMap<Shapes, Shape>()
 
-    //    var tools = Shapes.entries.toList()
     private var colorBG: Int = Color.WHITE
     private var imgBG: Bitmap? = null
     var objectIndex: Int? = null
@@ -77,7 +64,6 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         duplicateBmp = duplicateBmp?.scale(40, 40, true)
         rotateBmp = rotateBmp?.scale(40, 40, true)
         resizeBmp = resizeBmp?.scale(40, 40, true)
-        setUoShapes()
     }
 
     private fun getBitmapFromVectorDrawable(context: Context?, drawableId: Int): Bitmap? {
@@ -102,21 +88,6 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         val saveCount = canvas.saveLayer(0f, 0f, width.toFloat(), height.toFloat(), null)
         startDrawing(canvas)
         canvas.restoreToCount(saveCount)
-    }
-
-    private fun setUoShapes() {
-        tools[Shapes.Rect] = Rects()
-        tools[Shapes.Arrow] = Arrow()
-        tools[Shapes.Circle] = Circle()
-        tools[Shapes.Line] = Lines()
-        tools[Shapes.Brush] = Brush()
-        tools[Shapes.Select] = Select()
-        tools[Shapes.Text] = Texts()
-        tools[Shapes.Hexagon] = Hexagon()
-        tools[Shapes.Star] = Star()
-        tools[Shapes.Triangle] = Triangle()
-        tools[Shapes.Eraser] = Eraser()
-        tools[Shapes.Image] = ImageShape()
     }
 
     private var isResizing = false
@@ -161,7 +132,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 if (tool != Shapes.Select && !isTouchingSameObject(e)) {
                     objectIndex = null
                     Log.d("Shape1", "choseTool: $tool")
-                    draws.add(tools[tool]!!.create(e))
+                    draws.add(tool.shape.create(e))
                     isDrawing = true
                     updateStyle()
                 }
@@ -481,7 +452,6 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
         draws.add(imageShape)
         objectIndex = draws.size - 1
-        tool = Shapes.Image
         myMain.showButtons()
         invalidate()
     }
