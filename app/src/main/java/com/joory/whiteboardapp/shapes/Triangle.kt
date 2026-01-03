@@ -22,7 +22,7 @@ class Triangle : Shape {
     override var rotation: Float = 0f
     override lateinit var text: String
     override var shapeTools: MutableList<Tools> =
-        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
     override fun draw(canvas: Canvas) {
         canvas.withRotation(rotation, triangle.cp.x, triangle.cp.y) {
@@ -76,7 +76,13 @@ class Triangle : Shape {
         return rect.contains(rotatedPoint.x, rotatedPoint.y)
     }
 
-    override fun drawSelectedBox(canvas: Canvas, deleteBmp: Bitmap?, duplicateBmp: Bitmap?) {
+    override fun drawSelectedBox(
+            canvas: Canvas,
+            deleteBmp: Bitmap?,
+            duplicateBmp: Bitmap?,
+            rotateBmp: Bitmap?,
+            resizeBmp: Bitmap?
+    ) {
         val radius = sideLength / 2
         val cx = triangle.cp.x
         val cy = triangle.cp.y
@@ -88,28 +94,38 @@ class Triangle : Shape {
             selectedPaint.style = Paint.Style.STROKE
             drawRect(rect, selectedPaint)
 
-            // Draw resize handle (Bottom-Right)
-            selectedPaint.pathEffect = null
-            selectedPaint.style = Paint.Style.FILL
-            selectedPaint.color = android.graphics.Color.BLUE
-            drawCircle(rect.right, rect.bottom, 15f, selectedPaint)
-
-            // Draw rotate handle (Bottom-Left)
-            selectedPaint.color = android.graphics.Color.RED
-            drawCircle(rect.left, rect.bottom, 15f, selectedPaint)
-
             // Common paint for button backgrounds
             val btnBgPaint = Paint()
             btnBgPaint.color = "#5369e7".toColorInt()
             btnBgPaint.style = Paint.Style.FILL
 
+            // Draw resize handle (Bottom-Right)
+            if (resizeBmp != null) {
+                drawCircle(rect.right, rect.bottom, 30f, btnBgPaint)
+                drawBitmap(resizeBmp, rect.right - 20, rect.bottom - 20, null)
+            } else {
+                selectedPaint.pathEffect = null
+                selectedPaint.style = Paint.Style.FILL
+                selectedPaint.color = android.graphics.Color.BLUE
+                drawCircle(rect.right, rect.bottom, 15f, selectedPaint)
+            }
+
+            // Draw rotate handle (Bottom-Left)
+            if (rotateBmp != null) {
+                drawCircle(rect.left, rect.bottom, 30f, btnBgPaint)
+                drawBitmap(rotateBmp, rect.left - 20, rect.bottom - 20, null)
+            } else {
+                selectedPaint.color = android.graphics.Color.RED
+                drawCircle(rect.left, rect.bottom, 15f, selectedPaint)
+            }
+
             if (deleteBmp != null) {
                 drawCircle(rect.left, rect.top, 30f, btnBgPaint)
-                drawBitmap(deleteBmp, rect.left - 30, rect.top - 30, null)
+                drawBitmap(deleteBmp, rect.left - 20, rect.top - 20, null)
             }
             if (duplicateBmp != null) {
                 drawCircle(rect.right, rect.top, 30f, btnBgPaint)
-                drawBitmap(duplicateBmp, rect.right - 30, rect.top - 30, null)
+                drawBitmap(duplicateBmp, rect.right - 20, rect.top - 20, null)
             }
         }
     }

@@ -33,7 +33,6 @@ interface Shape {
     val shapeTools: MutableList<Tools>
         get() = mutableListOf()
 
-
     fun isTouchingRotate(e: MotionEvent): Boolean {
         return false
     }
@@ -57,7 +56,13 @@ interface Shape {
         return false
     }
 
-    fun drawSelectedBox(canvas: Canvas, deleteBmp: Bitmap? = null, duplicateBmp: Bitmap? = null) {}
+    fun drawSelectedBox(
+            canvas: Canvas,
+            deleteBmp: Bitmap? = null,
+            duplicateBmp: Bitmap? = null,
+            rotateBmp: Bitmap? = null,
+            resizeBmp: Bitmap? = null
+    ) {}
 
     fun startMove(e: MotionEvent) {}
 

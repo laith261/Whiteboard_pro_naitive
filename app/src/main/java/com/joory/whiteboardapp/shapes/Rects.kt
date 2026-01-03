@@ -21,7 +21,7 @@ class Rects : Shape {
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
     override var shapeTools: MutableList<Tools> =
-        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
     override fun draw(canvas: Canvas) {
         val cx = (rect.left + rect.right) / 2
@@ -65,7 +65,13 @@ class Rects : Shape {
         return rect.contains(rotatedPoint.x, rotatedPoint.y)
     }
 
-    override fun drawSelectedBox(canvas: Canvas, deleteBmp: Bitmap?, duplicateBmp: Bitmap?) {
+    override fun drawSelectedBox(
+            canvas: Canvas,
+            deleteBmp: Bitmap?,
+            duplicateBmp: Bitmap?,
+            rotateBmp: Bitmap?,
+            resizeBmp: Bitmap?
+    ) {
         val cx = (rect.left + rect.right) / 2
         val cy = (rect.top + rect.bottom) / 2
 
@@ -75,31 +81,41 @@ class Rects : Shape {
             selectedPaint.style = Paint.Style.STROKE
             drawRect(rect, selectedPaint)
 
-            // Draw resize handle
-            selectedPaint.pathEffect = null
-            selectedPaint.style = Paint.Style.FILL
-            selectedPaint.color = android.graphics.Color.BLUE
-            drawCircle(rect.right, rect.bottom, 15f, selectedPaint)
-
-            // Draw rotate handle
-            selectedPaint.color = android.graphics.Color.RED
-            drawCircle(rect.left, rect.bottom, 15f, selectedPaint)
-
             // Common paint for button backgrounds
             val btnBgPaint = Paint()
             btnBgPaint.color = "#5369e7".toColorInt()
             btnBgPaint.style = Paint.Style.FILL
 
+            // Draw resize handle
+            if (resizeBmp != null) {
+                drawCircle(rect.right, rect.bottom, 30f, btnBgPaint)
+                drawBitmap(resizeBmp, rect.right - 20, rect.bottom - 20, null)
+            } else {
+                selectedPaint.pathEffect = null
+                selectedPaint.style = Paint.Style.FILL
+                selectedPaint.color = android.graphics.Color.BLUE
+                drawCircle(rect.right, rect.bottom, 15f, selectedPaint)
+            }
+
+            // Draw rotate handle
+            if (rotateBmp != null) {
+                drawCircle(rect.left, rect.bottom, 30f, btnBgPaint)
+                drawBitmap(rotateBmp, rect.left - 20, rect.bottom - 20, null)
+            } else {
+                selectedPaint.color = android.graphics.Color.RED
+                drawCircle(rect.left, rect.bottom, 15f, selectedPaint)
+            }
+
             // Draw delete button (Top-Left)
             if (deleteBmp != null) {
                 drawCircle(rect.left, rect.top, 30f, btnBgPaint)
-                drawBitmap(deleteBmp, rect.left - 30, rect.top - 30, null)
+                drawBitmap(deleteBmp, rect.left - 20, rect.top - 20, null)
             }
 
             // Draw duplicate button (Top-Right)
             if (duplicateBmp != null) {
                 drawCircle(rect.right, rect.top, 30f, btnBgPaint)
-                drawBitmap(duplicateBmp, rect.right - 30, rect.top - 30, null)
+                drawBitmap(duplicateBmp, rect.right - 20, rect.top - 20, null)
             }
         }
     }
@@ -167,15 +183,15 @@ class Rects : Shape {
         // Initial Handle Angle = atan2(rect.bottom - cy, rect.left - cx)
 
         val initialHandleAngle =
-            Math.toDegrees(
-                kotlin.math.atan2(
-                    (rect.bottom - cy).toDouble(),
-                    (rect.left - cx).toDouble()
-                )
-            )
-                .toFloat()
+                Math.toDegrees(
+                                kotlin.math.atan2(
+                                        (rect.bottom - cy).toDouble(),
+                                        (rect.left - cx).toDouble()
+                                )
+                        )
+                        .toFloat()
         val currentTouchAngle =
-            Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
+                Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
 
         rotation = currentTouchAngle - initialHandleAngle
     }

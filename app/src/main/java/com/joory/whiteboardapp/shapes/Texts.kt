@@ -23,8 +23,7 @@ class Texts : Shape {
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
     override var shapeTools: MutableList<Tools> =
-        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
-
+            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
     override fun draw(canvas: Canvas) {
         val rect = getRectBorder()
@@ -71,7 +70,13 @@ class Texts : Shape {
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    override fun drawSelectedBox(canvas: Canvas, deleteBmp: Bitmap?, duplicateBmp: Bitmap?) {
+    override fun drawSelectedBox(
+            canvas: Canvas,
+            deleteBmp: Bitmap?,
+            duplicateBmp: Bitmap?,
+            rotateBmp: Bitmap?,
+            resizeBmp: Bitmap?
+    ) {
         val rect = getRectBorder()
         // Add padding same as before: left-5, top-5, right+10, bottom+10
         rect.set(rect.left - 5, rect.top - 5, rect.right + 10, rect.bottom + 10)
@@ -86,28 +91,38 @@ class Texts : Shape {
             selectedPaint.style = Paint.Style.STROKE
             drawRect(rect, selectedPaint)
 
-            // Draw resize handle (Bottom-Right)
-            selectedPaint.pathEffect = null
-            selectedPaint.style = Paint.Style.FILL
-            selectedPaint.color = android.graphics.Color.BLUE
-            drawCircle(rect.right, rect.bottom, 15f, selectedPaint)
-
-            // Draw rotate handle (Bottom-Left)
-            selectedPaint.color = android.graphics.Color.RED
-            drawCircle(rect.left, rect.bottom, 15f, selectedPaint)
-
             // Common paint for button backgrounds
             val btnBgPaint = Paint()
             btnBgPaint.color = "#5369e7".toColorInt()
             btnBgPaint.style = Paint.Style.FILL
 
+            // Draw resize handle (Bottom-Right)
+            if (resizeBmp != null) {
+                drawCircle(rect.right, rect.bottom, 30f, btnBgPaint)
+                drawBitmap(resizeBmp, rect.right - 20, rect.bottom - 20, null)
+            } else {
+                selectedPaint.pathEffect = null
+                selectedPaint.style = Paint.Style.FILL
+                selectedPaint.color = android.graphics.Color.BLUE
+                drawCircle(rect.right, rect.bottom, 15f, selectedPaint)
+            }
+
+            // Draw rotate handle (Bottom-Left)
+            if (rotateBmp != null) {
+                drawCircle(rect.left, rect.bottom, 30f, btnBgPaint)
+                drawBitmap(rotateBmp, rect.left - 20, rect.bottom - 20, null)
+            } else {
+                selectedPaint.color = android.graphics.Color.RED
+                drawCircle(rect.left, rect.bottom, 15f, selectedPaint)
+            }
+
             if (deleteBmp != null) {
                 drawCircle(rect.left, rect.top, 30f, btnBgPaint)
-                drawBitmap(deleteBmp, rect.left - 30, rect.top - 30, null)
+                drawBitmap(deleteBmp, rect.left - 20, rect.top - 20, null)
             }
             if (duplicateBmp != null) {
                 drawCircle(rect.right, rect.top, 30f, btnBgPaint)
-                drawBitmap(duplicateBmp, rect.right - 30, rect.top - 30, null)
+                drawBitmap(duplicateBmp, rect.right - 20, rect.top - 20, null)
             }
         }
     }
@@ -145,7 +160,7 @@ class Texts : Shape {
         val cx = rawRect.centerX()
         val cy = rawRect.centerY()
         val paddedRect =
-            RectF(rawRect.left - 5, rawRect.top - 5, rawRect.right + 10, rawRect.bottom + 10)
+                RectF(rawRect.left - 5, rawRect.top - 5, rawRect.right + 10, rawRect.bottom + 10)
 
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
@@ -159,7 +174,7 @@ class Texts : Shape {
         val cx = rawRect.centerX()
         val cy = rawRect.centerY()
         val paddedRect =
-            RectF(rawRect.left - 5, rawRect.top - 5, rawRect.right + 10, rawRect.bottom + 10)
+                RectF(rawRect.left - 5, rawRect.top - 5, rawRect.right + 10, rawRect.bottom + 10)
 
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
@@ -180,15 +195,15 @@ class Texts : Shape {
         // Padded Bottom-Left: (l-5, b+10).
         val paddedRect = RectF(rect.left - 5, rect.top - 5, rect.right + 10, rect.bottom + 10)
         val initialHandleAngle =
-            Math.toDegrees(
-                kotlin.math.atan2(
-                    (paddedRect.bottom - cy).toDouble(),
-                    (paddedRect.left - cx).toDouble()
-                )
-            )
-                .toFloat()
+                Math.toDegrees(
+                                kotlin.math.atan2(
+                                        (paddedRect.bottom - cy).toDouble(),
+                                        (paddedRect.left - cx).toDouble()
+                                )
+                        )
+                        .toFloat()
         val currentTouchAngle =
-            Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
+                Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
 
         rotation = currentTouchAngle - initialHandleAngle
     }

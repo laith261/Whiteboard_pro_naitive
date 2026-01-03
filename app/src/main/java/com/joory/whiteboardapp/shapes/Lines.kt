@@ -57,27 +57,27 @@ class Lines : Shape {
 
     private fun getRectBorder(): RectF {
         val leftTop =
-            PointF(
-                if (end.x > start.x) start.x else end.x,
-                if (end.y > start.y) start.y else end.y
-            )
-                .apply {
-                    if (inSerine) {
-                        x -= 15
-                        y -= 15
-                    }
-                }
+                PointF(
+                                if (end.x > start.x) start.x else end.x,
+                                if (end.y > start.y) start.y else end.y
+                        )
+                        .apply {
+                            if (inSerine) {
+                                x -= 15
+                                y -= 15
+                            }
+                        }
         val rightBottom =
-            PointF(
-                if (end.x < start.x) start.x else end.x,
-                if (end.y < start.y) start.y else end.y
-            )
-                .apply {
-                    if (inSerine) {
-                        x += 15
-                        y += 15
-                    }
-                }
+                PointF(
+                                if (end.x < start.x) start.x else end.x,
+                                if (end.y < start.y) start.y else end.y
+                        )
+                        .apply {
+                            if (inSerine) {
+                                x += 15
+                                y += 15
+                            }
+                        }
         return RectF(leftTop.x, leftTop.y, rightBottom.x, rightBottom.y)
     }
 
@@ -108,7 +108,13 @@ class Lines : Shape {
         return rect.contains(rotatedPoint.x, rotatedPoint.y)
     }
 
-    override fun drawSelectedBox(canvas: Canvas, deleteBmp: Bitmap?, duplicateBmp: Bitmap?) {
+    override fun drawSelectedBox(
+            canvas: Canvas,
+            deleteBmp: Bitmap?,
+            duplicateBmp: Bitmap?,
+            rotateBmp: Bitmap?,
+            resizeBmp: Bitmap?
+    ) {
         val rect = getRectBorder()
         val cx = (start.x + end.x) / 2
         val cy = (start.y + end.y) / 2
@@ -119,28 +125,48 @@ class Lines : Shape {
             selectedPaint.style = Paint.Style.STROKE
             drawRect(rect, selectedPaint)
 
-            // Draw resize handle at the end point
-            selectedPaint.pathEffect = null
-            selectedPaint.style = Paint.Style.FILL
-            selectedPaint.color = android.graphics.Color.BLUE
-            drawCircle(end.x, end.y, 15f, selectedPaint)
-
-            // Draw rotate handle at the start point
-            selectedPaint.color = android.graphics.Color.RED
-            drawCircle(start.x, start.y, 15f, selectedPaint)
-
             // Common paint for button backgrounds
             val btnBgPaint = Paint()
             btnBgPaint.color = "#5369e7".toColorInt()
             btnBgPaint.style = Paint.Style.FILL
 
+            // Draw resize handle at the end point
+            if (resizeBmp != null) {
+                drawCircle(end.x, end.y, 30f, btnBgPaint)
+                drawBitmap(resizeBmp, end.x - 20, end.y - 20, null)
+            } else {
+                selectedPaint.pathEffect = null
+                selectedPaint.style = Paint.Style.FILL
+                selectedPaint.color = android.graphics.Color.BLUE
+                drawCircle(end.x, end.y, 15f, selectedPaint)
+            }
+
+            // Draw rotate handle at the start point
+            if (rotateBmp != null) {
+                drawCircle(start.x, start.y, 30f, btnBgPaint)
+                drawBitmap(rotateBmp, start.x - 20, start.y - 20, null)
+            } else {
+                selectedPaint.color = android.graphics.Color.RED
+                drawCircle(start.x, start.y, 15f, selectedPaint)
+            }
+
+            val isPositiveSlope = (end.y - start.y) * (end.x - start.x) > 0
+            // If slope is positive (\), occupied corners are TL and BR. Use BL and TR for buttons.
+            // If slope is negative (/), occupied corners are TR and BL. Use TL and BR for buttons.
+
+            val deleteX = rect.left
+            val deleteY = if (isPositiveSlope) rect.bottom else rect.top
+
+            val duplicateX = rect.right
+            val duplicateY = if (isPositiveSlope) rect.top else rect.bottom
+
             if (deleteBmp != null) {
-                drawCircle(rect.left, rect.top, 30f, btnBgPaint)
-                drawBitmap(deleteBmp, rect.left - 30, rect.top - 30, null)
+                drawCircle(deleteX, deleteY, 30f, btnBgPaint)
+                drawBitmap(deleteBmp, deleteX - 20, deleteY - 20, null)
             }
             if (duplicateBmp != null) {
-                drawCircle(rect.right, rect.top, 30f, btnBgPaint)
-                drawBitmap(duplicateBmp, rect.right - 30, rect.top - 30, null)
+                drawCircle(duplicateX, duplicateY, 30f, btnBgPaint)
+                drawBitmap(duplicateBmp, duplicateX - 20, duplicateY - 20, null)
             }
         }
     }
@@ -151,8 +177,10 @@ class Lines : Shape {
         val cy = (start.y + end.y) / 2
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
+        val isPositiveSlope = (end.y - start.y) * (end.x - start.x) > 0
         val btnX = rect.left
-        val btnY = rect.top
+        val btnY = if (isPositiveSlope) rect.bottom else rect.top
+
         val dx = rotatedPoint.x - btnX
         val dy = rotatedPoint.y - btnY
         return (dx * dx + dy * dy) <= 2500
@@ -164,8 +192,10 @@ class Lines : Shape {
         val cy = (start.y + end.y) / 2
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
+        val isPositiveSlope = (end.y - start.y) * (end.x - start.x) > 0
         val btnX = rect.right
-        val btnY = rect.top
+        val btnY = if (isPositiveSlope) rect.top else rect.bottom
+
         val dx = rotatedPoint.x - btnX
         val dy = rotatedPoint.y - btnY
         return (dx * dx + dy * dy) <= 2500
@@ -199,7 +229,7 @@ class Lines : Shape {
 
         // Use angle of start point relative to center as initial handle angle
         val initialHandleAngle =
-            toDegrees(atan2((start.y - cy).toDouble(), (start.x - cx).toDouble())).toFloat()
+                toDegrees(atan2((start.y - cy).toDouble(), (start.x - cx).toDouble())).toFloat()
         val currentTouchAngle = toDegrees(atan2(dy.toDouble(), dx.toDouble())).toFloat()
 
         rotation = currentTouchAngle - initialHandleAngle

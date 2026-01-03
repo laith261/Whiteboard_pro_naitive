@@ -43,12 +43,12 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     private lateinit var myMain: MainActivity
     var draws = ArrayList<Shape>()
     var paint: Paint =
-        Paint().apply {
-            strokeWidth = 5f
-            color = Color.BLACK
-            style = Paint.Style.FILL
-            textSize = 50f
-        }
+            Paint().apply {
+                strokeWidth = 5f
+                color = Color.BLACK
+                style = Paint.Style.FILL
+                textSize = 50f
+            }
     var undo = ArrayList<Shape>()
     var tool: Shapes = Shapes.Brush
     var tools = ArrayMap<Shapes, Shape>()
@@ -64,20 +64,26 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     private var oren: Int = 0
     private var deleteBmp: Bitmap? = null
     private var duplicateBmp: Bitmap? = null
+    private var rotateBmp: Bitmap? = null
+    private var resizeBmp: Bitmap? = null
 
     init {
         deleteBmp = getBitmapFromVectorDrawable(context, R.drawable.ic_cancel)
         duplicateBmp = getBitmapFromVectorDrawable(context, R.drawable.ic_content_copy)
+        rotateBmp = getBitmapFromVectorDrawable(context, R.drawable.rotate)
+        resizeBmp = getBitmapFromVectorDrawable(context, R.drawable.resize)
         // Scale them down if necessary, e.g., to 60x60 or 50x50
-        deleteBmp = deleteBmp?.scale(60, 60, true)
-        duplicateBmp = duplicateBmp?.scale(60, 60, true)
+        deleteBmp = deleteBmp?.scale(40, 40, true)
+        duplicateBmp = duplicateBmp?.scale(40, 40, true)
+        rotateBmp = rotateBmp?.scale(40, 40, true)
+        resizeBmp = resizeBmp?.scale(40, 40, true)
         setUoShapes()
     }
 
     private fun getBitmapFromVectorDrawable(context: Context?, drawableId: Int): Bitmap? {
         val drawable =
-            androidx.core.content.ContextCompat.getDrawable(context!!, drawableId)
-                ?: return null
+                androidx.core.content.ContextCompat.getDrawable(context!!, drawableId)
+                        ?: return null
         val bitmap = createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight)
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
@@ -160,7 +166,6 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                     updateStyle()
                 }
             }
-
             MotionEvent.ACTION_MOVE -> {
                 if (isResizing && objectIndex != null) {
                     draws[objectIndex!!].resize(e)
@@ -182,7 +187,6 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 }
                 invalidate()
             }
-
             MotionEvent.ACTION_UP -> {
                 isResizing = false
                 isRotating = false
@@ -191,15 +195,15 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 }
 
                 if (tool in
-                    arrayOf(
-                        Shapes.Circle,
-                        Shapes.Rect,
-                        Shapes.Line,
-                        Shapes.Hexagon,
-                        Shapes.Star,
-                        Shapes.Triangle,
-                        Shapes.Image
-                    )
+                                arrayOf(
+                                        Shapes.Circle,
+                                        Shapes.Rect,
+                                        Shapes.Line,
+                                        Shapes.Hexagon,
+                                        Shapes.Star,
+                                        Shapes.Triangle,
+                                        Shapes.Image
+                                )
                 ) {
                     if (isDrawing && draws.isNotEmpty()) {
                         objectIndex = draws.indexOf(draws.last())
@@ -230,7 +234,13 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
             i.draw(canvas)
         }
         if (objectIndex != null && objectIndex!! < draws.size) {
-            draws[objectIndex!!].drawSelectedBox(canvas, deleteBmp, duplicateBmp)
+            draws[objectIndex!!].drawSelectedBox(
+                    canvas,
+                    deleteBmp,
+                    duplicateBmp,
+                    rotateBmp,
+                    resizeBmp
+            )
         } else {
             objectIndex = null
         }
@@ -264,25 +274,25 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         if (theWidth > theHeight) {
             val widthAspect = theHeight.toFloat() / theWidth
             imgBG =
-                Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, myMatrix, true)
-                    .scale(width, (width * widthAspect).toInt())
+                    Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, myMatrix, true)
+                            .scale(width, (width * widthAspect).toInt())
         } else {
             val heightAspect = theWidth.toFloat() / theHeight
             imgBG =
-                Bitmap.createScaledBitmap(
-                    Bitmap.createBitmap(
-                        bitmap,
-                        0,
-                        0,
-                        bitmap.width,
-                        bitmap.height,
-                        myMatrix,
-                        true
-                    ),
-                    (height * heightAspect).toInt(),
-                    height,
-                    true
-                )
+                    Bitmap.createScaledBitmap(
+                            Bitmap.createBitmap(
+                                    bitmap,
+                                    0,
+                                    0,
+                                    bitmap.width,
+                                    bitmap.height,
+                                    myMatrix,
+                                    true
+                            ),
+                            (height * heightAspect).toInt(),
+                            height,
+                            true
+                    )
         }
         file = null
         invalidate()
@@ -370,8 +380,8 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         val canvas = Canvas(bitmap)
         this.draw(canvas)
         val imagePath =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                .toString() + "/Whiteboard/"
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                        .toString() + "/Whiteboard/"
         if (!File(imagePath).exists()) {
             File(imagePath).mkdirs()
         }
@@ -380,10 +390,10 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         try {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, newFile)
             MediaScannerConnection.scanFile(
-                this.context,
-                arrayOf(file.absolutePath),
-                arrayOf("image/png"),
-                null
+                    this.context,
+                    arrayOf(file.absolutePath),
+                    arrayOf("image/png"),
+                    null
             )
             newFile.flush()
             newFile.close()
@@ -394,11 +404,11 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 invalidate()
             }
             Toast.makeText(
-                this.context,
-                resources.getText(R.string.image_saved),
-                Toast.LENGTH_SHORT
-            )
-                .show()
+                            this.context,
+                            resources.getText(R.string.image_saved),
+                            Toast.LENGTH_SHORT
+                    )
+                    .show()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -429,21 +439,21 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     fun clearCanvas() {
         android.app.AlertDialog.Builder(context)
-            .setTitle("Clear Canvas")
-            .setMessage("Are you sure you want to clear the canvas?")
-            .setPositiveButton("Yes") { dialog, _ ->
-                undo.clear()
-                undo.addAll(draws)
-                draws.clear()
-                objectIndex = null
-                myMain.doButtonsAlpha()
-                myMain.showButtons()
-                imgBG = null
-                invalidate()
-                dialog.dismiss()
-            }
-            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
-            .show()
+                .setTitle("Clear Canvas")
+                .setMessage("Are you sure you want to clear the canvas?")
+                .setPositiveButton("Yes") { dialog, _ ->
+                    undo.clear()
+                    undo.addAll(draws)
+                    draws.clear()
+                    objectIndex = null
+                    myMain.doButtonsAlpha()
+                    myMain.showButtons()
+                    imgBG = null
+                    invalidate()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
+                .show()
     }
 
     fun changeStyle() {

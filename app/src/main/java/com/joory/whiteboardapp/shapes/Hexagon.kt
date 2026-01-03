@@ -22,7 +22,7 @@ class Hexagon : Shape {
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
     override var shapeTools: MutableList<Tools> =
-        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
     override fun draw(canvas: Canvas) {
         canvas.withRotation(rotation, hexagon.cp.x, hexagon.cp.y) { drawPath(hexagon.path, paint) }
@@ -59,7 +59,13 @@ class Hexagon : Shape {
         return rect.contains(rotatedPoint.x, rotatedPoint.y)
     }
 
-    override fun drawSelectedBox(canvas: Canvas, deleteBmp: Bitmap?, duplicateBmp: Bitmap?) {
+    override fun drawSelectedBox(
+            canvas: Canvas,
+            deleteBmp: Bitmap?,
+            duplicateBmp: Bitmap?,
+            rotateBmp: Bitmap?,
+            resizeBmp: Bitmap?
+    ) {
         val radius = sideLength / 2
         val cx = hexagon.cp.x
         val cy = hexagon.cp.y
@@ -71,28 +77,38 @@ class Hexagon : Shape {
             selectedPaint.style = Paint.Style.STROKE
             drawRect(rect, selectedPaint)
 
-            // Draw resize handle
-            selectedPaint.pathEffect = null
-            selectedPaint.style = Paint.Style.FILL
-            selectedPaint.color = android.graphics.Color.BLUE
-            drawCircle(rect.right, rect.bottom, 15f, selectedPaint)
-
-            // Draw rotate handle
-            selectedPaint.color = android.graphics.Color.RED
-            drawCircle(rect.left, rect.bottom, 15f, selectedPaint)
-
             // Common paint for button backgrounds
             val btnBgPaint = Paint()
             btnBgPaint.color = "#5369e7".toColorInt()
             btnBgPaint.style = Paint.Style.FILL
 
+            // Draw resize handle
+            if (resizeBmp != null) {
+                drawCircle(rect.right, rect.bottom, 30f, btnBgPaint)
+                drawBitmap(resizeBmp, rect.right - 20, rect.bottom - 20, null)
+            } else {
+                selectedPaint.pathEffect = null
+                selectedPaint.style = Paint.Style.FILL
+                selectedPaint.color = android.graphics.Color.BLUE
+                drawCircle(rect.right, rect.bottom, 15f, selectedPaint)
+            }
+
+            // Draw rotate handle
+            if (rotateBmp != null) {
+                drawCircle(rect.left, rect.bottom, 30f, btnBgPaint)
+                drawBitmap(rotateBmp, rect.left - 20, rect.bottom - 20, null)
+            } else {
+                selectedPaint.color = android.graphics.Color.RED
+                drawCircle(rect.left, rect.bottom, 15f, selectedPaint)
+            }
+
             if (deleteBmp != null) {
                 drawCircle(rect.left, rect.top, 30f, btnBgPaint)
-                drawBitmap(deleteBmp, rect.left - 30, rect.top - 30, null)
+                drawBitmap(deleteBmp, rect.left - 20, rect.top - 20, null)
             }
             if (duplicateBmp != null) {
                 drawCircle(rect.right, rect.top, 30f, btnBgPaint)
-                drawBitmap(duplicateBmp, rect.right - 30, rect.top - 30, null)
+                drawBitmap(duplicateBmp, rect.right - 20, rect.top - 20, null)
             }
         }
     }

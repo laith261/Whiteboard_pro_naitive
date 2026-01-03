@@ -136,10 +136,8 @@
                         android:layout_height="match_parent"
                         android:background="#00FFFFFF"
                         android:contentDescription="TODO"
-                        android:padding="10dp"
-                        android:scaleType="centerInside"
-                        android:scaleX="1.5"
-                        android:scaleY="1.5"
+                        android:padding="7dp"
+                        android:scaleType="fitCenter"
                         android:onClick="onColorClick"
                         app:srcCompat="@drawable/ic_color_lens" />
 
@@ -161,10 +159,8 @@
                         android:layout_weight="1"
                         android:background="#00FFFFFF"
                         android:contentDescription="TODO"
-                        android:padding="10dp"
-                        android:scaleType="centerInside"
-                        android:scaleX="1.5"
-                        android:scaleY="1.5"
+                        android:padding="7dp"
+                        android:scaleType="fitCenter"
                         android:onClick="showStrokeDialog"
                         app:srcCompat="@drawable/ic_line_weight" />
 
@@ -174,10 +170,8 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="#00FFFFFF"
-                        android:padding="10dp"
-                        android:scaleType="centerInside"
-                        android:scaleX="1.5"
-                        android:scaleY="1.5"
+                        android:padding="7dp"
+                        android:scaleType="fitCenter"
                         android:onClick="onColorBgClick"
                         app:srcCompat="@drawable/ic_format_color_fill" />
 

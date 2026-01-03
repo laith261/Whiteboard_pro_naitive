@@ -15,7 +15,7 @@ class Arrow : Shape {
     private var triangle = Triangle()
     private var line = Lines()
     override var shapeTools: MutableList<Tools> =
-        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
     override fun draw(canvas: Canvas) {
         triangle.draw(canvas)
@@ -103,41 +103,47 @@ class Arrow : Shape {
 
     override fun isTouchingObject(e: MotionEvent): Boolean {
         val rect =
-            if (triangle.fp.y < line.start.y) {
-                RectF(
-                    triangle.fp.x - (sideLength / 2) - 5,
-                    triangle.fp.y - sideLength - 5,
-                    line.start.x + (sideLength / 2) + 5,
-                    line.start.y + 5
-                )
-            } else {
-                RectF(
-                    line.start.x - (sideLength / 2) - 5,
-                    line.start.y - 5,
-                    triangle.fp.x + (sideLength / 2) + 5,
-                    triangle.fp.y + (sideLength / 2) + 5
-                )
-            }
+                if (triangle.fp.y < line.start.y) {
+                    RectF(
+                            triangle.fp.x - (sideLength / 2) - 5,
+                            triangle.fp.y - sideLength - 5,
+                            line.start.x + (sideLength / 2) + 5,
+                            line.start.y + 5
+                    )
+                } else {
+                    RectF(
+                            line.start.x - (sideLength / 2) - 5,
+                            line.start.y - 5,
+                            triangle.fp.x + (sideLength / 2) + 5,
+                            triangle.fp.y + (sideLength / 2) + 5
+                    )
+                }
         return rect.contains(e.x, e.y)
     }
 
-    override fun drawSelectedBox(canvas: Canvas, deleteBmp: Bitmap?, duplicateBmp: Bitmap?) {
+    override fun drawSelectedBox(
+            canvas: Canvas,
+            deleteBmp: Bitmap?,
+            duplicateBmp: Bitmap?,
+            rotateBmp: Bitmap?,
+            resizeBmp: Bitmap?
+    ) {
         val rect =
-            if (triangle.fp.y < line.start.y) {
-                RectF(
-                    triangle.fp.x - (sideLength / 2) - 5,
-                    triangle.fp.y - (sideLength / 2) - 5,
-                    line.start.x + (sideLength / 2) + 5,
-                    line.start.y + 5
-                )
-            } else {
-                RectF(
-                    line.start.x - (sideLength / 2) - 5,
-                    line.start.y - 5,
-                    triangle.fp.x + (sideLength / 2) + 5,
-                    triangle.fp.y + (sideLength / 2) + 5
-                )
-            }
+                if (triangle.fp.y < line.start.y) {
+                    RectF(
+                            triangle.fp.x - (sideLength / 2) - 5,
+                            triangle.fp.y - (sideLength / 2) - 5,
+                            line.start.x + (sideLength / 2) + 5,
+                            line.start.y + 5
+                    )
+                } else {
+                    RectF(
+                            line.start.x - (sideLength / 2) - 5,
+                            line.start.y - 5,
+                            triangle.fp.x + (sideLength / 2) + 5,
+                            triangle.fp.y + (sideLength / 2) + 5
+                    )
+                }
         val selectedPaint = Paint()
         selectedPaint.pathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
         selectedPaint.style = Paint.Style.STROKE
@@ -150,31 +156,31 @@ class Arrow : Shape {
 
         if (deleteBmp != null) {
             canvas.drawCircle(rect.left, rect.top, 30f, btnBgPaint)
-            canvas.drawBitmap(deleteBmp, rect.left - 30, rect.top - 30, null)
+            canvas.drawBitmap(deleteBmp, rect.left - 20, rect.top - 20, null)
         }
         if (duplicateBmp != null) {
             canvas.drawCircle(rect.right, rect.top, 30f, btnBgPaint)
-            canvas.drawBitmap(duplicateBmp, rect.right - 30, rect.top - 30, null)
+            canvas.drawBitmap(duplicateBmp, rect.right - 20, rect.top - 20, null)
         }
     }
 
     override fun isTouchingDelete(e: MotionEvent): Boolean {
         val rect =
-            if (triangle.fp.y < line.start.y) {
-                RectF(
-                    triangle.fp.x - (sideLength / 2) - 5,
-                    triangle.fp.y - (sideLength / 2) - 5,
-                    line.start.x + (sideLength / 2) + 5,
-                    line.start.y + 5
-                )
-            } else {
-                RectF(
-                    line.start.x - (sideLength / 2) - 5,
-                    line.start.y - 5,
-                    triangle.fp.x + (sideLength / 2) + 5,
-                    triangle.fp.y + (sideLength / 2) + 5
-                )
-            }
+                if (triangle.fp.y < line.start.y) {
+                    RectF(
+                            triangle.fp.x - (sideLength / 2) - 5,
+                            triangle.fp.y - (sideLength / 2) - 5,
+                            line.start.x + (sideLength / 2) + 5,
+                            line.start.y + 5
+                    )
+                } else {
+                    RectF(
+                            line.start.x - (sideLength / 2) - 5,
+                            line.start.y - 5,
+                            triangle.fp.x + (sideLength / 2) + 5,
+                            triangle.fp.y + (sideLength / 2) + 5
+                    )
+                }
         val btnX = rect.left
         val btnY = rect.top
         val dx = e.x - btnX
@@ -184,21 +190,21 @@ class Arrow : Shape {
 
     override fun isTouchingDuplicate(e: MotionEvent): Boolean {
         val rect =
-            if (triangle.fp.y < line.start.y) {
-                RectF(
-                    triangle.fp.x - (sideLength / 2) - 5,
-                    triangle.fp.y - (sideLength / 2) - 5,
-                    line.start.x + (sideLength / 2) + 5,
-                    line.start.y + 5
-                )
-            } else {
-                RectF(
-                    line.start.x - (sideLength / 2) - 5,
-                    line.start.y - 5,
-                    triangle.fp.x + (sideLength / 2) + 5,
-                    triangle.fp.y + (sideLength / 2) + 5
-                )
-            }
+                if (triangle.fp.y < line.start.y) {
+                    RectF(
+                            triangle.fp.x - (sideLength / 2) - 5,
+                            triangle.fp.y - (sideLength / 2) - 5,
+                            line.start.x + (sideLength / 2) + 5,
+                            line.start.y + 5
+                    )
+                } else {
+                    RectF(
+                            line.start.x - (sideLength / 2) - 5,
+                            line.start.y - 5,
+                            triangle.fp.x + (sideLength / 2) + 5,
+                            triangle.fp.y + (sideLength / 2) + 5
+                    )
+                }
         val btnX = rect.right
         val btnY = rect.top
         val dx = e.x - btnX
