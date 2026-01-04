@@ -84,11 +84,11 @@ class ImageShape(var bitmap: Bitmap? = null) : Shape {
     }
 
     override fun drawSelectedBox(
-            canvas: Canvas,
-            deleteBmp: Bitmap?,
-            duplicateBmp: Bitmap?,
-            rotateBmp: Bitmap?,
-            resizeBmp: Bitmap?
+        canvas: Canvas,
+        deleteBmp: Bitmap?,
+        duplicateBmp: Bitmap?,
+        rotateBmp: Bitmap?,
+        resizeBmp: Bitmap?
     ) {
         val cx = (rect.left + rect.right) / 2
         val cy = (rect.top + rect.bottom) / 2
@@ -195,15 +195,15 @@ class ImageShape(var bitmap: Bitmap? = null) : Shape {
         val dy = e.y - cy
 
         val initialHandleAngle =
-                Math.toDegrees(
-                                kotlin.math.atan2(
-                                        (rect.bottom - cy).toDouble(),
-                                        (rect.left - cx).toDouble()
-                                )
-                        )
-                        .toFloat()
+            Math.toDegrees(
+                kotlin.math.atan2(
+                    (rect.bottom - cy).toDouble(),
+                    (rect.left - cx).toDouble()
+                )
+            )
+                .toFloat()
         val currentTouchAngle =
-                Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
+            Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
 
         rotation = currentTouchAngle - initialHandleAngle
     }
@@ -220,23 +220,29 @@ class ImageShape(var bitmap: Bitmap? = null) : Shape {
     }
 
     override fun resize(e: MotionEvent) {
-        // This resize is non-uniform scaling if we just move the corner.
-        // Rects.kt does non-uniform.
-        // For images, we probably want to maintain aspect ratio, but user might want to stretch.
-        // Let's mimic Rects.kt for now (free resize).
-        // Improving: Enforce aspect ratio? Maybe later.
         val cx = (rect.left + rect.right) / 2
         val cy = (rect.top + rect.bottom) / 2
+
+        // 1. Calculate anchor point (Top-Left) position on screen BEFORE resize
+        val anchorX = rect.left
+        val anchorY = rect.top
+        val screenAnchor = rotatePoint(PointF(anchorX, anchorY), PointF(cx, cy), rotation)
+
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
         rect.right = rotatedPoint.x
         rect.bottom = rotatedPoint.y
 
-        // Ensure width/height are positive if flipped?
-        // Rects.kt creates new RectF if start > end.
-        // Here we modify rect.right/bottom.
-        // If right < left, we should probably flip?
-        // But let's keep it simple.
+        // 3. Calculate where the anchor IS represented now with the new center
+        val newCx = (rect.left + rect.right) / 2
+        val newCy = (rect.top + rect.bottom) / 2
+        val newScreenAnchor = rotatePoint(PointF(anchorX, anchorY), PointF(newCx, newCy), rotation)
+
+        // 4. Calculate drift and offset rect to correct it
+        val dx = screenAnchor.x - newScreenAnchor.x
+        val dy = screenAnchor.y - newScreenAnchor.y
+
+        rect.offset(dx, dy)
     }
 
     override fun startMove(e: MotionEvent) {
@@ -264,10 +270,10 @@ class ImageShape(var bitmap: Bitmap? = null) : Shape {
         val cx = (rect.left + rect.right) / 2
         val cy = (rect.top + rect.bottom) / 2
         rect.set(
-                cx - currentWidth / 2,
-                cy - currentHeight / 2,
-                cx + currentWidth / 2,
-                cy + currentHeight / 2
+            cx - currentWidth / 2,
+            cy - currentHeight / 2,
+            cx + currentWidth / 2,
+            cy + currentHeight / 2
         )
     }
 }

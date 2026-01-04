@@ -22,7 +22,7 @@ class Hexagon : Shape {
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
     override var shapeTools: MutableList<Tools> =
-            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
     override fun draw(canvas: Canvas) {
         canvas.withRotation(rotation, hexagon.cp.x, hexagon.cp.y) { drawPath(hexagon.path, paint) }
@@ -37,11 +37,14 @@ class Hexagon : Shape {
     }
 
     override fun create(e: MotionEvent): Shape {
-        paint.isDither = true
-        paint.strokeJoin = Paint.Join.ROUND
-        paint.strokeCap = Paint.Cap.ROUND
-        fp = PointF(e.x, e.y)
-        return this
+        val newHexagon = Hexagon()
+        newHexagon.sideLength = this.sideLength
+        newHexagon.paint.isDither = true
+        newHexagon.paint.strokeJoin = Paint.Join.ROUND
+        newHexagon.paint.strokeCap = Paint.Cap.ROUND
+        newHexagon.fp = PointF(e.x, e.y)
+        newHexagon.update(e)
+        return newHexagon
     }
 
     override fun update(e: MotionEvent) {
@@ -60,11 +63,11 @@ class Hexagon : Shape {
     }
 
     override fun drawSelectedBox(
-            canvas: Canvas,
-            deleteBmp: Bitmap?,
-            duplicateBmp: Bitmap?,
-            rotateBmp: Bitmap?,
-            resizeBmp: Bitmap?
+        canvas: Canvas,
+        deleteBmp: Bitmap?,
+        duplicateBmp: Bitmap?,
+        rotateBmp: Bitmap?,
+        resizeBmp: Bitmap?
     ) {
         val radius = sideLength / 2
         val cx = hexagon.cp.x

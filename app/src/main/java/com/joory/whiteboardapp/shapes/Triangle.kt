@@ -22,7 +22,7 @@ class Triangle : Shape {
     override var rotation: Float = 0f
     override lateinit var text: String
     override var shapeTools: MutableList<Tools> =
-            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
     override fun draw(canvas: Canvas) {
         canvas.withRotation(rotation, triangle.cp.x, triangle.cp.y) {
@@ -77,11 +77,11 @@ class Triangle : Shape {
     }
 
     override fun drawSelectedBox(
-            canvas: Canvas,
-            deleteBmp: Bitmap?,
-            duplicateBmp: Bitmap?,
-            rotateBmp: Bitmap?,
-            resizeBmp: Bitmap?
+        canvas: Canvas,
+        deleteBmp: Bitmap?,
+        duplicateBmp: Bitmap?,
+        rotateBmp: Bitmap?,
+        resizeBmp: Bitmap?
     ) {
         val radius = sideLength / 2
         val cx = triangle.cp.x

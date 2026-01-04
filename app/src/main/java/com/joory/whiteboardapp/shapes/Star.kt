@@ -22,7 +22,7 @@ class Star : Shape {
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
     override var shapeTools: MutableList<Tools> =
-            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
     override fun draw(canvas: Canvas) {
         canvas.withRotation(rotation, star.cp.x, star.cp.y) { drawPath(star.path, paint) }
@@ -37,11 +37,14 @@ class Star : Shape {
     }
 
     override fun create(e: MotionEvent): Shape {
-        paint.isDither = true
-        paint.strokeJoin = Paint.Join.ROUND
-        paint.strokeCap = Paint.Cap.ROUND
-        fp = PointF(e.x, e.y)
-        return this
+        val newStar = Star()
+        newStar.sideLength = this.sideLength
+        newStar.paint.isDither = true
+        newStar.paint.strokeJoin = Paint.Join.ROUND
+        newStar.paint.strokeCap = Paint.Cap.ROUND
+        newStar.fp = PointF(e.x, e.y)
+        newStar.update(e)
+        return newStar
     }
 
     override fun update(e: MotionEvent) {
@@ -60,11 +63,11 @@ class Star : Shape {
     }
 
     override fun drawSelectedBox(
-            canvas: Canvas,
-            deleteBmp: Bitmap?,
-            duplicateBmp: Bitmap?,
-            rotateBmp: Bitmap?,
-            resizeBmp: Bitmap?
+        canvas: Canvas,
+        deleteBmp: Bitmap?,
+        duplicateBmp: Bitmap?,
+        rotateBmp: Bitmap?,
+        resizeBmp: Bitmap?
     ) {
         val radius = sideLength / 2
         val cx = star.cp.x

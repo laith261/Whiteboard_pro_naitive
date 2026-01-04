@@ -3,52 +3,42 @@ package com.joory.whiteboardapp
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Matrix
 import android.graphics.Paint
-import android.media.MediaScannerConnection
-import android.os.Environment
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
 import com.joory.whiteboardapp.shapes.ImageShape
 import com.joory.whiteboardapp.shapes.Lines
 import com.joory.whiteboardapp.shapes.Shape
 import com.joory.whiteboardapp.shapes.Shapes
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.time.LocalDateTime
 
 class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
-    private lateinit var myMain: MainActivity
+    lateinit var myMain: MainActivity
     var draws = ArrayList<Shape>()
     var paint: Paint =
-            Paint().apply {
-                strokeWidth = 5f
-                color = Color.BLACK
-                style = Paint.Style.FILL
-                textSize = 50f
-            }
+        Paint().apply {
+            strokeWidth = 5f
+            color = Color.BLACK
+            style = Paint.Style.FILL
+            textSize = 50f
+        }
     var undo = ArrayList<Shape>()
     var tool: Shapes = Shapes.Brush
 
     private var colorBG: Int = Color.WHITE
-    private var imgBG: Bitmap? = null
+    var imgBG: Bitmap? = null
     var objectIndex: Int? = null
-    private var tmpObjectIndex: Int? = null
+    var tmpObjectIndex: Int? = null
     private var example: Shape? = null
     var sideLength: Float = 100f
-    private var file: InputStream? = null
-    private var oren: Int = 0
+    var imgUri: android.net.Uri? = null
+    var oren: Int = 0
     private var deleteBmp: Bitmap? = null
     private var duplicateBmp: Bitmap? = null
     private var rotateBmp: Bitmap? = null
@@ -68,8 +58,8 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     private fun getBitmapFromVectorDrawable(context: Context?, drawableId: Int): Bitmap? {
         val drawable =
-                androidx.core.content.ContextCompat.getDrawable(context!!, drawableId)
-                        ?: return null
+            androidx.core.content.ContextCompat.getDrawable(context!!, drawableId)
+                ?: return null
         val bitmap = createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight)
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
@@ -80,8 +70,8 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         myMain = MainActivity.getInstanceActivity()!!
-        if (file != null) {
-            setImageBackgroundProcess()
+        if (imgUri != null) {
+            myMain.setImageBg.setImageBackgroundProcess(this)
         }
         setBG(canvas)
         // Save a layer to support erasing (PorterDuff.Mode.CLEAR) without clearing the background
@@ -131,12 +121,12 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
                 if (tool != Shapes.Select && !isTouchingSameObject(e)) {
                     objectIndex = null
-                    Log.d("Shape1", "choseTool: $tool")
                     draws.add(tool.shape.create(e))
                     isDrawing = true
                     updateStyle()
                 }
             }
+
             MotionEvent.ACTION_MOVE -> {
                 if (isResizing && objectIndex != null) {
                     draws[objectIndex!!].resize(e)
@@ -158,6 +148,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 }
                 invalidate()
             }
+
             MotionEvent.ACTION_UP -> {
                 isResizing = false
                 isRotating = false
@@ -165,17 +156,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                     setTextDialog()
                 }
 
-                if (tool in
-                                arrayOf(
-                                        Shapes.Circle,
-                                        Shapes.Rect,
-                                        Shapes.Line,
-                                        Shapes.Hexagon,
-                                        Shapes.Star,
-                                        Shapes.Triangle,
-                                        Shapes.Image
-                                )
-                ) {
+                if (tool.selectAble) {
                     if (isDrawing && draws.isNotEmpty()) {
                         objectIndex = draws.indexOf(draws.last())
                         invalidate()
@@ -206,11 +187,11 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         }
         if (objectIndex != null && objectIndex!! < draws.size) {
             draws[objectIndex!!].drawSelectedBox(
-                    canvas,
-                    deleteBmp,
-                    duplicateBmp,
-                    rotateBmp,
-                    resizeBmp
+                canvas,
+                deleteBmp,
+                duplicateBmp,
+                rotateBmp,
+                resizeBmp
             )
         } else {
             objectIndex = null
@@ -228,44 +209,9 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         invalidate()
     }
 
-    fun setImageBackground(img: InputStream, oren: Int) {
-        file = img
+    fun setImageBackground(img: android.net.Uri, oren: Int) {
+        imgUri = img
         this.oren = oren
-        invalidate()
-    }
-
-    @SuppressLint("UseKtx")
-    private fun setImageBackgroundProcess() {
-        val bitmap = BitmapFactory.decodeStream(file)!!
-        val myMatrix = Matrix()
-        myMatrix.setRotate(oren.toFloat())
-        val theWidth = if (oren > 0 && oren != 180) bitmap.height else bitmap.width
-        val theHeight = if (oren > 0 && oren != 180) bitmap.width else bitmap.height
-
-        if (theWidth > theHeight) {
-            val widthAspect = theHeight.toFloat() / theWidth
-            imgBG =
-                    Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, myMatrix, true)
-                            .scale(width, (width * widthAspect).toInt())
-        } else {
-            val heightAspect = theWidth.toFloat() / theHeight
-            imgBG =
-                    Bitmap.createScaledBitmap(
-                            Bitmap.createBitmap(
-                                    bitmap,
-                                    0,
-                                    0,
-                                    bitmap.width,
-                                    bitmap.height,
-                                    myMatrix,
-                                    true
-                            ),
-                            (height * heightAspect).toInt(),
-                            height,
-                            true
-                    )
-        }
-        file = null
         invalidate()
     }
 
@@ -340,51 +286,6 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         return false
     }
 
-    @SuppressLint("SdCardPath", "NewApi", "WrongThread")
-    fun saveImage() {
-        if (objectIndex != null) {
-            tmpObjectIndex = objectIndex
-            objectIndex = null
-            invalidate()
-        }
-        val bitmap = createBitmap(this.width, this.height)
-        val canvas = Canvas(bitmap)
-        this.draw(canvas)
-        val imagePath =
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                        .toString() + "/Whiteboard/"
-        if (!File(imagePath).exists()) {
-            File(imagePath).mkdirs()
-        }
-        val file = File(imagePath + LocalDateTime.now().toString().replace(":", ".") + ".png")
-        val newFile = FileOutputStream(file)
-        try {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, newFile)
-            MediaScannerConnection.scanFile(
-                    this.context,
-                    arrayOf(file.absolutePath),
-                    arrayOf("image/png"),
-                    null
-            )
-            newFile.flush()
-            newFile.close()
-            myMain.ads.showAds()
-            if (tmpObjectIndex != null) {
-                objectIndex = tmpObjectIndex
-                tmpObjectIndex = null
-                invalidate()
-            }
-            Toast.makeText(
-                            this.context,
-                            resources.getText(R.string.image_saved),
-                            Toast.LENGTH_SHORT
-                    )
-                    .show()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
     fun deleteItem() {
         if (objectIndex != null && objectIndex!! < draws.size) {
             undo.add(draws[objectIndex!!])
@@ -410,21 +311,21 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     fun clearCanvas() {
         android.app.AlertDialog.Builder(context)
-                .setTitle("Clear Canvas")
-                .setMessage("Are you sure you want to clear the canvas?")
-                .setPositiveButton("Yes") { dialog, _ ->
-                    undo.clear()
-                    undo.addAll(draws)
-                    draws.clear()
-                    objectIndex = null
-                    myMain.doButtonsAlpha()
-                    myMain.showButtons()
-                    imgBG = null
-                    invalidate()
-                    dialog.dismiss()
-                }
-                .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
-                .show()
+            .setTitle("Clear Canvas")
+            .setMessage("Are you sure you want to clear the canvas?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                undo.clear()
+                undo.addAll(draws)
+                draws.clear()
+                objectIndex = null
+                myMain.doButtonsAlpha()
+                myMain.showButtons()
+                imgBG = null
+                invalidate()
+                dialog.dismiss()
+            }
+            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
     fun changeStyle() {

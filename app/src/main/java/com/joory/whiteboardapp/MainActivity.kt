@@ -3,7 +3,6 @@ package com.joory.whiteboardapp
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -20,15 +19,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.IntentCompat
 import androidx.exifinterface.media.ExifInterface
 import com.canhub.cropper.CropImageContract
-import com.canhub.cropper.CropImageContractOptions
-import com.canhub.cropper.CropImageOptions
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.material.badge.BadgeDrawable
 import com.joory.whiteboardapp.functions.Ads
 import com.joory.whiteboardapp.functions.ColorPicker
+import com.joory.whiteboardapp.functions.Crop
 import com.joory.whiteboardapp.functions.Dialogs
+import com.joory.whiteboardapp.functions.ImageUtils
 import com.joory.whiteboardapp.functions.Permission
+import com.joory.whiteboardapp.functions.SaveImage
+import com.joory.whiteboardapp.functions.SetImageBg
 import com.joory.whiteboardapp.shapes.ImageShape
 import com.joory.whiteboardapp.shapes.Shapes
 import java.io.InputStream
@@ -54,21 +55,24 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tools: ImageButton
     private lateinit var save: ImageButton
     private lateinit var clear: ImageButton
-    private lateinit var crop: ImageButton
+    private lateinit var cropButton: ImageButton
     private lateinit var badgeDrawable: BadgeDrawable
     lateinit var ads: Ads
     lateinit var dialogs: Dialogs
     lateinit var permission: Permission
     lateinit var colorPicker: ColorPicker
+    lateinit var crop: Crop
+    lateinit var saveImage: SaveImage
+    lateinit var setImageBg: SetImageBg
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId", "UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        initializeViews()
 
         // functions
+        initializeViews()
         permission.hasWriteStoragePermission()
         ads.loadFullScreenAd()
         showButtons()
@@ -97,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         redoButton = findViewById(R.id.redo)
         save = findViewById(R.id.save)
         clear = findViewById(R.id.clear)
-        crop = findViewById(R.id.crop)
+        cropButton = findViewById(R.id.crop)
         tools = findViewById(R.id.tools)
         imageBg = findViewById(R.id.imgbg)
         badgeDrawable = BadgeDrawable.create(this)
@@ -106,6 +110,9 @@ class MainActivity : AppCompatActivity() {
         dialogs = Dialogs(this)
         permission = Permission(this)
         colorPicker = ColorPicker(supportFragmentManager)
+        crop = Crop()
+        saveImage = SaveImage()
+        setImageBg = SetImageBg()
     }
 
     fun View.onToolsClick() {
@@ -146,8 +153,9 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun View.onSaveClick() {
-        canvas.saveImage()
+        saveImage.saveImage(canvas)
     }
 
     fun View.onImageBgClick() {
@@ -208,7 +216,7 @@ class MainActivity : AppCompatActivity() {
         strokeButton.visibility = View.GONE
         styleButton.visibility = View.GONE
         colorButton.visibility = View.GONE
-        crop.visibility = View.GONE
+        cropButton.visibility = View.GONE
     }
 
     fun showButtons() {
@@ -236,7 +244,7 @@ class MainActivity : AppCompatActivity() {
             val fileStream: InputStream? = contentResolver.openInputStream(result)
             if (fileStream != null) {
                 val oren = theOren(fileStream)
-                canvas.setImageBackground(contentResolver.openInputStream(result)!!, oren)
+                canvas.setImageBackground(result, oren)
             }
         }
     }
@@ -244,8 +252,7 @@ class MainActivity : AppCompatActivity() {
     private val startForShapeImageResult =
         registerForActivityResult(PickVisualMedia()) { result: Uri? ->
             if (result != null) {
-                val fileStream = contentResolver.openInputStream(result)
-                val bitmap = BitmapFactory.decodeStream(fileStream)
+                val bitmap = ImageUtils.decodeSampledBitmapFromUri(this, result, 1080, 1080)
                 if (bitmap != null) {
                     canvas.addImageShape(bitmap)
                 }
@@ -292,51 +299,21 @@ class MainActivity : AppCompatActivity() {
             if (result.isSuccessful) {
                 val uriContent = result.uriContent
                 if (uriContent != null) {
-                    val fileStream: InputStream? = contentResolver.openInputStream(uriContent)
-                    if (fileStream != null) {
-                        val bitmap = BitmapFactory.decodeStream(fileStream)
-                        if (bitmap != null && canvas.objectIndex != null) {
-                            val shape = canvas.draws[canvas.objectIndex!!]
-                            if (shape is ImageShape) {
-                                shape.crop(bitmap)
-                                canvas.invalidate()
-                            }
+                    val bitmap = ImageUtils.decodeSampledBitmapFromUri(this, uriContent, 1080, 1080)
+                    if (bitmap != null && canvas.objectIndex != null) {
+                        val shape = canvas.draws[canvas.objectIndex!!]
+                        if (shape is ImageShape) {
+                            shape.crop(bitmap)
+                            canvas.invalidate()
                         }
                     }
                 }
             }
         }
 
+
     fun View.startCrop() {
-        if (canvas.objectIndex != null) {
-            val shape = canvas.draws[canvas.objectIndex!!]
-            if (shape is ImageShape) {
-                val bitmap = shape.bitmap
-                if (bitmap != null) {
-                    try {
-                        // Write to temp file
-                        val file = java.io.File(this@MainActivity.cacheDir, "crop_temp.png")
-                        val fOut = java.io.FileOutputStream(file)
-                        bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, fOut)
-                        fOut.flush()
-                        fOut.close()
-
-                        val options = CropImageOptions()
-                        options.imageSourceIncludeGallery = true
-                        options.imageSourceIncludeCamera = true
-
-                        cropImage.launch(
-                            CropImageContractOptions(
-                                uri = Uri.fromFile(file),
-                                cropImageOptions = options
-                            )
-                        )
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }
-        }
+        crop.startCrop(canvas, cacheDir, cropImage)
     }
 
     override fun onNewIntent(intent: Intent) {

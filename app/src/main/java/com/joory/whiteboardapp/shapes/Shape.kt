@@ -19,15 +19,11 @@ interface Shape {
     var paint: Paint
     var rotation: Float
         get() = 0f
-        set(value) {
-            rotation = value
-        }
+        set(value) {}
 
     var text: String
         get() = ""
-        set(value) {
-            text = value
-        }
+        set(value) {}
 
     // In your Shape interface
     val shapeTools: MutableList<Tools>
@@ -57,12 +53,13 @@ interface Shape {
     }
 
     fun drawSelectedBox(
-            canvas: Canvas,
-            deleteBmp: Bitmap? = null,
-            duplicateBmp: Bitmap? = null,
-            rotateBmp: Bitmap? = null,
-            resizeBmp: Bitmap? = null
-    ) {}
+        canvas: Canvas,
+        deleteBmp: Bitmap? = null,
+        duplicateBmp: Bitmap? = null,
+        rotateBmp: Bitmap? = null,
+        resizeBmp: Bitmap? = null
+    ) {
+    }
 
     fun startMove(e: MotionEvent) {}
 
@@ -79,8 +76,8 @@ interface Shape {
     }
 
     fun deepCopy(): Shape {
-        val JSON = Gson().toJson(this)
-        val item = Gson().fromJson(JSON, this::class.java)
+        val json = Gson().toJson(this)
+        val item = Gson().fromJson(json, this::class.java)
         item.paint.set(this.paint)
         return item
     }

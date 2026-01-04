@@ -21,7 +21,7 @@ class Rects : Shape {
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
     override var shapeTools: MutableList<Tools> =
-            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
     override fun draw(canvas: Canvas) {
         val cx = (rect.left + rect.right) / 2
@@ -66,11 +66,11 @@ class Rects : Shape {
     }
 
     override fun drawSelectedBox(
-            canvas: Canvas,
-            deleteBmp: Bitmap?,
-            duplicateBmp: Bitmap?,
-            rotateBmp: Bitmap?,
-            resizeBmp: Bitmap?
+        canvas: Canvas,
+        deleteBmp: Bitmap?,
+        duplicateBmp: Bitmap?,
+        rotateBmp: Bitmap?,
+        resizeBmp: Bitmap?
     ) {
         val cx = (rect.left + rect.right) / 2
         val cy = (rect.top + rect.bottom) / 2
@@ -183,15 +183,15 @@ class Rects : Shape {
         // Initial Handle Angle = atan2(rect.bottom - cy, rect.left - cx)
 
         val initialHandleAngle =
-                Math.toDegrees(
-                                kotlin.math.atan2(
-                                        (rect.bottom - cy).toDouble(),
-                                        (rect.left - cx).toDouble()
-                                )
-                        )
-                        .toFloat()
+            Math.toDegrees(
+                kotlin.math.atan2(
+                    (rect.bottom - cy).toDouble(),
+                    (rect.left - cx).toDouble()
+                )
+            )
+                .toFloat()
         val currentTouchAngle =
-                Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
+            Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
 
         rotation = currentTouchAngle - initialHandleAngle
     }
@@ -210,17 +210,36 @@ class Rects : Shape {
     override fun resize(e: MotionEvent) {
         val cx = (rect.left + rect.right) / 2
         val cy = (rect.top + rect.bottom) / 2
-        val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
+        // 1. Calculate anchor point (Top-Left) position on screen BEFORE resize
+        val anchorX = rect.left
+        val anchorY = rect.top
+        val screenAnchor = rotatePoint(PointF(anchorX, anchorY), PointF(cx, cy), rotation)
+
+        // 2. Perform Resize
+        val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
         var newRight = rotatedPoint.x
         var newBottom = rotatedPoint.y
 
         if (newRight < rect.left + 10) newRight = rect.left + 10
         if (newBottom < rect.top + 10) newBottom = rect.top + 10
 
+        /// Temporarily apply new size to calculate drift
         rect.right = newRight
         rect.bottom = newBottom
-        // Update end point for consistency
+
+        // 3. Calculate where the anchor IS represented now with the new center
+        val newCx = (rect.left + rect.right) / 2
+        val newCy = (rect.top + rect.bottom) / 2
+        val newScreenAnchor = rotatePoint(PointF(anchorX, anchorY), PointF(newCx, newCy), rotation)
+
+        // 4. Calculate drift and offset rect to correct it
+        val dx = screenAnchor.x - newScreenAnchor.x
+        val dy = screenAnchor.y - newScreenAnchor.y
+
+        rect.offset(dx, dy)
+
+        // Update end point for consistency (and start since we offset)
         start = PointF(rect.left, rect.top)
         end = PointF(rect.right, rect.bottom)
     }
