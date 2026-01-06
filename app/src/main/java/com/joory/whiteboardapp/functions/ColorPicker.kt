@@ -3,6 +3,7 @@ package com.joory.whiteboardapp.functions
 import androidx.fragment.app.FragmentManager
 import com.abhishek.colorpicker.ColorPickerDialog
 
+
 class ColorPicker(var fragmentManager: FragmentManager) {
     fun colorsDialog(func: (input: Int) -> Unit) {
         val dialog = ColorPickerDialog()

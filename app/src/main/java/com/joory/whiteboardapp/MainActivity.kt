@@ -131,7 +131,6 @@ class MainActivity : AppCompatActivity() {
         choseTool(Shapes.Image)
         // details for the chosen tool
         dialogs.dialog.findViewById<View>(canvas.tool.dot).visibility = View.VISIBLE
-
         dialogs.dialog.findViewById<ImageView>(Shapes.Image.buttonId).setOnClickListener {
             startForShapeImageResult.launch(
                 PickVisualMediaRequest.Builder().setMediaType(PickVisualMedia.ImageOnly).build()
@@ -180,8 +179,6 @@ class MainActivity : AppCompatActivity() {
 
     fun View.showStrokeDialog() {
         dialogs.showDialog(R.layout.size_dailog)
-        val title = dialogs.dialog.findViewById<TextView>(R.id.title)
-        title.text = this@MainActivity.resources.getText(R.string.stroke_width)
         val seek = dialogs.dialog.findViewById<SeekBar>(R.id.sizeSeek)
         seek.progress = canvas.getCanvasPaint().strokeWidth.toInt()
         seek.setOnSeekBarChangeListener(

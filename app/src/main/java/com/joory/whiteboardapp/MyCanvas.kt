@@ -311,9 +311,10 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     fun clearCanvas() {
         android.app.AlertDialog.Builder(context)
-            .setTitle("Clear Canvas")
-            .setMessage("Are you sure you want to clear the canvas?")
-            .setPositiveButton("Yes") { dialog, _ ->
+            .setTitle(resources.getString(R.string.clear_title))
+//            .setMessage("Are you sure you want to clear the canvas?")
+            .setMessage(resources.getString(R.string.clear_message))
+            .setPositiveButton(resources.getString(R.string.yes)) { dialog, _ ->
                 undo.clear()
                 undo.addAll(draws)
                 draws.clear()
@@ -324,7 +325,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 invalidate()
                 dialog.dismiss()
             }
-            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
+            .setNegativeButton(resources.getString(R.string.no)) { dialog, _ -> dialog.dismiss() }
             .show()
     }
 

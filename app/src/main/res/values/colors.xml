@@ -8,4 +8,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="prem">#5369e7</color>
+    <color name="panel_background">#F5F5F5</color> <!-- Light grey/white for panel -->
+    <color name="icon_tint">#FFFFFF</color> <!-- White for icons on blue panel -->
 </resources>

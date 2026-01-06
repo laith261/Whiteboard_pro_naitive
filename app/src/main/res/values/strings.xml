@@ -4,4 +4,8 @@
     <string name="arrow_side">Arrow Side Length</string>
     <string name="text_hint">Type Here</string>
     <string name="image_saved">image Saved</string>
+    <string name="clear_title">Clear Canvas</string>
+    <string name="clear_message">Are you sure you want to clear the canvas?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

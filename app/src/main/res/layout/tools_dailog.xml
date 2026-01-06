@@ -9,7 +9,6 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="75dp"
-        applayout_gravity="center"
         android:layout_margin="5dp"
         app:layout_columnWeight="1">
 
@@ -36,7 +35,6 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="75dp"
-        applayout_gravity="center"
         android:layout_margin="5dp"
         app:layout_columnWeight="1">
 
@@ -61,7 +59,6 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="75dp"
-        applayout_gravity="center"
         android:layout_margin="5dp"
         app:layout_columnWeight="1">
 
@@ -86,7 +83,6 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="75dp"
-        applayout_gravity="center"
         android:layout_margin="5dp"
         app:layout_columnWeight="1">
 
@@ -111,7 +107,6 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="75dp"
-        applayout_gravity="center"
         android:layout_margin="5dp"
         app:layout_columnWeight="1">
 
@@ -137,7 +132,6 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="75dp"
-        applayout_gravity="center"
         android:layout_margin="5dp"
         app:layout_columnWeight="1">
 
@@ -162,7 +156,6 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="75dp"
-        applayout_gravity="center"
         android:layout_margin="5dp"
         app:layout_columnWeight="1">
 
@@ -190,7 +183,6 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="75dp"
-        applayout_gravity="center"
         android:layout_margin="5dp"
         app:layout_columnWeight="1">
 
@@ -216,7 +208,6 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="75dp"
-        applayout_gravity="center"
         android:layout_margin="5dp"
         app:layout_columnWeight="1">
 
@@ -242,7 +233,6 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="75dp"
-        applayout_gravity="center"
         android:layout_margin="5dp"
         app:layout_columnWeight="1">
 
@@ -268,7 +258,6 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="75dp"
-        applayout_gravity="center"
         android:layout_margin="5dp"
         app:layout_columnWeight="1">
 
@@ -294,7 +283,6 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="75dp"
-        applayout_gravity="center"
         android:layout_margin="5dp"
         app:layout_columnWeight="1">
 

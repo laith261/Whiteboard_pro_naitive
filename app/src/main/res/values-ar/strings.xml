@@ -1,7 +1,11 @@
 <resources>
     <string name="app_name">السبورة الاحترافية</string>
-    <string name="stroke_width">عرض الحد</string>
+    <string name="stroke_width"> عرض الخط</string>
     <string name="arrow_side">طول ضلع المثلث</string>
     <string name="text_hint">اكتب هنا</string>
     <string name="image_saved">تم حفظ الصورة</string>
+    <string name="clear_title">حذف الرسومات</string>
+    <string name="clear_message">هل أنت متأكد من رغبتك في مسح اللوحة؟</string>
+    <string name="yes">نعم</string>
+    <string name="no">لا</string>
 </resources>
