@@ -82,6 +82,18 @@
             app:tint="@color/icon_tint" />
 
         <ImageButton
+            android:id="@+id/layers"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Layers"
+            android:onClick="onLayersClick"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_layers"
+            app:tint="@color/icon_tint" />
+
+        <ImageButton
             android:id="@+id/save"
             android:layout_width="40dp"
             android:layout_height="40dp"

@@ -17,17 +17,18 @@ import com.joory.whiteboardapp.shapes.ImageShape
 import com.joory.whiteboardapp.shapes.Lines
 import com.joory.whiteboardapp.shapes.Shape
 import com.joory.whiteboardapp.shapes.Shapes
+import java.util.Collections
 
 class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     lateinit var myMain: MainActivity
     var draws = ArrayList<Shape>()
     var paint: Paint =
-        Paint().apply {
-            strokeWidth = 5f
-            color = Color.BLACK
-            style = Paint.Style.FILL
-            textSize = 50f
-        }
+            Paint().apply {
+                strokeWidth = 5f
+                color = Color.BLACK
+                style = Paint.Style.FILL
+                textSize = 50f
+            }
     var undo = ArrayList<Shape>()
     var tool: Shapes = Shapes.Brush
 
@@ -58,8 +59,8 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     private fun getBitmapFromVectorDrawable(context: Context?, drawableId: Int): Bitmap? {
         val drawable =
-            androidx.core.content.ContextCompat.getDrawable(context!!, drawableId)
-                ?: return null
+                androidx.core.content.ContextCompat.getDrawable(context!!, drawableId)
+                        ?: return null
         val bitmap = createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight)
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
@@ -126,7 +127,6 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                     updateStyle()
                 }
             }
-
             MotionEvent.ACTION_MOVE -> {
                 if (isResizing && objectIndex != null) {
                     draws[objectIndex!!].resize(e)
@@ -148,7 +148,6 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 }
                 invalidate()
             }
-
             MotionEvent.ACTION_UP -> {
                 isResizing = false
                 isRotating = false
@@ -187,11 +186,11 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         }
         if (objectIndex != null && objectIndex!! < draws.size) {
             draws[objectIndex!!].drawSelectedBox(
-                canvas,
-                deleteBmp,
-                duplicateBmp,
-                rotateBmp,
-                resizeBmp
+                    canvas,
+                    deleteBmp,
+                    duplicateBmp,
+                    rotateBmp,
+                    resizeBmp
             )
         } else {
             objectIndex = null
@@ -311,22 +310,24 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     fun clearCanvas() {
         android.app.AlertDialog.Builder(context)
-            .setTitle(resources.getString(R.string.clear_title))
-//            .setMessage("Are you sure you want to clear the canvas?")
-            .setMessage(resources.getString(R.string.clear_message))
-            .setPositiveButton(resources.getString(R.string.yes)) { dialog, _ ->
-                undo.clear()
-                undo.addAll(draws)
-                draws.clear()
-                objectIndex = null
-                myMain.doButtonsAlpha()
-                myMain.showButtons()
-                imgBG = null
-                invalidate()
-                dialog.dismiss()
-            }
-            .setNegativeButton(resources.getString(R.string.no)) { dialog, _ -> dialog.dismiss() }
-            .show()
+                .setTitle(resources.getString(R.string.clear_title))
+                //            .setMessage("Are you sure you want to clear the canvas?")
+                .setMessage(resources.getString(R.string.clear_message))
+                .setPositiveButton(resources.getString(R.string.yes)) { dialog, _ ->
+                    undo.clear()
+                    undo.addAll(draws)
+                    draws.clear()
+                    objectIndex = null
+                    myMain.doButtonsAlpha()
+                    myMain.showButtons()
+                    imgBG = null
+                    invalidate()
+                    dialog.dismiss()
+                }
+                .setNegativeButton(resources.getString(R.string.no)) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
     }
 
     fun changeStyle() {
@@ -356,5 +357,41 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         objectIndex = draws.size - 1
         myMain.showButtons()
         invalidate()
+    }
+    fun swapLayers(fromIndex: Int, toIndex: Int) {
+        if (fromIndex in 0 until draws.size && toIndex in 0 until draws.size) {
+            Collections.swap(draws, fromIndex, toIndex)
+            invalidate()
+        }
+    }
+
+    fun removeLayer(index: Int) {
+        if (index in 0 until draws.size) {
+            val item = draws[index]
+            undo.add(item)
+            draws.removeAt(index)
+            if (objectIndex == index) {
+                objectIndex = null
+            } else if (objectIndex != null && objectIndex!! > index) {
+                objectIndex = objectIndex!! - 1
+            }
+            invalidate()
+            myMain.doButtonsAlpha()
+        }
+    }
+
+    fun duplicateLayer(index: Int) {
+        if (index in 0 until draws.size) {
+            draws.add(draws[index].deepCopy())
+            invalidate()
+        }
+    }
+
+    fun selectObject(index: Int) {
+        if (index in 0 until draws.size) {
+            objectIndex = index
+            myMain.showButtons()
+            invalidate()
+        }
     }
 }
