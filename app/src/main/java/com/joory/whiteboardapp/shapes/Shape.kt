@@ -12,6 +12,7 @@ enum class Tools(var buttonId: Int) {
     StrokeWidth(R.id.strokewidth),
     Color(R.id.color),
     Crop(R.id.crop),
+    Font(R.id.font_style),
 }
 
 interface Shape {

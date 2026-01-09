@@ -1,5 +1,6 @@
 package com.joory.whiteboardapp.shapes
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.DashPathEffect
@@ -20,10 +21,15 @@ class Texts : Shape {
     override var sideLength: Float = 0.0f
 
     override var rotation: Float = 0f
+    var fontPath: String? = null
+    var isBold: Boolean = false
+    var isItalic: Boolean = false
+    var isUnderline: Boolean = false
+
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
     override var shapeTools: MutableList<Tools> =
-        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color, Tools.Font)
 
     override fun draw(canvas: Canvas) {
         val rect = getRectBorder()
@@ -44,6 +50,39 @@ class Texts : Shape {
         if (paint != null) {
             this.paint.color = paint.color
             this.paint.textSize = paint.textSize
+        }
+    }
+
+    fun updateFont(path: String) {
+        fontPath = path
+        applyTypefaceAndStyle()
+    }
+
+    fun updateStyle(bold: Boolean, italic: Boolean, underline: Boolean) {
+        isBold = bold
+        isItalic = italic
+        isUnderline = underline
+        applyTypefaceAndStyle()
+    }
+
+    @SuppressLint("WrongConstant")
+    private fun applyTypefaceAndStyle() {
+        try {
+            val baseTypeface =
+                    if (fontPath != null) {
+                        android.graphics.Typeface.createFromFile(fontPath)
+                    } else {
+                        android.graphics.Typeface.DEFAULT
+                    }
+
+            var style = android.graphics.Typeface.NORMAL
+            if (isBold) style = style or android.graphics.Typeface.BOLD
+            if (isItalic) style = style or android.graphics.Typeface.ITALIC
+
+            paint.typeface = android.graphics.Typeface.create(baseTypeface, style)
+            paint.isUnderlineText = isUnderline
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -71,11 +110,11 @@ class Texts : Shape {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun drawSelectedBox(
-        canvas: Canvas,
-        deleteBmp: Bitmap?,
-        duplicateBmp: Bitmap?,
-        rotateBmp: Bitmap?,
-        resizeBmp: Bitmap?
+            canvas: Canvas,
+            deleteBmp: Bitmap?,
+            duplicateBmp: Bitmap?,
+            rotateBmp: Bitmap?,
+            resizeBmp: Bitmap?
     ) {
         val rect = getRectBorder()
         // Add padding same as before: left-5, top-5, right+10, bottom+10
@@ -160,7 +199,7 @@ class Texts : Shape {
         val cx = rawRect.centerX()
         val cy = rawRect.centerY()
         val paddedRect =
-            RectF(rawRect.left - 5, rawRect.top - 5, rawRect.right + 10, rawRect.bottom + 10)
+                RectF(rawRect.left - 5, rawRect.top - 5, rawRect.right + 10, rawRect.bottom + 10)
 
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
@@ -174,7 +213,7 @@ class Texts : Shape {
         val cx = rawRect.centerX()
         val cy = rawRect.centerY()
         val paddedRect =
-            RectF(rawRect.left - 5, rawRect.top - 5, rawRect.right + 10, rawRect.bottom + 10)
+                RectF(rawRect.left - 5, rawRect.top - 5, rawRect.right + 10, rawRect.bottom + 10)
 
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
@@ -195,15 +234,15 @@ class Texts : Shape {
         // Padded Bottom-Left: (l-5, b+10).
         val paddedRect = RectF(rect.left - 5, rect.top - 5, rect.right + 10, rect.bottom + 10)
         val initialHandleAngle =
-            Math.toDegrees(
-                kotlin.math.atan2(
-                    (paddedRect.bottom - cy).toDouble(),
-                    (paddedRect.left - cx).toDouble()
-                )
-            )
-                .toFloat()
+                Math.toDegrees(
+                                kotlin.math.atan2(
+                                        (paddedRect.bottom - cy).toDouble(),
+                                        (paddedRect.left - cx).toDouble()
+                                )
+                        )
+                        .toFloat()
         val currentTouchAngle =
-            Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
+                Math.toDegrees(kotlin.math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
 
         rotation = currentTouchAngle - initialHandleAngle
     }

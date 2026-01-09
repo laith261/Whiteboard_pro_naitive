@@ -8,4 +8,14 @@
     <string name="clear_message">Are you sure you want to clear the canvas?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="font_style">Font Style</string>
+    <string name="layers">Layers</string>
+    <string name="invalid_font">Unsupported font type</string>
+    <string name="preview_text">Preview Text</string>
+    <string name="sample_text">Sample Text</string>
+    <string name="font_name_placeholder">Font Name</string>
+    <string name="delete_font_title">Delete Font</string>
+    <string name="delete_font_message">Are you sure you want to delete font?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
 </resources>

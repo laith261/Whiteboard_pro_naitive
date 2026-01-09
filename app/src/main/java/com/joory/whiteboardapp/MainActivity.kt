@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var crop: Crop
     lateinit var saveImage: SaveImage
     lateinit var setImageBg: SetImageBg
+    lateinit var fontButton: ImageButton
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId", "UseCompatLoadingForDrawables")
@@ -100,6 +101,7 @@ class MainActivity : AppCompatActivity() {
         save = findViewById(R.id.save)
         clear = findViewById(R.id.clear)
         cropButton = findViewById(R.id.crop)
+        fontButton = findViewById(R.id.font_style)
         tools = findViewById(R.id.tools)
         imageBg = findViewById(R.id.imgbg)
         badgeDrawable = BadgeDrawable.create(this)
@@ -248,6 +250,10 @@ class MainActivity : AppCompatActivity() {
         saveImage.saveImage(canvas)
     }
 
+    fun View.onFontClick() {
+        showFontsDialog()
+    }
+
     fun View.onImageBgClick() {
         startForProfileImageResult.launch(
                 PickVisualMediaRequest.Builder().setMediaType(PickVisualMedia.ImageOnly).build()
@@ -305,6 +311,7 @@ class MainActivity : AppCompatActivity() {
         styleButton.visibility = View.GONE
         colorButton.visibility = View.GONE
         cropButton.visibility = View.GONE
+        fontButton.visibility = View.GONE
     }
 
     fun showButtons() {
@@ -343,6 +350,95 @@ class MainActivity : AppCompatActivity() {
                     val bitmap = ImageUtils.decodeSampledBitmapFromUri(this, result, 1080, 1080)
                     if (bitmap != null) {
                         canvas.addImageShape(bitmap)
+                    }
+                }
+            }
+
+    private val startForFontResult =
+            registerForActivityResult(
+                    androidx.activity.result.contract.ActivityResultContracts.GetContent()
+            ) { uri: Uri? ->
+                if (uri != null && canvas.objectIndex != null) {
+                    var extension = "ttf"
+                    var isValid = false
+
+                    // Validate file extension
+                    if (uri.scheme == android.content.ContentResolver.SCHEME_CONTENT) {
+                        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                            if (cursor.moveToFirst()) {
+                                val index =
+                                        cursor.getColumnIndex(
+                                                android.provider.OpenableColumns.DISPLAY_NAME
+                                        )
+                                if (index >= 0) {
+                                    val name = cursor.getString(index)
+                                    if (name.endsWith(".ttf", true)) {
+                                        extension = "ttf"
+                                        isValid = true
+                                    } else if (name.endsWith(".otf", true)) {
+                                        extension = "otf"
+                                        isValid = true
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // try path
+                        val path = uri.lastPathSegment
+                        if (path != null) {
+                            if (path.endsWith(".ttf", true)) {
+                                extension = "ttf"
+                                isValid = true
+                            } else if (path.endsWith(".otf", true)) {
+                                extension = "otf"
+                                isValid = true
+                            }
+                        }
+                    }
+
+                    if (!isValid) {
+                        android.widget.Toast.makeText(
+                                        this,
+                                        getString(R.string.invalid_font),
+                                        android.widget.Toast.LENGTH_SHORT
+                                )
+                                .show()
+                        return@registerForActivityResult
+                    }
+
+                    // Copy file to internal storage
+                    val fontFile = java.io.File(filesDir, "fonts")
+                    if (!fontFile.exists()) fontFile.mkdirs()
+                    val fileName = "custom_font_${System.currentTimeMillis()}.$extension"
+                    val destFile = java.io.File(fontFile, fileName)
+
+                    try {
+                        contentResolver.openInputStream(uri)?.use { input ->
+                            java.io.FileOutputStream(destFile).use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+
+                        val shape = canvas.draws[canvas.objectIndex!!]
+                        if (shape is com.joory.whiteboardapp.shapes.Texts) {
+                            shape.updateFont(destFile.absolutePath)
+                            canvas.invalidate()
+                        }
+
+                        if (fontsDialog?.isShowing == true) {
+                            val recycler =
+                                    fontsDialog?.findViewById<
+                                            androidx.recyclerview.widget.RecyclerView>(
+                                            R.id.recyclerFonts
+                                    )
+                            val adapter =
+                                    recycler?.adapter as?
+                                            com.joory.whiteboardapp.adapters.FontsAdapter
+                            val files = fontFile.listFiles()?.toList() ?: emptyList()
+                            adapter?.updateData(files)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
                 }
             }
@@ -402,6 +498,145 @@ class MainActivity : AppCompatActivity() {
 
     fun View.startCrop() {
         crop.startCrop(canvas, cacheDir, cropImage)
+    }
+
+    private var fontsDialog: com.google.android.material.bottomsheet.BottomSheetDialog? = null
+
+    private fun showFontsDialog() {
+        fontsDialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        fontsDialog?.setContentView(R.layout.dialog_fonts)
+
+        val btnClose = fontsDialog?.findViewById<View>(R.id.btnClose)
+        val btnAdd = fontsDialog?.findViewById<View>(R.id.btnAddFont)
+        val recycler =
+                fontsDialog?.findViewById<androidx.recyclerview.widget.RecyclerView>(
+                        R.id.recyclerFonts
+                )
+        val etPreview = fontsDialog?.findViewById<android.widget.EditText>(R.id.etPreview)
+
+        val btnBold = fontsDialog?.findViewById<ImageButton>(R.id.btnBold)
+        val btnItalic = fontsDialog?.findViewById<ImageButton>(R.id.btnItalic)
+        val btnUnderline = fontsDialog?.findViewById<ImageButton>(R.id.btnUnderline)
+
+        var isBold = false
+        var isItalic = false
+        var isUnderline = false
+        var currentFontPath: String? = null
+
+        if (canvas.objectIndex != null) {
+            val shape = canvas.draws[canvas.objectIndex!!]
+            if (shape is com.joory.whiteboardapp.shapes.Texts) {
+                isBold = shape.isBold
+                isItalic = shape.isItalic
+                isUnderline = shape.isUnderline
+                currentFontPath = shape.fontPath
+                etPreview?.setText(shape.text.ifEmpty { "Sample Text" })
+            }
+        }
+
+        @SuppressLint("WrongConstant")
+        fun updatePreview() {
+            try {
+                val baseTypeface =
+                        if (currentFontPath != null) {
+                            android.graphics.Typeface.createFromFile(currentFontPath)
+                        } else {
+                            android.graphics.Typeface.DEFAULT
+                        }
+
+                var style = android.graphics.Typeface.NORMAL
+                if (isBold) style = style or android.graphics.Typeface.BOLD
+                if (isItalic) style = style or android.graphics.Typeface.ITALIC
+
+                etPreview?.typeface = android.graphics.Typeface.create(baseTypeface, style)
+                etPreview?.paint?.isUnderlineText = isUnderline
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        fun updateButtonState() {
+            // using a grey background for selected state
+            val activeColor = 0xFFCCCCCC.toInt()
+            val inactiveColor = 0x00000000
+            btnBold?.setBackgroundColor(if (isBold) activeColor else inactiveColor)
+            btnItalic?.setBackgroundColor(if (isItalic) activeColor else inactiveColor)
+            btnUnderline?.setBackgroundColor(if (isUnderline) activeColor else inactiveColor)
+            updatePreview()
+        }
+        updateButtonState()
+
+        fun updateShape() {
+            if (canvas.objectIndex != null) {
+                val shape = canvas.draws[canvas.objectIndex!!]
+                if (shape is com.joory.whiteboardapp.shapes.Texts) {
+                    shape.updateStyle(isBold, isItalic, isUnderline)
+                    canvas.invalidate()
+                }
+            }
+        }
+
+        btnBold?.setOnClickListener {
+            isBold = !isBold
+            updateButtonState()
+            updateShape()
+        }
+        btnItalic?.setOnClickListener {
+            isItalic = !isItalic
+            updateButtonState()
+            updateShape()
+        }
+        btnUnderline?.setOnClickListener {
+            isUnderline = !isUnderline
+            updateButtonState()
+            updateShape()
+        }
+
+        btnClose?.setOnClickListener { fontsDialog?.dismiss() }
+
+        btnAdd?.setOnClickListener {
+            // Check permissions if needed, but simple file picker usually handles basic read
+            startForFontResult.launch("*/*")
+        }
+
+        val fontDir = java.io.File(filesDir, "fonts")
+        if (!fontDir.exists()) fontDir.mkdirs()
+        val files = fontDir.listFiles()?.toList() ?: emptyList()
+
+        recycler?.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
+        val adapter =
+                com.joory.whiteboardapp.adapters.FontsAdapter(
+                        files.toMutableList(),
+                        onFontSelected = { file ->
+                            if (canvas.objectIndex != null) {
+                                val shape = canvas.draws[canvas.objectIndex!!]
+                                if (shape is com.joory.whiteboardapp.shapes.Texts) {
+                                    shape.updateFont(file.absolutePath)
+                                    currentFontPath = file.absolutePath
+                                    updatePreview()
+                                    canvas.invalidate()
+                                }
+                            }
+                        },
+                        onDeleteClick = { file ->
+                            androidx.appcompat.app.AlertDialog.Builder(this)
+                                    .setTitle(getString(R.string.delete_font_title))
+                                    .setMessage(getString(R.string.delete_font_message))
+                                    .setPositiveButton(getString(R.string.delete)) { _, _ ->
+                                        if (file.exists()) file.delete()
+                                        val updatedFiles =
+                                                fontDir.listFiles()?.toList() ?: emptyList()
+                                        (recycler?.adapter as?
+                                                        com.joory.whiteboardapp.adapters.FontsAdapter)
+                                                ?.updateData(updatedFiles)
+                                    }
+                                    .setNegativeButton(getString(R.string.cancel), null)
+                                    .show()
+                        }
+                )
+        recycler?.adapter = adapter
+
+        fontsDialog?.show()
     }
 
     override fun onNewIntent(intent: Intent) {

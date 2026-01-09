@@ -158,6 +158,19 @@
                     app:tint="@color/icon_tint" />
 
                 <ImageButton
+                    android:id="@+id/font_style"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Font"
+                    android:onClick="onFontClick"
+                    android:padding="10dp"
+                    android:scaleType="centerInside"
+                    android:visibility="gone"
+                    ads:srcCompat="@drawable/font"
+                    app:tint="@color/icon_tint" />
+
+                <ImageButton
                     android:id="@+id/crop"
                     android:layout_width="48dp"
                     android:layout_height="48dp"

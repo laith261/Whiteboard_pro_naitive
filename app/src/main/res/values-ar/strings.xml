@@ -8,4 +8,14 @@
     <string name="clear_message">هل أنت متأكد من رغبتك في مسح اللوحة؟</string>
     <string name="yes">نعم</string>
     <string name="no">لا</string>
+    <string name="font_style">تنسيق الخط</string>
+    <string name="layers">طبقات</string>
+    <string name="invalid_font">نوع ملف غير مدعوم</string>
+    <string name="preview_text">نص توضيحي</string>
+    <string name="sample_text">نص توضيحي</string>
+    <string name="font_name_placeholder">اسم الخط</string>
+    <string name="delete_font_title">حذف الخط</string>
+    <string name="delete_font_message">"هل انت متاكد انك تريد حذف "</string>
+    <string name="delete">حذف</string>
+    <string name="cancel">الغاء</string>
 </resources>
