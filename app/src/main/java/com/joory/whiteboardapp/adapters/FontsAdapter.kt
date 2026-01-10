@@ -13,7 +13,8 @@ import java.io.File
 class FontsAdapter(
         private val fonts: MutableList<File>,
         private val onFontSelected: (File) -> Unit,
-        private val onDeleteClick: (File) -> Unit
+        private val onDeleteClick: (File) -> Unit,
+        private val protectedFonts: List<String> = emptyList()
 ) : RecyclerView.Adapter<FontsAdapter.FontViewHolder>() {
 
     class FontViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -37,7 +38,13 @@ class FontsAdapter(
         }
 
         holder.itemView.setOnClickListener { onFontSelected(fontFile) }
-        holder.btnDelete.setOnClickListener { onDeleteClick(fontFile) }
+
+        if (protectedFonts.contains(fontFile.name)) {
+            holder.btnDelete.visibility = View.GONE
+        } else {
+            holder.btnDelete.visibility = View.VISIBLE
+            holder.btnDelete.setOnClickListener { onDeleteClick(fontFile) }
+        }
     }
 
     override fun getItemCount(): Int = fonts.size

@@ -22,7 +22,7 @@ class Hexagon : Shape {
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
     override var shapeTools: MutableList<Tools> =
-        mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
+            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color)
 
     override fun draw(canvas: Canvas) {
         canvas.withRotation(rotation, hexagon.cp.x, hexagon.cp.y) { drawPath(hexagon.path, paint) }
@@ -63,11 +63,11 @@ class Hexagon : Shape {
     }
 
     override fun drawSelectedBox(
-        canvas: Canvas,
-        deleteBmp: Bitmap?,
-        duplicateBmp: Bitmap?,
-        rotateBmp: Bitmap?,
-        resizeBmp: Bitmap?
+            canvas: Canvas,
+            deleteBmp: Bitmap?,
+            duplicateBmp: Bitmap?,
+            rotateBmp: Bitmap?,
+            resizeBmp: Bitmap?
     ) {
         val radius = sideLength / 2
         val cx = hexagon.cp.x
@@ -87,31 +87,31 @@ class Hexagon : Shape {
 
             // Draw resize handle
             if (resizeBmp != null) {
-                drawCircle(rect.right, rect.bottom, 30f, btnBgPaint)
-                drawBitmap(resizeBmp, rect.right - 20, rect.bottom - 20, null)
+                drawCircle(rect.right + 30f, rect.bottom + 30f, 30f, btnBgPaint)
+                drawBitmap(resizeBmp, rect.right + 10, rect.bottom + 10, null)
             } else {
                 selectedPaint.pathEffect = null
                 selectedPaint.style = Paint.Style.FILL
                 selectedPaint.color = android.graphics.Color.BLUE
-                drawCircle(rect.right, rect.bottom, 15f, selectedPaint)
+                drawCircle(rect.right + 30f, rect.bottom + 30f, 15f, selectedPaint)
             }
 
             // Draw rotate handle
             if (rotateBmp != null) {
-                drawCircle(rect.left, rect.bottom, 30f, btnBgPaint)
-                drawBitmap(rotateBmp, rect.left - 20, rect.bottom - 20, null)
+                drawCircle(rect.left - 30f, rect.bottom + 30f, 30f, btnBgPaint)
+                drawBitmap(rotateBmp, rect.left - 50, rect.bottom + 10, null)
             } else {
                 selectedPaint.color = android.graphics.Color.RED
-                drawCircle(rect.left, rect.bottom, 15f, selectedPaint)
+                drawCircle(rect.left - 30f, rect.bottom + 30f, 15f, selectedPaint)
             }
 
             if (deleteBmp != null) {
-                drawCircle(rect.left, rect.top, 30f, btnBgPaint)
-                drawBitmap(deleteBmp, rect.left - 20, rect.top - 20, null)
+                drawCircle(rect.left - 30f, rect.top - 30f, 30f, btnBgPaint)
+                drawBitmap(deleteBmp, rect.left - 50, rect.top - 50, null)
             }
             if (duplicateBmp != null) {
-                drawCircle(rect.right, rect.top, 30f, btnBgPaint)
-                drawBitmap(duplicateBmp, rect.right - 20, rect.top - 20, null)
+                drawCircle(rect.right + 30f, rect.top - 30f, 30f, btnBgPaint)
+                drawBitmap(duplicateBmp, rect.right + 10, rect.top - 50, null)
             }
         }
     }
@@ -123,8 +123,8 @@ class Hexagon : Shape {
         val rect = RectF(cx - radius - 5, cy - radius - 5, cx + radius + 5, cy + radius + 5)
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
-        val btnX = rect.left
-        val btnY = rect.top
+        val btnX = rect.left - 30f
+        val btnY = rect.top - 30f
         val dx = rotatedPoint.x - btnX
         val dy = rotatedPoint.y - btnY
         return (dx * dx + dy * dy) <= 2500
@@ -137,8 +137,8 @@ class Hexagon : Shape {
         val rect = RectF(cx - radius - 5, cy - radius - 5, cx + radius + 5, cy + radius + 5)
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
-        val btnX = rect.right
-        val btnY = rect.top
+        val btnX = rect.right + 30f
+        val btnY = rect.top - 30f
         val dx = rotatedPoint.x - btnX
         val dy = rotatedPoint.y - btnY
         return (dx * dx + dy * dy) <= 2500
@@ -152,8 +152,8 @@ class Hexagon : Shape {
 
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
-        val handleX = rect.right
-        val handleY = rect.bottom
+        val handleX = rect.right + 30f
+        val handleY = rect.bottom + 30f
         val dx = rotatedPoint.x - handleX
         val dy = rotatedPoint.y - handleY
         return (dx * dx + dy * dy) <= 4900
@@ -167,8 +167,8 @@ class Hexagon : Shape {
 
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
-        val handleX = rect.left
-        val handleY = rect.bottom
+        val handleX = rect.left - 30f
+        val handleY = rect.bottom + 30f
         val dx = rotatedPoint.x - handleX
         val dy = rotatedPoint.y - handleY
         return (dx * dx + dy * dy) <= 4900

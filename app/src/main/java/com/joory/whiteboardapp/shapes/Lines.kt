@@ -57,27 +57,27 @@ class Lines : Shape {
 
     private fun getRectBorder(): RectF {
         val leftTop =
-            PointF(
-                if (end.x > start.x) start.x else end.x,
-                if (end.y > start.y) start.y else end.y
-            )
-                .apply {
-                    if (inSerine) {
-                        x -= 15
-                        y -= 15
-                    }
-                }
+                PointF(
+                                if (end.x > start.x) start.x else end.x,
+                                if (end.y > start.y) start.y else end.y
+                        )
+                        .apply {
+                            if (inSerine) {
+                                x -= 15
+                                y -= 15
+                            }
+                        }
         val rightBottom =
-            PointF(
-                if (end.x < start.x) start.x else end.x,
-                if (end.y < start.y) start.y else end.y
-            )
-                .apply {
-                    if (inSerine) {
-                        x += 15
-                        y += 15
-                    }
-                }
+                PointF(
+                                if (end.x < start.x) start.x else end.x,
+                                if (end.y < start.y) start.y else end.y
+                        )
+                        .apply {
+                            if (inSerine) {
+                                x += 15
+                                y += 15
+                            }
+                        }
         return RectF(leftTop.x, leftTop.y, rightBottom.x, rightBottom.y)
     }
 
@@ -109,11 +109,11 @@ class Lines : Shape {
     }
 
     override fun drawSelectedBox(
-        canvas: Canvas,
-        deleteBmp: Bitmap?,
-        duplicateBmp: Bitmap?,
-        rotateBmp: Bitmap?,
-        resizeBmp: Bitmap?
+            canvas: Canvas,
+            deleteBmp: Bitmap?,
+            duplicateBmp: Bitmap?,
+            rotateBmp: Bitmap?,
+            resizeBmp: Bitmap?
     ) {
         val rect = getRectBorder()
         val cx = (start.x + end.x) / 2
@@ -154,11 +154,11 @@ class Lines : Shape {
             // If slope is positive (\), occupied corners are TL and BR. Use BL and TR for buttons.
             // If slope is negative (/), occupied corners are TR and BL. Use TL and BR for buttons.
 
-            val deleteX = rect.left
-            val deleteY = if (isPositiveSlope) rect.bottom else rect.top
+            val deleteX = rect.left - 30f
+            val deleteY = if (isPositiveSlope) rect.bottom + 30f else rect.top - 30f
 
-            val duplicateX = rect.right
-            val duplicateY = if (isPositiveSlope) rect.top else rect.bottom
+            val duplicateX = rect.right + 30f
+            val duplicateY = if (isPositiveSlope) rect.top - 30f else rect.bottom + 30f
 
             if (deleteBmp != null) {
                 drawCircle(deleteX, deleteY, 30f, btnBgPaint)
@@ -178,8 +178,8 @@ class Lines : Shape {
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
         val isPositiveSlope = (end.y - start.y) * (end.x - start.x) > 0
-        val btnX = rect.left
-        val btnY = if (isPositiveSlope) rect.bottom else rect.top
+        val btnX = rect.left - 30f
+        val btnY = if (isPositiveSlope) rect.bottom + 30f else rect.top - 30f
 
         val dx = rotatedPoint.x - btnX
         val dy = rotatedPoint.y - btnY
@@ -193,8 +193,8 @@ class Lines : Shape {
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
         val isPositiveSlope = (end.y - start.y) * (end.x - start.x) > 0
-        val btnX = rect.right
-        val btnY = if (isPositiveSlope) rect.top else rect.bottom
+        val btnX = rect.right + 30f
+        val btnY = if (isPositiveSlope) rect.top - 30f else rect.bottom + 30f
 
         val dx = rotatedPoint.x - btnX
         val dy = rotatedPoint.y - btnY
@@ -229,7 +229,7 @@ class Lines : Shape {
 
         // Use angle of start point relative to center as initial handle angle
         val initialHandleAngle =
-            toDegrees(atan2((start.y - cy).toDouble(), (start.x - cx).toDouble())).toFloat()
+                toDegrees(atan2((start.y - cy).toDouble(), (start.x - cx).toDouble())).toFloat()
         val currentTouchAngle = toDegrees(atan2(dy.toDouble(), dx.toDouble())).toFloat()
 
         rotation = currentTouchAngle - initialHandleAngle

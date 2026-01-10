@@ -64,6 +64,42 @@ class MainActivity : AppCompatActivity() {
     lateinit var setImageBg: SetImageBg
     lateinit var fontButton: ImageButton
 
+    private val defaultFonts =
+            listOf("BebasNeue.ttf", "Caveat.ttf", "Oswald.ttf", "PlayfairDisplay.ttf")
+
+    private fun copyDefaultFonts() {
+        val fontDir = java.io.File(filesDir, "fonts")
+        if (!fontDir.exists()) fontDir.mkdirs()
+
+        // Clean up old font names
+        val legacyFonts =
+                listOf(
+                        "BebasNeue-Regular.ttf",
+                        "Caveat-VariableFont_wght.ttf",
+                        "Oswald-VariableFont_wght.ttf",
+                        "PlayfairDisplay-VariableFont_wght.ttf"
+                )
+        for (legacy in legacyFonts) {
+            val oldFile = java.io.File(fontDir, legacy)
+            if (oldFile.exists()) {
+                oldFile.delete()
+            }
+        }
+
+        for (fontName in defaultFonts) {
+            val file = java.io.File(fontDir, fontName)
+            if (!file.exists()) {
+                try {
+                    assets.open("fonts/$fontName").use { input ->
+                        java.io.FileOutputStream(file).use { output -> input.copyTo(output) }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId", "UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,6 +108,7 @@ class MainActivity : AppCompatActivity() {
 
         // functions
         initializeViews()
+        copyDefaultFonts()
         permission.hasWriteStoragePermission()
         ads.loadFullScreenAd()
         showButtons()
@@ -632,7 +669,8 @@ class MainActivity : AppCompatActivity() {
                                     }
                                     .setNegativeButton(getString(R.string.cancel), null)
                                     .show()
-                        }
+                        },
+                        protectedFonts = defaultFonts
                 )
         recycler?.adapter = adapter
 

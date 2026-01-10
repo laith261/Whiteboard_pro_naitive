@@ -120,7 +120,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                     checkObjectTouching(e)
                 }
 
-                if (tool != Shapes.Select && !isTouchingSameObject(e)) {
+                if (tool != Shapes.Select && tool != Shapes.Text && !isTouchingSameObject(e)) {
                     objectIndex = null
                     draws.add(tool.shape.create(e))
                     isDrawing = true
@@ -152,7 +152,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 isResizing = false
                 isRotating = false
                 if (tool == Shapes.Text && objectIndex == null) {
-                    setTextDialog()
+                    setTextDialog(e.x, e.y)
                 }
 
                 if (tool.selectAble) {
@@ -246,7 +246,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     fun updateExample() {
         if (example != null) {
-            example!!.updateObject(paint.apply { color = Color.BLACK })
+            example!!.updateObject(Paint(paint).apply { color = Color.BLACK })
             invalidate()
         }
     }
@@ -256,13 +256,18 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         invalidate()
     }
 
-    private fun setTextDialog() {
+    private fun setTextDialog(x: Float, y: Float) {
         myMain.dialogs.showDialog(R.layout.text_dialog)
         val text = myMain.dialogs.dialog.findViewById<EditText>(R.id.theText)
         myMain.dialogs.dialog.findViewById<ImageView>(R.id.addText).setOnClickListener {
             if (text.text.isNotEmpty()) {
-                draws.last().text = text.text.toString()
-                objectIndex = draws.indexOf(draws.last())
+                val newText = com.joory.whiteboardapp.shapes.Texts()
+                newText.text = text.text.toString()
+                newText.point = android.graphics.PointF(x, y)
+                newText.paint.textSize = 50f
+
+                draws.add(newText)
+                objectIndex = draws.size - 1
             }
             invalidate()
             myMain.dialogs.dismiss()
