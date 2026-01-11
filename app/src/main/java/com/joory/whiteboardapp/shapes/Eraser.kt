@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.view.MotionEvent
+import com.joory.whiteboardapp.models.SerializablePoint
 
 class Eraser : Shape {
     override var paint: Paint = Paint()
@@ -13,6 +14,9 @@ class Eraser : Shape {
     override var sideLength: Float = 0.0f
     private var lastTouchX = 0f
     private var lastTouchY = 0f
+
+    // Serializable data
+    var points = mutableListOf<SerializablePoint>()
 
     // Only StrokeWidth is relevant for Eraser, Color is fixed to White
     override var shapeTools: MutableList<Tools> = mutableListOf(Tools.StrokeWidth)
@@ -27,6 +31,9 @@ class Eraser : Shape {
     }
 
     override fun draw(canvas: Canvas) {
+        if (path.isEmpty && points.isNotEmpty()) {
+            restore()
+        }
         // Enforce settings
         paint.color = Color.TRANSPARENT
         paint.xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.CLEAR)
@@ -45,11 +52,23 @@ class Eraser : Shape {
         val newEraser = Eraser()
         newEraser.paint.strokeWidth = this.paint.strokeWidth // Preserve width
         newEraser.path.moveTo(e.x, e.y)
+        newEraser.points.add(SerializablePoint(e.x, e.y))
         return newEraser
     }
 
     override fun update(e: MotionEvent) {
         path.lineTo(e.x, e.y)
+        points.add(SerializablePoint(e.x, e.y))
+    }
+
+    override fun restore() {
+        path = Path()
+        if (points.isNotEmpty()) {
+            path.moveTo(points[0].x, points[0].y)
+            for (i in 1 until points.size) {
+                path.lineTo(points[i].x, points[i].y)
+            }
+        }
     }
 
     override fun startMove(e: MotionEvent) {
@@ -61,6 +80,11 @@ class Eraser : Shape {
         val dx = e.x - lastTouchX
         val dy = e.y - lastTouchY
         path.offset(dx, dy)
+        // Update points
+        for (p in points) {
+            p.x += dx
+            p.y += dy
+        }
         lastTouchX = e.x
         lastTouchY = e.y
     }

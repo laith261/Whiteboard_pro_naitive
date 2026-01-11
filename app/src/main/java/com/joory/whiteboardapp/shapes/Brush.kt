@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
 import android.view.MotionEvent
+import com.joory.whiteboardapp.models.SerializablePoint
 
 class Brush : Shape {
     override var paint: Paint = Paint()
@@ -14,7 +15,15 @@ class Brush : Shape {
     private var lastTouchY = 0f
     override var shapeTools: MutableList<Tools> = mutableListOf(Tools.StrokeWidth, Tools.Color)
 
+    // Serializable data
+    var points = mutableListOf<SerializablePoint>()
+
     override fun draw(canvas: Canvas) {
+        // Ensure path is valid if points exist but path is empty (legacy check, though restore()
+        // should handle it)
+        if (path.isEmpty && points.isNotEmpty()) {
+            restore()
+        }
         canvas.drawPath(path, paint)
     }
 
@@ -31,11 +40,23 @@ class Brush : Shape {
         newBrush.paint.strokeWidth = this.paint.strokeWidth
         newBrush.paint.style = Paint.Style.STROKE
         newBrush.path.moveTo(e.x, e.y)
+        newBrush.points.add(SerializablePoint(e.x, e.y))
         return newBrush
     }
 
     override fun update(e: MotionEvent) {
         path.lineTo(e.x, e.y)
+        points.add(SerializablePoint(e.x, e.y))
+    }
+
+    override fun restore() {
+        path = Path()
+        if (points.isNotEmpty()) {
+            path.moveTo(points[0].x, points[0].y)
+            for (i in 1 until points.size) {
+                path.lineTo(points[i].x, points[i].y)
+            }
+        }
     }
 
     override fun startMove(e: MotionEvent) {
@@ -47,6 +68,11 @@ class Brush : Shape {
         val dx = e.x - lastTouchX
         val dy = e.y - lastTouchY
         path.offset(dx, dy)
+        // Update points
+        for (p in points) {
+            p.x += dx
+            p.y += dy
+        }
         lastTouchX = e.x
         lastTouchY = e.y
     }

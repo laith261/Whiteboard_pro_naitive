@@ -43,7 +43,7 @@ class SaveImage {
             )
             newFile.flush()
             newFile.close()
-            myCanvas.myMain.ads.showAds()
+            myCanvas.myMain?.ads?.showAds()
             if (myCanvas.tmpObjectIndex != null) {
                 myCanvas.objectIndex = myCanvas.tmpObjectIndex
                 myCanvas.tmpObjectIndex = null

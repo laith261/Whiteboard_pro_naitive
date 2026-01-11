@@ -17,10 +17,9 @@ import com.joory.whiteboardapp.shapes.ImageShape
 import com.joory.whiteboardapp.shapes.Lines
 import com.joory.whiteboardapp.shapes.Shape
 import com.joory.whiteboardapp.shapes.Shapes
-import java.util.Collections
 
 class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
-    lateinit var myMain: MainActivity
+    var myMain: MainActivity? = null
     var draws = ArrayList<Shape>()
     var paint: Paint =
             Paint().apply {
@@ -70,9 +69,10 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
-        myMain = MainActivity.getInstanceActivity()!!
-        if (imgUri != null) {
-            myMain.setImageBg.setImageBackgroundProcess(this)
+        myMain = MainActivity.getInstanceActivity()
+
+        if (imgUri != null && myMain != null) {
+            myMain!!.setImageBg.setImageBackgroundProcess(this)
         }
         setBG(canvas)
         // Save a layer to support erasing (PorterDuff.Mode.CLEAR) without clearing the background
@@ -162,7 +162,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                     }
                 }
                 isDrawing = false
-                myMain.doButtonsAlpha()
+                myMain?.doButtonsAlpha()
             }
         }
         return true
@@ -257,9 +257,10 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     }
 
     private fun setTextDialog(x: Float, y: Float) {
-        myMain.dialogs.showDialog(R.layout.text_dialog)
-        val text = myMain.dialogs.dialog.findViewById<EditText>(R.id.theText)
-        myMain.dialogs.dialog.findViewById<ImageView>(R.id.addText).setOnClickListener {
+        if (myMain == null) return
+        myMain!!.dialogs.showDialog(R.layout.text_dialog)
+        val text = myMain!!.dialogs.dialog.findViewById<EditText>(R.id.theText)
+        myMain!!.dialogs.dialog.findViewById<ImageView>(R.id.addText).setOnClickListener {
             if (text.text.isNotEmpty()) {
                 val newText = com.joory.whiteboardapp.shapes.Texts()
                 newText.text = text.text.toString()
@@ -270,7 +271,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 objectIndex = draws.size - 1
             }
             invalidate()
-            myMain.dialogs.dismiss()
+            myMain!!.dialogs.dismiss()
         }
     }
 
@@ -279,13 +280,13 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
             if (i.isTouchingObject(e)) {
                 objectIndex = draws.indexOf(i)
                 i.startMove(e)
-                myMain.showButtons()
+                myMain?.showButtons()
                 invalidate()
                 return true
             }
         }
         objectIndex = null
-        myMain.showButtons()
+        myMain?.showButtons()
         invalidate()
         return false
     }
@@ -323,8 +324,9 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                     undo.addAll(draws)
                     draws.clear()
                     objectIndex = null
-                    myMain.doButtonsAlpha()
-                    myMain.showButtons()
+                    objectIndex = null
+                    myMain?.doButtonsAlpha()
+                    myMain?.showButtons()
                     imgBG = null
                     invalidate()
                     dialog.dismiss()
@@ -360,14 +362,8 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
         draws.add(imageShape)
         objectIndex = draws.size - 1
-        myMain.showButtons()
+        myMain?.showButtons()
         invalidate()
-    }
-    fun swapLayers(fromIndex: Int, toIndex: Int) {
-        if (fromIndex in 0 until draws.size && toIndex in 0 until draws.size) {
-            Collections.swap(draws, fromIndex, toIndex)
-            invalidate()
-        }
     }
 
     fun removeLayer(index: Int) {
@@ -381,7 +377,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 objectIndex = objectIndex!! - 1
             }
             invalidate()
-            myMain.doButtonsAlpha()
+            myMain?.doButtonsAlpha()
         }
     }
 
@@ -395,7 +391,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     fun selectObject(index: Int) {
         if (index in 0 until draws.size) {
             objectIndex = index
-            myMain.showButtons()
+            myMain?.showButtons()
             invalidate()
         }
     }

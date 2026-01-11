@@ -1,21 +1,43 @@
 <resources>
-    <string name="app_name">السبورة الاحترافية</string>
-    <string name="stroke_width"> عرض الخط</string>
-    <string name="arrow_side">طول ضلع المثلث</string>
+    <string name="app_name">Whiteboard Pro</string>
+    <string name="stroke_width">عرض الخط</string>
+    <string name="arrow_side">طول ضلع السهم</string>
     <string name="text_hint">اكتب هنا</string>
     <string name="image_saved">تم حفظ الصورة</string>
-    <string name="clear_title">حذف الرسومات</string>
-    <string name="clear_message">هل أنت متأكد من رغبتك في مسح اللوحة؟</string>
+    <string name="clear_title">مسح اللوحة</string>
+    <string name="clear_message">هل أنت متأكد أنك تريد مسح اللوحة؟</string>
     <string name="yes">نعم</string>
     <string name="no">لا</string>
-    <string name="font_style">تنسيق الخط</string>
-    <string name="layers">طبقات</string>
-    <string name="invalid_font">نوع ملف غير مدعوم</string>
+    <string name="font_style">نمط الخط</string>
+    <string name="layers">الطبقات</string>
+    <string name="invalid_font">نوع الخط غير مدعوم</string>
     <string name="preview_text">نص توضيحي</string>
     <string name="sample_text">نص توضيحي</string>
     <string name="font_name_placeholder">اسم الخط</string>
     <string name="delete_font_title">حذف الخط</string>
-    <string name="delete_font_message">"هل انت متاكد انك تريد حذف "</string>
+    <string name="delete_font_message">هل أنت متأكد أنك تريد حذف الخط؟</string>
     <string name="delete">حذف</string>
-    <string name="cancel">الغاء</string>
+    <string name="cancel">إلغاء</string>
+
+    <!-- Home Screen -->
+    <string name="title_my_works">أعمالي الفنية</string>
+    <string name="subtitle_creativity">أطلق العنان لإبداعك</string>
+    <string name="content_description_app_icon">أيقونة التطبيق</string>
+    <string name="content_description_search_icon">أيقونة البحث</string>
+    <string name="hint_search_projects">ابحث في مشاريعك...</string>
+    <string name="empty_title">لا توجد روائع فنية بعد</string>
+    <string name="empty_subtitle">اضغط على زر + لإنشاء أول عمل فني لك!</string>
+    <string name="content_description_new_whiteboard">لوحة بيضاء جديدة</string>
+
+    <!-- Dialogs & Actions -->
+    <string name="action_rename">إعادة تسمية</string>
+    <string name="action_share_image">مشاركة الصورة</string>
+    <string name="action_export_image">تصدير كصورة</string>
+    <string name="title_rename_project">إعادة تسمية المشروع</string>
+    <string name="action_save">حفظ</string>
+    <string name="msg_export_failed">فشل تصدير الصورة</string>
+    <string name="title_delete_project">حذف المشروع</string>
+    <string name="msg_delete_project_confirm">هل أنت متأكد أنك تريد حذف هذا المشروع؟ لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="msg_project_deleted">تم حذف المشروع</string>
+    <string name="default_project_name">بدون عنوان</string>
 </resources>

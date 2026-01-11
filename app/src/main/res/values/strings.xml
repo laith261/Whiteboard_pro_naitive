@@ -18,4 +18,26 @@
     <string name="delete_font_message">Are you sure you want to delete font?</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
+
+    <!-- Home Screen -->
+    <string name="title_my_works">My Artworks</string>
+    <string name="subtitle_creativity">Let your creativity flow</string>
+    <string name="content_description_app_icon">App Icon</string>
+    <string name="content_description_search_icon">Search Icon</string>
+    <string name="hint_search_projects">Search your projects...</string>
+    <string name="empty_title">No masterpieces yet</string>
+    <string name="empty_subtitle">Tap the + button to create your first artwork!</string>
+    <string name="content_description_new_whiteboard">New Whiteboard</string>
+
+    <!-- Dialogs & Actions -->
+    <string name="action_rename">Rename</string>
+    <string name="action_share_image">Share Image</string>
+    <string name="action_export_image">Export Image</string>
+    <string name="title_rename_project">Rename Project</string>
+    <string name="action_save">Save</string>
+    <string name="msg_export_failed">Failed to export image</string>
+    <string name="title_delete_project">Delete Project</string>
+    <string name="msg_delete_project_confirm">Are you sure you want to delete this project? This cannot be undone.</string>
+    <string name="msg_project_deleted">Project deleted</string>
+    <string name="default_project_name">Untitled</string>
 </resources>

@@ -49,18 +49,20 @@ interface Shape {
     fun update(e: MotionEvent)
     fun updateObject(paint: Paint? = null) {}
 
+    // Called after deserialization to restore transient fields like Path
+    fun restore() {}
+
     fun isTouchingObject(e: MotionEvent): Boolean {
         return false
     }
 
     fun drawSelectedBox(
-        canvas: Canvas,
-        deleteBmp: Bitmap? = null,
-        duplicateBmp: Bitmap? = null,
-        rotateBmp: Bitmap? = null,
-        resizeBmp: Bitmap? = null
-    ) {
-    }
+            canvas: Canvas,
+            deleteBmp: Bitmap? = null,
+            duplicateBmp: Bitmap? = null,
+            rotateBmp: Bitmap? = null,
+            resizeBmp: Bitmap? = null
+    ) {}
 
     fun startMove(e: MotionEvent) {}
 

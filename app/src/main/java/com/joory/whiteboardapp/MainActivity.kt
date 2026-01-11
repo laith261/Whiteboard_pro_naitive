@@ -35,9 +35,9 @@ import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
     companion object {
-        lateinit var weakActivity: WeakReference<MainActivity>
+        private var weakActivity: WeakReference<MainActivity>? = null
         fun getInstanceActivity(): MainActivity? {
-            return weakActivity.get()
+            return weakActivity?.get()
         }
     }
 
@@ -100,6 +100,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private lateinit var projectManager: com.joory.whiteboardapp.managers.ProjectManager
+    private var currentProjectId: String? = null
+
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId", "UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,6 +116,13 @@ class MainActivity : AppCompatActivity() {
         ads.loadFullScreenAd()
         showButtons()
 
+        projectManager = com.joory.whiteboardapp.managers.ProjectManager(this)
+
+        if (intent.hasExtra("EXTRA_PROJECT_ID")) {
+            currentProjectId = intent.getStringExtra("EXTRA_PROJECT_ID")
+            currentProjectId?.let { projectManager.loadProject(canvas, it) }
+        }
+
         when {
             intent?.action == Intent.ACTION_SEND -> {
                 if (intent.type?.startsWith("image/") == true) {
@@ -123,7 +133,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeViews() {
-        weakActivity = WeakReference<MainActivity>(this)
+        weakActivity = WeakReference(this)
         val adView = findViewById<AdView>(R.id.adView)
         val adRequest = AdRequest.Builder().build()
         adView.loadAd(adRequest)
@@ -283,7 +293,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
+    override fun onPause() {
+        super.onPause()
+        // Save if we are editing an existing project OR if we have created a new one (canvas not
+        // empty)
+        if (currentProjectId != null || canvas.draws.isNotEmpty()) {
+            val project = projectManager.saveProject(canvas, currentProjectId)
+            currentProjectId = project.id
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     fun View.onSaveClick() {
+        // Auto-save project (update thumbnail) before exporting
+        val project = projectManager.saveProject(canvas, currentProjectId)
+        currentProjectId = project.id
+
         saveImage.saveImage(canvas)
     }
 
