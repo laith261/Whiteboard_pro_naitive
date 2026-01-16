@@ -31,7 +31,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     var undo = ArrayList<Shape>()
     var tool: Shapes = Shapes.Brush
 
-    private var colorBG: Int = Color.WHITE
+    var colorBG: Int = Color.WHITE
     var imgBG: Bitmap? = null
     var objectIndex: Int? = null
     var tmpObjectIndex: Int? = null

@@ -42,6 +42,12 @@ class ProjectManager(private val context: Context) {
 
     data class ProjectMetadata(val name: String, val created: Long, val lastModified: Long)
 
+    data class BackgroundData(
+            val color: Int,
+            val hasImage: Boolean,
+            val imageFileName: String? = null
+    )
+
     fun saveProject(
             canvas: MyCanvas,
             projectId: String? = null,
@@ -52,43 +58,44 @@ class ProjectManager(private val context: Context) {
         if (!projectDir.exists()) projectDir.mkdirs()
 
         // 1. Save Thumbnail
-        // We create a bitmap from the canvas
         val thumbnailBitmap =
                 Bitmap.createBitmap(canvas.width, canvas.height, Bitmap.Config.ARGB_8888)
         val thumbnailCanvas = Canvas(thumbnailBitmap)
-        // Draw background
         canvas.draw(thumbnailCanvas)
-        // Note: canvas.draw might draw the selection box if an item is selected.
-        // Ideally we should temporarily deselect, but MyCanvas doesn't expose an easy way without
-        // `invalidate`.
-        // Users might accept seeing selection in thumbnail, or we can try to assume `startDrawing`
-        // handles it.
-        // Actually `onDraw` calls `startDrawing`. We can't easily call `draw` without `onDraw`
-        // context effectively if it relies on view state.
-        // But `canvas.draw(Canvas)` is standard View method.
-        // Let's rely on current state.
 
         val thumbnailFile = File(projectDir, "thumbnail.png")
         FileOutputStream(thumbnailFile).use { out ->
             thumbnailBitmap.compress(Bitmap.CompressFormat.PNG, 50, out)
         }
 
+        // Save Background Info
+        val bgImageName = "background_img.png"
+        var hasBgImage = false
+        if (canvas.imgBG != null) {
+            val bgFile = File(projectDir, bgImageName)
+            FileOutputStream(bgFile).use { out ->
+                canvas.imgBG!!.compress(Bitmap.CompressFormat.PNG, 100, out)
+            }
+            hasBgImage = true
+        } else {
+            // If no background image, remove potential old one
+            val bgFile = File(projectDir, bgImageName)
+            if (bgFile.exists()) bgFile.delete()
+        }
+
+        val bgData =
+                BackgroundData(canvas.colorBG, hasBgImage, if (hasBgImage) bgImageName else null)
+        val bgFileJson = File(projectDir, "background.json")
+        bgFileJson.writeText(gson.toJson(bgData))
+
         // 2. Serialize Shapes
         val shapeList = mutableListOf<ShapeData>()
         for (shape in canvas.draws) {
             val type = shape::class.java.name
-            // We need to exclude 'bitmap' from Gson serialization for ImageShape because it's
-            // circular/complex?
-            // Gson usually ignores Bitmap unless configured otherwise or crashes.
-            // Shape uses default Gson in deepCopy so it implies it works for basic fields.
             val json = gson.toJson(shape)
 
             var imageFileName: String? = null
             if (shape is ImageShape && shape.bitmap != null) {
-                // Save bitmap to file
-                // We use a unique name hash or something to avoid overwrite if multiple identical
-                // images?
-                // Or just random UUID for the image file
                 val imgName = "img_${UUID.randomUUID()}.png"
                 val imgFile = File(projectDir, imgName)
                 FileOutputStream(imgFile).use { out ->
@@ -114,7 +121,6 @@ class ProjectManager(private val context: Context) {
 
         // 3. Save Metadata (Name)
         val metaFile = File(projectDir, "meta.json")
-        // Load existing meta to preserve creation date or get name if not provided
         var currentName = projectName
         var created = System.currentTimeMillis()
 
@@ -158,6 +164,28 @@ class ProjectManager(private val context: Context) {
         val dataFile = File(projectDir, "data.json")
 
         if (!dataFile.exists()) return
+
+        // Restore Background
+        val bgFileJson = File(projectDir, "background.json")
+        if (bgFileJson.exists()) {
+            try {
+                val bgData = gson.fromJson(bgFileJson.readText(), BackgroundData::class.java)
+                canvas.colorBG = bgData.color
+
+                if (bgData.hasImage && bgData.imageFileName != null) {
+                    val bgImgFile = File(projectDir, bgData.imageFileName)
+                    if (bgImgFile.exists()) {
+                        canvas.imgBG = BitmapFactory.decodeFile(bgImgFile.absolutePath)
+                    } else {
+                        canvas.imgBG = null
+                    }
+                } else {
+                    canvas.imgBG = null
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
 
         val jsonString = dataFile.readText()
         val shapeDataList = gson.fromJson(jsonString, Array<ShapeData>::class.java)
