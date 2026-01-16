@@ -702,6 +702,58 @@ class MainActivity : AppCompatActivity() {
         fontsDialog?.show()
     }
 
+    fun View.onTextSizeClick() {
+        showTextSizeDialog()
+    }
+
+    private var textSizeDialog: com.google.android.material.bottomsheet.BottomSheetDialog? = null
+
+    private fun showTextSizeDialog() {
+        textSizeDialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        textSizeDialog?.setContentView(R.layout.dialog_text_size)
+
+        val btnClose = textSizeDialog?.findViewById<View>(R.id.btnClose)
+        val npSize = textSizeDialog?.findViewById<android.widget.NumberPicker>(R.id.npSize)
+
+        btnClose?.setOnClickListener { textSizeDialog?.dismiss() }
+
+        // Configure NumberPicker
+        npSize?.minValue = 10
+        npSize?.maxValue = 300
+        npSize?.wrapSelectorWheel = false
+
+        // Set current value
+        if (canvas.objectIndex != null) {
+            val shape = canvas.draws[canvas.objectIndex!!]
+            if (shape is com.joory.whiteboardapp.shapes.Texts) {
+                val currentSize = shape.paint.textSize.toInt()
+                if (currentSize in 10..300) {
+                    npSize?.value = currentSize
+                } else {
+                    npSize?.value = 50 // Default
+                }
+            }
+        }
+
+        npSize?.setOnValueChangedListener { _, _, newVal ->
+            if (canvas.objectIndex != null) {
+                val shape = canvas.draws[canvas.objectIndex!!]
+                if (shape is com.joory.whiteboardapp.shapes.Texts) {
+                    shape.paint.textSize = newVal.toFloat()
+                    shape.updateObject(
+                            shape.paint
+                    ) // Ensure internal updates if needed, though direct setTextSize works
+                    // We might need to call something to refresh bounds if text size changes?
+                    // draw() uses getRectBorder() which uses paint.measureText(), so invalidate()
+                    // is enough.
+                    canvas.invalidate()
+                }
+            }
+        }
+
+        textSizeDialog?.show()
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         when {

@@ -6,7 +6,6 @@ import android.graphics.Canvas
 import android.graphics.DashPathEffect
 import android.graphics.Paint
 import android.graphics.PointF
-import android.graphics.Rect
 import android.graphics.RectF
 import android.os.Build
 import android.view.MotionEvent
@@ -29,14 +28,28 @@ class Texts : Shape {
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
     override var shapeTools: MutableList<Tools> =
-            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color, Tools.Font)
+            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color, Tools.Font, Tools.TextSize)
 
     override fun draw(canvas: Canvas) {
         val rect = getRectBorder()
         val cx = rect.centerX()
         val cy = rect.centerY()
 
-        canvas.withRotation(rotation, cx, cy) { drawText(text, point.x, point.y, paint) }
+        canvas.withRotation(rotation, cx, cy) {
+            val lines = text.split("\n")
+            // Calculate total height to find where to start drawing (so point remains bottom-left)
+            // Or simpler: We know the rect top is rect.top.
+            // Baseline of first line is typically rect.top + (-paint.ascent()) approx,
+            // but we constructed rect using fontSpacing.
+            // Let's rely on the rect we calculated in getRectBorder.
+
+            var yOffset = rect.top - paint.ascent()
+
+            for (line in lines) {
+                drawText(line, rect.left, yOffset, paint)
+                yOffset += paint.fontSpacing
+            }
+        }
     }
 
     override fun create(e: MotionEvent): Shape {
@@ -89,13 +102,22 @@ class Texts : Shape {
     override fun update(e: MotionEvent) {}
 
     private fun getRectBorder(): RectF {
-        val rect = Rect()
-        paint.getTextBounds(text, 0, text.length, rect)
-        // Original logic: rect.offsetTo(point.x.toInt(), point.y.toInt() - rect.height())
-        // This puts the rect top-left at point.x, point.y - height.
-        // This matches the drawing logic if point is near the baseline.
-        rect.offsetTo(point.x.toInt(), point.y.toInt() - rect.height())
-        return RectF(rect)
+        val lines = text.split("\n")
+        var maxWidth = 0f
+        for (line in lines) {
+            val w = paint.measureText(line)
+            if (w > maxWidth) maxWidth = w
+        }
+
+        val totalHeight = lines.size * paint.fontSpacing
+
+        // Ensure point is at Bottom-Left
+        // top = point.y - totalHeight
+        // left = point.x
+        val left = point.x
+        val top = point.y - totalHeight
+
+        return RectF(left, top, left + maxWidth, point.y)
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -134,17 +156,6 @@ class Texts : Shape {
             val btnBgPaint = Paint()
             btnBgPaint.color = "#5369e7".toColorInt()
             btnBgPaint.style = Paint.Style.FILL
-
-            // Draw resize handle (Bottom-Right)
-            if (resizeBmp != null) {
-                drawCircle(rect.right + 30f, rect.bottom + 30f, 30f, btnBgPaint)
-                drawBitmap(resizeBmp, rect.right + 10, rect.bottom + 10, null)
-            } else {
-                selectedPaint.pathEffect = null
-                selectedPaint.style = Paint.Style.FILL
-                selectedPaint.color = android.graphics.Color.BLUE
-                drawCircle(rect.right + 30f, rect.bottom + 30f, 15f, selectedPaint)
-            }
 
             // Draw rotate handle (Bottom-Left)
             if (rotateBmp != null) {
@@ -195,17 +206,7 @@ class Texts : Shape {
     }
 
     override fun isTouchingResize(e: MotionEvent): Boolean {
-        val rawRect = getRectBorder()
-        val cx = rawRect.centerX()
-        val cy = rawRect.centerY()
-        val paddedRect =
-                RectF(rawRect.left - 5, rawRect.top - 5, rawRect.right + 10, rawRect.bottom + 10)
-
-        val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
-
-        val dx = rotatedPoint.x - (paddedRect.right + 30f)
-        val dy = rotatedPoint.y - (paddedRect.bottom + 30f)
-        return (dx * dx + dy * dy) <= 4900
+        return false
     }
 
     override fun isTouchingRotate(e: MotionEvent): Boolean {
@@ -283,9 +284,7 @@ class Texts : Shape {
         if (paint.textSize > 1000f) paint.textSize = 1000f
 
         // Recalculate bounds to update point.y to maintain Top-Left anchor
-        val newRect = Rect()
-        paint.getTextBounds(text, 0, text.length, newRect)
-        val newHeight = newRect.height()
+        val newHeight = getRectBorder().height()
 
         // Update point.y so that (point.y - newHeight) == anchorTop
         point.y = anchorTop + newHeight

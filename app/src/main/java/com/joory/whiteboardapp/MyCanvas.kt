@@ -84,12 +84,14 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     private var isResizing = false
     private var isRotating = false
     private var isDrawing = false
+    private var ignoreUpEvent = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(e: MotionEvent?): Boolean {
         when (e!!.action) {
             MotionEvent.ACTION_DOWN -> {
                 isDrawing = false
+                ignoreUpEvent = false
                 if (objectIndex != null && draws[objectIndex!!].isTouchingResize(e)) {
                     isResizing = true
                     return true
@@ -105,6 +107,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                         draws[objectIndex!!].startMove(e)
                         if (draws[objectIndex!!].isTouchingDelete(e)) {
                             deleteItem()
+                            ignoreUpEvent = true
                             return true
                         }
                         if (draws[objectIndex!!].isTouchingDuplicate(e)) {
@@ -151,7 +154,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
             MotionEvent.ACTION_UP -> {
                 isResizing = false
                 isRotating = false
-                if (tool == Shapes.Text && objectIndex == null) {
+                if (tool == Shapes.Text && objectIndex == null && !ignoreUpEvent) {
                     setTextDialog(e.x, e.y)
                 }
 
