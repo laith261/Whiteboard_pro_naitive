@@ -13,8 +13,8 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 class Circle : Shape {
-    private var cp = PointF(0f, 0f)
-    private var radius = 50f
+    var cp = PointF(0f, 0f)
+    var radius = 50f
     override var paint = Paint()
     override var sideLength: Float = 0.0f
 

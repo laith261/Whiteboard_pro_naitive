@@ -299,7 +299,7 @@ class HomeActivity : AppCompatActivity() {
 
             // SaveImage expects a view that returns a bitmap or draws to canvas
             val saveImage = com.joory.whiteboardapp.functions.SaveImage()
-            saveImage.saveImage(offScreenCanvas)
+            saveImage.saveImage(offScreenCanvas, false)
         } catch (e: Exception) {
             android.widget.Toast.makeText(
                             this,

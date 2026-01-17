@@ -12,9 +12,9 @@ import androidx.core.graphics.withRotation
 
 class Rects : Shape {
     override var paint = Paint()
-    private var start: PointF = PointF(0f, 0f)
-    private var end: PointF = PointF(0f, 0f)
-    private var rect = RectF(start.x, start.y, end.x, end.y)
+    var start: PointF = PointF(0f, 0f)
+    var end: PointF = PointF(0f, 0f)
+    var rect = RectF(start.x, start.y, end.x, end.y)
     override var sideLength: Float = 0.0f
     override lateinit var text: String
     override var rotation: Float = 0f

@@ -309,7 +309,43 @@ class MainActivity : AppCompatActivity() {
         val project = projectManager.saveProject(canvas, currentProjectId)
         currentProjectId = project.id
 
-        saveImage.saveImage(canvas)
+        showSaveOptionsDialog()
+    }
+
+    private var saveOptionsDialog: com.google.android.material.bottomsheet.BottomSheetDialog? = null
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun showSaveOptionsDialog() {
+        saveOptionsDialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        saveOptionsDialog?.setContentView(R.layout.dialog_save_options)
+
+        val btnClose = saveOptionsDialog?.findViewById<View>(R.id.btnClose)
+        val btnSave = saveOptionsDialog?.findViewById<View>(R.id.btnSave)
+        val rgFormat = saveOptionsDialog?.findViewById<android.widget.RadioGroup>(R.id.rgFormat)
+        val cbTransparent =
+                saveOptionsDialog?.findViewById<android.widget.CheckBox>(R.id.cbTransparent)
+
+        btnClose?.setOnClickListener { saveOptionsDialog?.dismiss() }
+
+        btnSave?.setOnClickListener {
+            val isTransparent = cbTransparent?.isChecked == true
+            val checkedId = rgFormat?.checkedRadioButtonId
+
+            when (checkedId) {
+                R.id.rbPdf -> {
+                    saveImage.savePdf(canvas, isTransparent)
+                }
+                R.id.rbSvg -> {
+                    saveImage.saveSvg(canvas)
+                }
+                else -> {
+                    saveImage.saveImage(canvas, isTransparent)
+                }
+            }
+            saveOptionsDialog?.dismiss()
+        }
+
+        saveOptionsDialog?.show()
     }
 
     fun View.onFontClick() {
@@ -699,30 +735,12 @@ class MainActivity : AppCompatActivity() {
                 )
         recycler?.adapter = adapter
 
-        fontsDialog?.show()
-    }
-
-    fun View.onTextSizeClick() {
-        showTextSizeDialog()
-    }
-
-    private var textSizeDialog: com.google.android.material.bottomsheet.BottomSheetDialog? = null
-
-    private fun showTextSizeDialog() {
-        textSizeDialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
-        textSizeDialog?.setContentView(R.layout.dialog_text_size)
-
-        val btnClose = textSizeDialog?.findViewById<View>(R.id.btnClose)
-        val npSize = textSizeDialog?.findViewById<android.widget.NumberPicker>(R.id.npSize)
-
-        btnClose?.setOnClickListener { textSizeDialog?.dismiss() }
-
-        // Configure NumberPicker
+        // --- NumberPicker logic merged from Text Size Dialog ---
+        val npSize = fontsDialog?.findViewById<android.widget.NumberPicker>(R.id.npSize)
         npSize?.minValue = 10
         npSize?.maxValue = 300
         npSize?.wrapSelectorWheel = false
 
-        // Set current value
         if (canvas.objectIndex != null) {
             val shape = canvas.draws[canvas.objectIndex!!]
             if (shape is com.joory.whiteboardapp.shapes.Texts) {
@@ -730,7 +748,7 @@ class MainActivity : AppCompatActivity() {
                 if (currentSize in 10..300) {
                     npSize?.value = currentSize
                 } else {
-                    npSize?.value = 50 // Default
+                    npSize?.value = 50
                 }
             }
         }
@@ -740,18 +758,14 @@ class MainActivity : AppCompatActivity() {
                 val shape = canvas.draws[canvas.objectIndex!!]
                 if (shape is com.joory.whiteboardapp.shapes.Texts) {
                     shape.paint.textSize = newVal.toFloat()
-                    shape.updateObject(
-                            shape.paint
-                    ) // Ensure internal updates if needed, though direct setTextSize works
-                    // We might need to call something to refresh bounds if text size changes?
-                    // draw() uses getRectBorder() which uses paint.measureText(), so invalidate()
-                    // is enough.
+                    shape.updateObject(shape.paint)
                     canvas.invalidate()
                 }
             }
         }
+        // -----------------------------------------------------
 
-        textSizeDialog?.show()
+        fontsDialog?.show()
     }
 
     override fun onNewIntent(intent: Intent) {

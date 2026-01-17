@@ -40,4 +40,10 @@
     <string name="msg_delete_project_confirm">Are you sure you want to delete this project? This cannot be undone.</string>
     <string name="msg_project_deleted">Project deleted</string>
     <string name="default_project_name">Untitled</string>
+    <string name="save_options_title">Save Options</string>
+    <string name="save_as_image">Image (PNG)</string>
+    <string name="save_as_pdf">PDF Document</string>
+    <string name="save_as_svg">SVG Vector</string>
+    <string name="transparent_background">Transparent Background</string>
+    <string name="pdf_saved">PDF Saved</string>
 </resources>

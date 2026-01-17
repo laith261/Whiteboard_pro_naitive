@@ -106,17 +106,25 @@
             app:srcCompat="@drawable/ic_layers"
             app:tint="@color/icon_tint" />
 
-        <ImageButton
-            android:id="@+id/save"
+        <androidx.cardview.widget.CardView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Save"
-            android:onClick="onSaveClick"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            app:srcCompat="@drawable/ic_save"
-            app:tint="@color/icon_tint" />
+            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="@color/purple_500"
+            app:cardElevation="0dp">
+
+            <ImageButton
+                android:id="@+id/save"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/selectableItemBackground"
+                android:contentDescription="Save"
+                android:onClick="onSaveClick"
+                android:padding="8dp"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_save"
+                app:tint="@color/white" />
+        </androidx.cardview.widget.CardView>
 
     </LinearLayout>
 
@@ -181,19 +189,6 @@
                     android:scaleType="centerInside"
                     android:visibility="gone"
                     ads:srcCompat="@drawable/font"
-                    app:tint="@color/icon_tint" />
-
-                <ImageButton
-                    android:id="@+id/text_size"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Text Size"
-                    android:onClick="onTextSizeClick"
-                    android:padding="10dp"
-                    android:scaleType="centerInside"
-                    android:visibility="gone"
-                    ads:srcCompat="@drawable/ic_format_size"
                     app:tint="@color/icon_tint" />
 
                 <ImageButton

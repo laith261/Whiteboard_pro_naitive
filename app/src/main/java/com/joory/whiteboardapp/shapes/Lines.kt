@@ -15,7 +15,7 @@ import kotlin.math.atan2
 class Lines : Shape {
     override var paint = Paint()
     var start: PointF = PointF(0f, 0f)
-    private var end: PointF = PointF(0f, 0f)
+    var end: PointF = PointF(0f, 0f)
     private var angle = 0f
     private var inSerine = false
     private var dist: PointF = PointF(0f, 0f)
@@ -150,15 +150,16 @@ class Lines : Shape {
                 drawCircle(start.x, start.y, 15f, selectedPaint)
             }
 
-            val isPositiveSlope = (end.y - start.y) * (end.x - start.x) > 0
-            // If slope is positive (\), occupied corners are TL and BR. Use BL and TR for buttons.
-            // If slope is negative (/), occupied corners are TR and BL. Use TL and BR for buttons.
+            // Calculate icons position using dynamic corner selection (furthest from handles)
+            val iconPositions = getActionIconPositions(rect)
+            val deletePos = iconPositions.first
+            val duplicatePos = iconPositions.second
 
-            val deleteX = rect.left - 30f
-            val deleteY = if (isPositiveSlope) rect.bottom + 30f else rect.top - 30f
+            val deleteX = deletePos.x
+            val deleteY = deletePos.y
 
-            val duplicateX = rect.right + 30f
-            val duplicateY = if (isPositiveSlope) rect.top - 30f else rect.bottom + 30f
+            val duplicateX = duplicatePos.x
+            val duplicateY = duplicatePos.y
 
             if (deleteBmp != null) {
                 drawCircle(deleteX, deleteY, 30f, btnBgPaint)
@@ -177,12 +178,11 @@ class Lines : Shape {
         val cy = (start.y + end.y) / 2
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
-        val isPositiveSlope = (end.y - start.y) * (end.x - start.x) > 0
-        val btnX = rect.left - 30f
-        val btnY = if (isPositiveSlope) rect.bottom + 30f else rect.top - 30f
+        val iconPositions = getActionIconPositions(rect)
+        val deletePos = iconPositions.first
 
-        val dx = rotatedPoint.x - btnX
-        val dy = rotatedPoint.y - btnY
+        val dx = rotatedPoint.x - deletePos.x
+        val dy = rotatedPoint.y - deletePos.y
         return (dx * dx + dy * dy) <= 2500
     }
 
@@ -192,13 +192,39 @@ class Lines : Shape {
         val cy = (start.y + end.y) / 2
         val rotatedPoint = rotatePoint(PointF(e.x, e.y), PointF(cx, cy), -rotation)
 
-        val isPositiveSlope = (end.y - start.y) * (end.x - start.x) > 0
-        val btnX = rect.right + 30f
-        val btnY = if (isPositiveSlope) rect.top - 30f else rect.bottom + 30f
+        val iconPositions = getActionIconPositions(rect)
+        val duplicatePos = iconPositions.second
 
-        val dx = rotatedPoint.x - btnX
-        val dy = rotatedPoint.y - btnY
+        val dx = rotatedPoint.x - duplicatePos.x
+        val dy = rotatedPoint.y - duplicatePos.y
         return (dx * dx + dy * dy) <= 2500
+    }
+
+    private fun getActionIconPositions(rect: RectF): Pair<PointF, PointF> {
+        val offset = 50f
+        val corners =
+                listOf(
+                        PointF(rect.left - offset, rect.top - offset), // TL
+                        PointF(rect.right + offset, rect.top - offset), // TR
+                        PointF(rect.left - offset, rect.bottom + offset), // BL
+                        PointF(rect.right + offset, rect.bottom + offset) // BR
+                )
+
+        // Sort by "fitness" (distance from handles) - maximize MIN distance to start/end
+        val sorted =
+                corners.sortedByDescending { p ->
+                    val dStart = kotlin.math.hypot(p.x - start.x, p.y - start.y)
+                    val dEnd = kotlin.math.hypot(p.x - end.x, p.y - end.y)
+                    kotlin.math.min(dStart, dEnd)
+                }
+
+        // Take top 2 furthest corners
+        val best2 = sorted.take(2)
+
+        // Assign Delete to the one that is "more Top-Left" (lowest Y, then lowest X)
+        val finalSort = best2.sortedWith(compareBy({ it.y }, { it.x }))
+
+        return Pair(finalSort[0], finalSort[1]) // First is Delete, Second is Duplicate
     }
 
     override fun isTouchingResize(e: MotionEvent): Boolean {

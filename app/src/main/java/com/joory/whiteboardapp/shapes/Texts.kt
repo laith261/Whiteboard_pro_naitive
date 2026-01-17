@@ -28,7 +28,7 @@ class Texts : Shape {
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
     override var shapeTools: MutableList<Tools> =
-            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color, Tools.Font, Tools.TextSize)
+            mutableListOf(Tools.Style, Tools.StrokeWidth, Tools.Color, Tools.Font)
 
     override fun draw(canvas: Canvas) {
         val rect = getRectBorder()
