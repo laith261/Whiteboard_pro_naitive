@@ -88,17 +88,19 @@ class ImageShape(var bitmap: Bitmap? = null) : Shape {
             deleteBmp: Bitmap?,
             duplicateBmp: Bitmap?,
             rotateBmp: Bitmap?,
-            resizeBmp: Bitmap?
+            resizeBmp: Bitmap?,
+            scale: Float
     ) {
         val cx = (rect.left + rect.right) / 2
         val cy = (rect.top + rect.bottom) / 2
 
+        val s = 1f / scale
         canvas.withRotation(rotation, cx, cy) {
             val selectedPaint = Paint()
             selectedPaint.pathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
             selectedPaint.style = Paint.Style.STROKE
             selectedPaint.color = android.graphics.Color.BLACK
-            selectedPaint.strokeWidth = 2f
+            selectedPaint.strokeWidth = 2f * s
             drawRect(rect, selectedPaint)
 
             // Common paint for button backgrounds
@@ -108,34 +110,62 @@ class ImageShape(var bitmap: Bitmap? = null) : Shape {
 
             // Draw resize handle
             if (resizeBmp != null) {
-                drawCircle(rect.right + 30f, rect.bottom + 30f, 30f, btnBgPaint)
-                drawBitmap(resizeBmp, rect.right + 10, rect.bottom + 10, null)
+                drawCircle(rect.right + 30f * s, rect.bottom + 30f * s, 30f * s, btnBgPaint)
+                val resizeRect =
+                        RectF(
+                                rect.right + 10f * s,
+                                rect.bottom + 10f * s,
+                                rect.right + 50f * s,
+                                rect.bottom + 50f * s
+                        )
+                drawBitmap(resizeBmp, null, resizeRect, null)
             } else {
                 selectedPaint.pathEffect = null
                 selectedPaint.style = Paint.Style.FILL
                 selectedPaint.color = android.graphics.Color.BLUE
-                drawCircle(rect.right + 30f, rect.bottom + 30f, 15f, selectedPaint)
+                drawCircle(rect.right + 30f * s, rect.bottom + 30f * s, 15f * s, selectedPaint)
             }
 
             // Draw rotate handle
             if (rotateBmp != null) {
-                drawCircle(rect.left - 30f, rect.bottom + 30f, 30f, btnBgPaint)
-                drawBitmap(rotateBmp, rect.left - 50, rect.bottom + 10, null)
+                drawCircle(rect.left - 30f * s, rect.bottom + 30f * s, 30f * s, btnBgPaint)
+                val rotateRect =
+                        RectF(
+                                rect.left - 50f * s,
+                                rect.bottom + 10f * s,
+                                rect.left - 10f * s,
+                                rect.bottom + 50f * s
+                        )
+                drawBitmap(rotateBmp, null, rotateRect, null)
             } else {
                 selectedPaint.color = android.graphics.Color.RED
-                drawCircle(rect.left - 30f, rect.bottom + 30f, 15f, selectedPaint)
+                drawCircle(rect.left - 30f * s, rect.bottom + 30f * s, 15f * s, selectedPaint)
             }
 
             // Draw delete button (Top-Left)
             if (deleteBmp != null) {
-                drawCircle(rect.left - 30f, rect.top - 30f, 30f, btnBgPaint)
-                drawBitmap(deleteBmp, rect.left - 50, rect.top - 50, null)
+                drawCircle(rect.left - 30f * s, rect.top - 30f * s, 30f * s, btnBgPaint)
+                val deleteRect =
+                        RectF(
+                                rect.left - 50f * s,
+                                rect.top - 50f * s,
+                                rect.left - 10f * s,
+                                rect.top - 10f * s
+                        )
+                drawBitmap(deleteBmp, null, deleteRect, null)
             }
 
             // Draw duplicate button (Top-Right)
             if (duplicateBmp != null) {
-                drawCircle(rect.right + 30f, rect.top - 30f, 30f, btnBgPaint)
-                drawBitmap(duplicateBmp, rect.right + 10, rect.top - 50, null)
+                drawCircle(rect.right + 30f * s, rect.top - 30f * s, 30f * s, btnBgPaint)
+                val duplicateRect =
+                        RectF(
+                                rect.right + 10f * s,
+                                rect.top - 50f * s,
+                                rect.right + 50f * s,
+                                rect.top - 10f * s
+                        )
+                drawBitmap(duplicateBmp, null, duplicateRect, null)
             }
         }
     }

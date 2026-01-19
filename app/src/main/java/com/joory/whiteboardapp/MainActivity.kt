@@ -229,7 +229,7 @@ class MainActivity : AppCompatActivity() {
                             canvas.selectObject(position)
                             dialog.dismiss()
                         },
-                        onReorder = { from, to ->
+                        onReorder = { _, _ ->
                             // The adapter already swapped the list, but we need to tell canvas to
                             // invalidate if we rely on draws order (which we do)
                             // Actually the adapter uses the same list reference? Yes.
@@ -256,8 +256,8 @@ class MainActivity : AppCompatActivity() {
                                             androidx.recyclerview.widget.RecyclerView.ViewHolder,
                                     target: androidx.recyclerview.widget.RecyclerView.ViewHolder
                             ): Boolean {
-                                val fromPos = viewHolder.adapterPosition
-                                val toPos = target.adapterPosition
+                                val fromPos = viewHolder.bindingAdapterPosition
+                                val toPos = target.bindingAdapterPosition
                                 adapter.moveItem(fromPos, toPos)
                                 return true
                             }
@@ -286,6 +286,10 @@ class MainActivity : AppCompatActivity() {
 
     fun View.onClearClick() {
         canvas.clearCanvas()
+    }
+
+    fun View.onCenterClick() {
+        canvas.resetZoom()
     }
 
     fun View.onColorClick() {
@@ -576,6 +580,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
     private val cropImage =
             registerForActivityResult(CropImageContract()) { result ->
                 if (result.isSuccessful) {
@@ -737,18 +742,30 @@ class MainActivity : AppCompatActivity() {
 
         // --- NumberPicker logic merged from Text Size Dialog ---
         val npSize = fontsDialog?.findViewById<android.widget.NumberPicker>(R.id.npSize)
-        npSize?.minValue = 10
-        npSize?.maxValue = 300
+
+        // Create an array of sizes from 10 to 300 with step 5
+        val sizes = (10..300 step 5).toList().map { it.toString() }.toTypedArray()
+
+        npSize?.minValue = 0
+        npSize?.maxValue = sizes.size - 1
+        npSize?.displayedValues = sizes
         npSize?.wrapSelectorWheel = false
 
         if (canvas.objectIndex != null) {
             val shape = canvas.draws[canvas.objectIndex!!]
             if (shape is com.joory.whiteboardapp.shapes.Texts) {
                 val currentSize = shape.paint.textSize.toInt()
-                if (currentSize in 10..300) {
-                    npSize?.value = currentSize
+                // Find the closest index for the current size
+                // Map the current size to the nearest step value
+                val closestSize = (Math.round(currentSize / 5.0) * 5).toInt().coerceIn(10, 300)
+                val index = sizes.indexOf(closestSize.toString())
+                if (index != -1) {
+                    npSize?.value = index
                 } else {
-                    npSize?.value = 50
+                    // Default fallback if something goes wrong, though coerceIn handling ensures
+                    // it's within range
+                    val defaultIndex = sizes.indexOf("50")
+                    if (defaultIndex != -1) npSize?.value = defaultIndex
                 }
             }
         }
@@ -757,13 +774,14 @@ class MainActivity : AppCompatActivity() {
             if (canvas.objectIndex != null) {
                 val shape = canvas.draws[canvas.objectIndex!!]
                 if (shape is com.joory.whiteboardapp.shapes.Texts) {
-                    shape.paint.textSize = newVal.toFloat()
+                    // Update the text size based on the selected index
+                    val newSize = sizes[newVal].toFloat()
+                    shape.paint.textSize = newSize
                     shape.updateObject(shape.paint)
                     canvas.invalidate()
                 }
             }
         }
-        // -----------------------------------------------------
 
         fontsDialog?.show()
     }

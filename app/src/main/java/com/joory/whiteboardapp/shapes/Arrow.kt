@@ -126,7 +126,8 @@ class Arrow : Shape {
             deleteBmp: Bitmap?,
             duplicateBmp: Bitmap?,
             rotateBmp: Bitmap?,
-            resizeBmp: Bitmap?
+            resizeBmp: Bitmap?,
+            scale: Float
     ) {
         val rect =
                 if (triangle.fp.y < line.start.y) {
@@ -144,6 +145,7 @@ class Arrow : Shape {
                             triangle.fp.y + (sideLength / 2) + 5
                     )
                 }
+        val s = 1f / scale
         val selectedPaint = Paint()
         selectedPaint.pathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
         selectedPaint.style = Paint.Style.STROKE
@@ -155,12 +157,26 @@ class Arrow : Shape {
         btnBgPaint.style = Paint.Style.FILL
 
         if (deleteBmp != null) {
-            canvas.drawCircle(rect.left - 30f, rect.top - 30f, 30f, btnBgPaint)
-            canvas.drawBitmap(deleteBmp, rect.left - 50, rect.top - 50, null)
+            canvas.drawCircle(rect.left - 30f * s, rect.top - 30f * s, 30f * s, btnBgPaint)
+            val deleteRect =
+                    RectF(
+                            rect.left - 50f * s,
+                            rect.top - 50f * s,
+                            rect.left - 10f * s,
+                            rect.top - 10f * s
+                    )
+            canvas.drawBitmap(deleteBmp, null, deleteRect, null)
         }
         if (duplicateBmp != null) {
-            canvas.drawCircle(rect.right + 30f, rect.top - 30f, 30f, btnBgPaint)
-            canvas.drawBitmap(duplicateBmp, rect.right + 10, rect.top - 50, null)
+            canvas.drawCircle(rect.right + 30f * s, rect.top - 30f * s, 30f * s, btnBgPaint)
+            val duplicateRect =
+                    RectF(
+                            rect.right + 10f * s,
+                            rect.top - 50f * s,
+                            rect.right + 50f * s,
+                            rect.top - 10f * s
+                    )
+            canvas.drawBitmap(duplicateBmp, null, duplicateRect, null)
         }
     }
 

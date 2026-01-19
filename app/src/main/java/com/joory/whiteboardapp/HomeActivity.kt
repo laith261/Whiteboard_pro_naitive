@@ -11,6 +11,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.joory.whiteboardapp.adapters.WorksAdapter
 import com.joory.whiteboardapp.managers.ProjectManager
@@ -49,6 +52,11 @@ class HomeActivity : AppCompatActivity() {
         animator.repeatCount = android.animation.ObjectAnimator.INFINITE
         animator.repeatMode = android.animation.ObjectAnimator.REVERSE
         animator.start()
+
+        MobileAds.initialize(this) {}
+        val adView = findViewById<AdView>(R.id.adView)
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
 
         checkPermissionAndLoadWorks()
     }

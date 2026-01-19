@@ -20,11 +20,11 @@ interface Shape {
     var paint: Paint
     var rotation: Float
         get() = 0f
-        set(value) {}
+        set(_) {}
 
     var text: String
         get() = ""
-        set(value) {}
+        set(_) {}
 
     // In your Shape interface
     val shapeTools: MutableList<Tools>
@@ -61,7 +61,8 @@ interface Shape {
             deleteBmp: Bitmap? = null,
             duplicateBmp: Bitmap? = null,
             rotateBmp: Bitmap? = null,
-            resizeBmp: Bitmap? = null
+            resizeBmp: Bitmap? = null,
+            scale: Float = 1f
     ) {}
 
     fun startMove(e: MotionEvent) {}

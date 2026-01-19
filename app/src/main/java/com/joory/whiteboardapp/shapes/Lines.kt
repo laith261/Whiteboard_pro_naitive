@@ -113,11 +113,15 @@ class Lines : Shape {
             deleteBmp: Bitmap?,
             duplicateBmp: Bitmap?,
             rotateBmp: Bitmap?,
-            resizeBmp: Bitmap?
+            resizeBmp: Bitmap?,
+            scale: Float
     ) {
         val rect = getRectBorder()
         val cx = (start.x + end.x) / 2
         val cy = (start.y + end.y) / 2
+        val s = 1f / scale
+        val radius = 30f * s
+        val smRadius = 15f * s
 
         canvas.withRotation(rotation, cx, cy) {
             val selectedPaint = Paint()
@@ -132,22 +136,30 @@ class Lines : Shape {
 
             // Draw resize handle at the end point
             if (resizeBmp != null) {
-                drawCircle(end.x, end.y, 30f, btnBgPaint)
-                drawBitmap(resizeBmp, end.x - 20, end.y - 20, null)
+                drawCircle(end.x, end.y, radius, btnBgPaint)
+                val dstRect = RectF(end.x - 20 * s, end.y - 20 * s, end.x + 20 * s, end.y + 20 * s)
+                canvas.drawBitmap(resizeBmp, null, dstRect, null)
             } else {
                 selectedPaint.pathEffect = null
                 selectedPaint.style = Paint.Style.FILL
                 selectedPaint.color = android.graphics.Color.BLUE
-                drawCircle(end.x, end.y, 15f, selectedPaint)
+                drawCircle(end.x, end.y, smRadius, selectedPaint)
             }
 
             // Draw rotate handle at the start point
             if (rotateBmp != null) {
-                drawCircle(start.x, start.y, 30f, btnBgPaint)
-                drawBitmap(rotateBmp, start.x - 20, start.y - 20, null)
+                drawCircle(start.x, start.y, radius, btnBgPaint)
+                val dstRect =
+                        RectF(
+                                start.x - 20 * s,
+                                start.y - 20 * s,
+                                start.x + 20 * s,
+                                start.y + 20 * s
+                        )
+                canvas.drawBitmap(rotateBmp, null, dstRect, null)
             } else {
                 selectedPaint.color = android.graphics.Color.RED
-                drawCircle(start.x, start.y, 15f, selectedPaint)
+                drawCircle(start.x, start.y, smRadius, selectedPaint)
             }
 
             // Calculate icons position using dynamic corner selection (furthest from handles)
@@ -162,12 +174,26 @@ class Lines : Shape {
             val duplicateY = duplicatePos.y
 
             if (deleteBmp != null) {
-                drawCircle(deleteX, deleteY, 30f, btnBgPaint)
-                drawBitmap(deleteBmp, deleteX - 20, deleteY - 20, null)
+                drawCircle(deleteX, deleteY, radius, btnBgPaint)
+                val dstRect =
+                        RectF(
+                                deleteX - 20 * s,
+                                deleteY - 20 * s,
+                                deleteX + 20 * s,
+                                deleteY + 20 * s
+                        )
+                canvas.drawBitmap(deleteBmp, null, dstRect, null)
             }
             if (duplicateBmp != null) {
-                drawCircle(duplicateX, duplicateY, 30f, btnBgPaint)
-                drawBitmap(duplicateBmp, duplicateX - 20, duplicateY - 20, null)
+                drawCircle(duplicateX, duplicateY, radius, btnBgPaint)
+                val dstRect =
+                        RectF(
+                                duplicateX - 20 * s,
+                                duplicateY - 20 * s,
+                                duplicateX + 20 * s,
+                                duplicateY + 20 * s
+                        )
+                canvas.drawBitmap(duplicateBmp, null, dstRect, null)
             }
         }
     }

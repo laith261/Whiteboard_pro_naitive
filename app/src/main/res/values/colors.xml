@@ -10,4 +10,12 @@
     <color name="prem">#4466FF</color>
     <color name="panel_background">#F5F5F5</color> <!-- Light grey/white for panel -->
     <color name="icon_tint">#FFFFFF</color> <!-- White for icons on blue panel -->
+    
+    <!-- Semantic Colors -->
+    <color name="dialog_background">#FFFFFF</color>
+    <color name="primary_text">#000000</color>
+    <color name="secondary_text">#757575</color>
+    <color name="floating_toolbar_background">@color/prem</color>
+    <color name="home_background">#F8F9FE</color>
+    <color name="search_hint_text">#9E9E9E</color>
 </resources>

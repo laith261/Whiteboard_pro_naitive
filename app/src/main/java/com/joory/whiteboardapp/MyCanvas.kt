@@ -44,7 +44,62 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     private var rotateBmp: Bitmap? = null
     private var resizeBmp: Bitmap? = null
 
+    private val drawMatrix = android.graphics.Matrix()
+    private val inverseMatrix = android.graphics.Matrix()
+    private val scaleDetector: android.view.ScaleGestureDetector
+    private var lastFocusX = 0f
+    private var lastFocusY = 0f
+
     init {
+        scaleDetector =
+                android.view.ScaleGestureDetector(
+                        context!!,
+                        object : android.view.ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                            override fun onScale(
+                                    detector: android.view.ScaleGestureDetector
+                            ): Boolean {
+                                val scaleFactor = detector.scaleFactor
+                                // Optional: Clamp scale factor if needed, e.g., 0.1f to 5.0f
+                                // For now allowing free zoom
+                                drawMatrix.postScale(
+                                        scaleFactor,
+                                        scaleFactor,
+                                        width / 2f,
+                                        height / 2f
+                                )
+
+                                val dx = detector.focusX - lastFocusX
+                                val dy = detector.focusY - lastFocusY
+                                drawMatrix.postTranslate(dx, dy)
+
+                                lastFocusX = detector.focusX
+                                lastFocusY = detector.focusY
+
+                                invalidate()
+                                return true
+                            }
+
+                            override fun onScaleBegin(
+                                    detector: android.view.ScaleGestureDetector
+                            ): Boolean {
+                                lastFocusX = detector.focusX
+                                lastFocusY = detector.focusY
+
+                                // Cancel any active drawing or interaction
+                                if (isDrawing) {
+                                    if (draws.isNotEmpty()) {
+                                        draws.removeAt(draws.size - 1)
+                                    }
+                                    isDrawing = false
+                                }
+                                isResizing = false
+                                isRotating = false
+                                objectIndex = null
+                                invalidate()
+                                return true
+                            }
+                        }
+                )
         deleteBmp = getBitmapFromVectorDrawable(context, R.drawable.ic_cancel)
         duplicateBmp = getBitmapFromVectorDrawable(context, R.drawable.ic_content_copy)
         rotateBmp = getBitmapFromVectorDrawable(context, R.drawable.rotate)
@@ -74,11 +129,19 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         if (imgUri != null && myMain != null) {
             myMain!!.setImageBg.setImageBackgroundProcess(this)
         }
+
+        // Draw void background (outside the page)
+        canvas.drawColor(android.graphics.Color.LTGRAY)
+
+        canvas.save()
+        canvas.concat(drawMatrix)
+
         setBG(canvas)
         // Save a layer to support erasing (PorterDuff.Mode.CLEAR) without clearing the background
         val saveCount = canvas.saveLayer(0f, 0f, width.toFloat(), height.toFloat(), null)
         startDrawing(canvas)
         canvas.restoreToCount(saveCount)
+        canvas.restore()
     }
 
     private var isResizing = false
@@ -88,30 +151,46 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(e: MotionEvent?): Boolean {
-        when (e!!.action) {
+        if (e == null) return false
+
+        scaleDetector.onTouchEvent(e)
+        if (scaleDetector.isInProgress) return true
+
+        // Transform event to canvas coordinates
+        drawMatrix.invert(inverseMatrix)
+        val transformedEvent = MotionEvent.obtain(e)
+        transformedEvent.transform(inverseMatrix)
+
+        when (transformedEvent.action) {
             MotionEvent.ACTION_DOWN -> {
                 isDrawing = false
                 ignoreUpEvent = false
-                if (objectIndex != null && draws[objectIndex!!].isTouchingResize(e)) {
+                if (objectIndex != null && draws[objectIndex!!].isTouchingResize(transformedEvent)
+                ) {
                     isResizing = true
+                    transformedEvent.recycle()
                     return true
                 }
 
-                if (objectIndex != null && draws[objectIndex!!].isTouchingRotate(e)) {
+                if (objectIndex != null && draws[objectIndex!!].isTouchingRotate(transformedEvent)
+                ) {
                     isRotating = true
+                    transformedEvent.recycle()
                     return true
                 }
 
                 if (objectIndex != null) {
                     if (objectIndex!! < draws.size) {
-                        draws[objectIndex!!].startMove(e)
-                        if (draws[objectIndex!!].isTouchingDelete(e)) {
+                        draws[objectIndex!!].startMove(transformedEvent)
+                        if (draws[objectIndex!!].isTouchingDelete(transformedEvent)) {
                             deleteItem()
                             ignoreUpEvent = true
+                            transformedEvent.recycle()
                             return true
                         }
-                        if (draws[objectIndex!!].isTouchingDuplicate(e)) {
+                        if (draws[objectIndex!!].isTouchingDuplicate(transformedEvent)) {
                             duplicateItem()
+                            transformedEvent.recycle()
                             return true
                         }
                     } else {
@@ -120,34 +199,39 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 }
 
                 if (tool == Shapes.Select) {
-                    checkObjectTouching(e)
+                    checkObjectTouching(transformedEvent)
                 }
 
-                if (tool != Shapes.Select && tool != Shapes.Text && !isTouchingSameObject(e)) {
+                if (tool != Shapes.Select &&
+                                tool != Shapes.Text &&
+                                !isTouchingSameObject(transformedEvent)
+                ) {
                     objectIndex = null
-                    draws.add(tool.shape.create(e))
+                    draws.add(tool.shape.create(transformedEvent))
                     isDrawing = true
                     updateStyle()
                 }
             }
             MotionEvent.ACTION_MOVE -> {
                 if (isResizing && objectIndex != null) {
-                    draws[objectIndex!!].resize(e)
+                    draws[objectIndex!!].resize(transformedEvent)
                     invalidate()
+                    transformedEvent.recycle()
                     return true
                 }
                 if (isRotating && objectIndex != null) {
-                    draws[objectIndex!!].rotateShape(e)
+                    draws[objectIndex!!].rotateShape(transformedEvent)
                     invalidate()
+                    transformedEvent.recycle()
                     return true
                 }
                 if (isDrawing && objectIndex == null && tool != Shapes.Select) {
                     if (draws.isNotEmpty()) {
-                        draws.last().update(e)
+                        draws.last().update(transformedEvent)
                     }
                 }
                 if (objectIndex != null) {
-                    draws[objectIndex!!].move(e)
+                    draws[objectIndex!!].move(transformedEvent)
                 }
                 invalidate()
             }
@@ -155,7 +239,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 isResizing = false
                 isRotating = false
                 if (tool == Shapes.Text && objectIndex == null && !ignoreUpEvent) {
-                    setTextDialog(e.x, e.y)
+                    setTextDialog(transformedEvent.x, transformedEvent.y)
                 }
 
                 if (tool.selectAble) {
@@ -168,6 +252,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 myMain?.doButtonsAlpha()
             }
         }
+        transformedEvent.recycle()
         return true
     }
 
@@ -188,12 +273,17 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
             i.draw(canvas)
         }
         if (objectIndex != null && objectIndex!! < draws.size) {
+            val values = FloatArray(9)
+            drawMatrix.getValues(values)
+            val scaleX = values[android.graphics.Matrix.MSCALE_X]
+
             draws[objectIndex!!].drawSelectedBox(
                     canvas,
                     deleteBmp,
                     duplicateBmp,
                     rotateBmp,
-                    resizeBmp
+                    resizeBmp,
+                    scaleX
             )
         } else {
             objectIndex = null
@@ -218,7 +308,23 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     }
 
     private fun setBG(canvas: Canvas) {
-        canvas.drawColor(colorBG)
+        // Draw page white/color background
+        val bgPaint =
+                Paint().apply {
+                    color = colorBG
+                    style = Paint.Style.FILL
+                }
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
+
+        // Draw Page Border
+        val borderPaint =
+                Paint().apply {
+                    color = Color.GRAY
+                    style = Paint.Style.STROKE
+                    strokeWidth = 2f
+                }
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), borderPaint)
+
         if (imgBG != null) {
             val left = (width - imgBG!!.width) / 2
             val top = (height - imgBG!!.height) / 2
@@ -397,5 +503,10 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
             myMain?.showButtons()
             invalidate()
         }
+    }
+
+    fun resetZoom() {
+        drawMatrix.reset()
+        invalidate()
     }
 }

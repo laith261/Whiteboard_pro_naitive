@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Dark Mode Overrides -->
+    <color name="prem">#8294FF</color> <!-- Desaturated blue for dark mode -->
+    <color name="panel_background">#2D2D2D</color>
+    <color name="icon_tint">#E0E0E0</color> <!-- Slightly dimmed used on dark surfaces, but wait... -->
+    
+    <!-- In the light theme, icon_tint is WHITE because panel is BLUE (prem) -->
+    <!-- In dark theme, if panel is BLUE (prem), icons should be white. -->
+    <!-- But if panel is dark grey, icons should be white. -->
+    <!-- Let's Check: bg_floating_panel uses @color/prem. -->
+    <!-- If prem is #8294FF (light blue), white icons are fine. -->
+    
+    <color name="dialog_background">#2D2D2D</color>
+    <color name="primary_text">#FFFFFF</color>
+    <color name="secondary_text">#B0B0B0</color>
+    <color name="floating_toolbar_background">@color/panel_background</color>
+    <color name="home_background">#121212</color>
+    <color name="search_hint_text">#808080</color>
+</resources>

@@ -106,6 +106,18 @@
             app:srcCompat="@drawable/ic_layers"
             app:tint="@color/icon_tint" />
 
+        <ImageButton
+            android:id="@+id/center"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Center"
+            android:onClick="onCenterClick"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_center_focus"
+            app:tint="@color/icon_tint" />
+
         <androidx.cardview.widget.CardView
             android:layout_width="40dp"
             android:layout_height="40dp"

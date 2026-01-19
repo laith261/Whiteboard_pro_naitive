@@ -81,12 +81,17 @@ class Triangle : Shape {
             deleteBmp: Bitmap?,
             duplicateBmp: Bitmap?,
             rotateBmp: Bitmap?,
-            resizeBmp: Bitmap?
+            resizeBmp: Bitmap?,
+            scale: Float
     ) {
         val radius = sideLength / 2
         val cx = triangle.cp.x
         val cy = triangle.cp.y
         val rect = RectF(cx - radius - 10, cy - radius - 10, cx + radius + 10, cy + radius + 10)
+        val s = 1f / scale
+        val offset = 30f * s
+        val radiusS = 30f * s
+        val smRadius = 15f * s
 
         canvas.withRotation(rotation, cx, cy) {
             val selectedPaint = Paint()
@@ -101,31 +106,59 @@ class Triangle : Shape {
 
             // Draw resize handle (Bottom-Right)
             if (resizeBmp != null) {
-                drawCircle(rect.right + 30f, rect.bottom + 30f, 30f, btnBgPaint)
-                drawBitmap(resizeBmp, rect.right + 10, rect.bottom + 10, null)
+                drawCircle(rect.right + offset, rect.bottom + offset, radiusS, btnBgPaint)
+                val dstRect =
+                        RectF(
+                                rect.right + offset - 20 * s,
+                                rect.bottom + offset - 20 * s,
+                                rect.right + offset + 20 * s,
+                                rect.bottom + offset + 20 * s
+                        )
+                canvas.drawBitmap(resizeBmp, null, dstRect, null)
             } else {
                 selectedPaint.pathEffect = null
                 selectedPaint.style = Paint.Style.FILL
                 selectedPaint.color = android.graphics.Color.BLUE
-                drawCircle(rect.right + 30f, rect.bottom + 30f, 15f, selectedPaint)
+                drawCircle(rect.right + offset, rect.bottom + offset, smRadius, selectedPaint)
             }
 
             // Draw rotate handle (Bottom-Left)
             if (rotateBmp != null) {
-                drawCircle(rect.left - 30f, rect.bottom + 30f, 30f, btnBgPaint)
-                drawBitmap(rotateBmp, rect.left - 50, rect.bottom + 10, null)
+                drawCircle(rect.left - offset, rect.bottom + offset, radiusS, btnBgPaint)
+                val dstRect =
+                        RectF(
+                                rect.left - offset - 20 * s,
+                                rect.bottom + offset - 20 * s,
+                                rect.left - offset + 20 * s,
+                                rect.bottom + offset + 20 * s
+                        )
+                canvas.drawBitmap(rotateBmp, null, dstRect, null)
             } else {
                 selectedPaint.color = android.graphics.Color.RED
-                drawCircle(rect.left - 30f, rect.bottom + 30f, 15f, selectedPaint)
+                drawCircle(rect.left - offset, rect.bottom + offset, smRadius, selectedPaint)
             }
 
             if (deleteBmp != null) {
-                drawCircle(rect.left - 30f, rect.top - 30f, 30f, btnBgPaint)
-                drawBitmap(deleteBmp, rect.left - 50, rect.top - 50, null)
+                drawCircle(rect.left - offset, rect.top - offset, radiusS, btnBgPaint)
+                val dstRect =
+                        RectF(
+                                rect.left - offset - 20 * s,
+                                rect.top - offset - 20 * s,
+                                rect.left - offset + 20 * s,
+                                rect.top - offset + 20 * s
+                        )
+                canvas.drawBitmap(deleteBmp, null, dstRect, null)
             }
             if (duplicateBmp != null) {
-                drawCircle(rect.right + 30f, rect.top - 30f, 30f, btnBgPaint)
-                drawBitmap(duplicateBmp, rect.right + 10, rect.top - 50, null)
+                drawCircle(rect.right + offset, rect.top - offset, radiusS, btnBgPaint)
+                val dstRect =
+                        RectF(
+                                rect.right + offset - 20 * s,
+                                rect.top - offset - 20 * s,
+                                rect.right + offset + 20 * s,
+                                rect.top - offset + 20 * s
+                        )
+                canvas.drawBitmap(duplicateBmp, null, dstRect, null)
             }
         }
     }

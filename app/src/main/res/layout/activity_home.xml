@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FE"
+    android:background="@color/home_background"
     tools:context=".HomeActivity">
 
     <!-- Header Area -->
@@ -15,7 +15,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="32dp"
         android:text="@string/title_my_works"
-        android:textColor="#1A1C1E"
+        android:textColor="@color/primary_text"
         android:textSize="32sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="@string/subtitle_creativity"
-        android:textColor="#555555"
+        android:textColor="@color/secondary_text"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="@id/tvTitle"
         app:layout_constraintTop_toBottomOf="@id/tvTitle" />
@@ -59,7 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="24dp"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/dialog_background"
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp"
         app:layout_constraintTop_toBottomOf="@id/tvSubtitle">
@@ -77,7 +77,7 @@
                 android:layout_height="24dp"
                 android:contentDescription="@string/content_description_search_icon"
                 android:src="@drawable/ic_search"
-                app:tint="#757575" />
+                app:tint="@color/secondary_text" />
 
             <EditText
                 android:id="@+id/etSearch"
@@ -89,8 +89,8 @@
                 android:imeOptions="actionSearch"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:textColor="#1A1C1E"
-                android:textColorHint="#9E9E9E"
+                android:textColor="@color/primary_text"
+                android:textColorHint="@color/search_hint_text"
                 android:textSize="16sp" />
 
         </LinearLayout>
@@ -106,7 +106,7 @@
         android:clipToPadding="false"
         android:paddingHorizontal="12dp"
         android:paddingBottom="80dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/adView"
         app:layout_constraintTop_toBottomOf="@id/cardSearch" />
 
     <!-- Empty State -->
@@ -116,7 +116,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -136,7 +136,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/empty_title"
-            android:textColor="#555555"
+            android:textColor="@color/secondary_text"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -146,7 +146,7 @@
             android:layout_marginTop="8dp"
             android:gravity="center"
             android:text="@string/empty_subtitle"
-            android:textColor="#888888"
+            android:textColor="@color/secondary_text"
             android:textSize="14sp" />
 
     </LinearLayout>
@@ -161,8 +161,18 @@
         android:src="@drawable/ic_add"
         app:backgroundTint="@color/purple_500"
         app:elevation="6dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/adView"
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="@color/white" />
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:adSize="BANNER"
+        app:adUnitId="ca-app-pub-1226999690478326/5104646039"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
