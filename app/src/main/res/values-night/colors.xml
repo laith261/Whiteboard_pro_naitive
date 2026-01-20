@@ -25,4 +25,5 @@
     <color name="floating_toolbar_background">@color/panel_background</color>
     <color name="home_background">#121212</color>
     <color name="search_hint_text">#808080</color>
+    <color name="empty_state_tint">@color/prem</color>
 </resources>

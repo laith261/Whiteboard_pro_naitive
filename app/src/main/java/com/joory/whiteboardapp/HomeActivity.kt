@@ -142,7 +142,8 @@ class HomeActivity : AppCompatActivity() {
                             intent.putExtra("EXTRA_PROJECT_ID", project.id)
                             startActivity(intent)
                         },
-                        { project -> showProjectOptions(project) }
+                        { project -> showProjectOptions(project) },
+                        { count -> updateSelectionMode(count) }
                 )
         recycler.adapter = adapter
 
@@ -284,6 +285,70 @@ class HomeActivity : AppCompatActivity() {
                             android.widget.Toast.LENGTH_SHORT
                     )
                     .show()
+        }
+    }
+
+    private fun updateSelectionMode(count: Int) {
+        val tvTitle = findViewById<android.widget.TextView>(R.id.tvTitle)
+        val fab = findViewById<FloatingActionButton>(R.id.fabNew)
+
+        if (count > 0) {
+            tvTitle.text = getString(R.string.selected_count, count)
+
+            // Transform FAB to Delete button
+            fab.show()
+            fab.setImageResource(R.drawable.ic_delete_outline)
+            fab.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(0xFFF44336.toInt()) // Red color
+            fab.setOnClickListener {
+                val adapter = recycler.adapter as? WorksAdapter
+                if (adapter != null) {
+                    confirmDeleteSelected(adapter)
+                }
+            }
+        } else {
+            tvTitle.text = getString(R.string.title_my_works)
+
+            // Transform FAB back to New Project button
+            fab.show()
+            fab.setImageResource(R.drawable.ic_add)
+            fab.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(
+                            ContextCompat.getColor(this, R.color.purple_500)
+                    )
+            fab.setOnClickListener { startActivity(Intent(this, MainActivity::class.java)) }
+        }
+    }
+
+    private fun confirmDeleteSelected(adapter: WorksAdapter) {
+        val count = adapter.getSelectedIds().size
+        androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(getString(R.string.title_delete_project))
+                .setMessage(getString(R.string.msg_delete_selected_confirm, count))
+                .setPositiveButton(getString(R.string.delete)) { _, _ ->
+                    val ids = adapter.getSelectedIds()
+                    for (id in ids) {
+                        projectManager.deleteProject(id)
+                    }
+                    adapter.clearSelection()
+                    loadWorks()
+                    android.widget.Toast.makeText(
+                                    this,
+                                    getString(R.string.msg_projects_deleted, count),
+                                    android.widget.Toast.LENGTH_SHORT
+                            )
+                            .show()
+                }
+                .setNegativeButton(getString(R.string.cancel), null)
+                .show()
+    }
+
+    override fun onBackPressed() {
+        val adapter = recycler.adapter as? WorksAdapter
+        if (adapter != null && adapter.getSelectedIds().isNotEmpty()) {
+            adapter.clearSelection()
+        } else {
+            super.onBackPressed()
         }
     }
 

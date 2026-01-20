@@ -20,7 +20,8 @@
             android:rotationY="180"
             android:scaleX=".6"
             android:scaleY=".6"
-            app:srcCompat="@drawable/select" />
+            app:srcCompat="@drawable/select"
+            app:tint="@color/primary_text" />
 
         <ImageView
             android:id="@+id/select_dot"
@@ -44,7 +45,8 @@
             android:layout_height="match_parent"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="15dp"
-            app:srcCompat="@drawable/brush" />
+            app:srcCompat="@drawable/brush"
+            app:tint="@color/primary_text" />
 
         <ImageView
             android:id="@+id/brush_dot"
@@ -68,7 +70,8 @@
             android:layout_height="match_parent"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="10dp"
-            app:srcCompat="@drawable/ic_square_shape" />
+            app:srcCompat="@drawable/ic_square_shape"
+            app:tint="@color/primary_text" />
 
         <ImageView
             android:id="@+id/rect_dot"
@@ -92,7 +95,8 @@
             android:layout_height="match_parent"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="15dp"
-            app:srcCompat="@drawable/ic_circle_shape" />
+            app:srcCompat="@drawable/ic_circle_shape"
+            app:tint="@color/primary_text" />
 
         <ImageView
             android:id="@+id/circle_dot"
@@ -117,7 +121,8 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="15dp"
             android:rotation="45"
-            app:srcCompat="@drawable/arrow" />
+            app:srcCompat="@drawable/arrow"
+            app:tint="@color/primary_text" />
 
         <ImageView
             android:id="@+id/arrow_dot"
@@ -141,7 +146,8 @@
             android:layout_height="match_parent"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="10dp"
-            app:srcCompat="@drawable/line" />
+            app:srcCompat="@drawable/line"
+            app:tint="@color/primary_text" />
 
         <ImageView
             android:id="@+id/line_dot"
@@ -168,7 +174,8 @@
             android:scaleType="centerInside"
             android:scaleX=".6"
             android:scaleY=".6"
-            app:srcCompat="@drawable/t" />
+            app:srcCompat="@drawable/t"
+            app:tint="@color/primary_text" />
 
         <ImageView
             android:id="@+id/texts_dot"
@@ -193,7 +200,8 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:scaleX=".8"
             android:scaleY=".8"
-            app:srcCompat="@drawable/ic_triangle_shape" />
+            app:srcCompat="@drawable/ic_triangle_shape"
+            app:tint="@color/primary_text" />
 
         <ImageView
             android:id="@+id/tringle_dot"
@@ -218,7 +226,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="5dp"
             app:srcCompat="@drawable/ic_star"
-            app:tint="@color/black" />
+            app:tint="@color/primary_text" />
 
         <ImageView
             android:id="@+id/star_dot"
@@ -243,7 +251,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="5dp"
             app:srcCompat="@drawable/ic_hexagon"
-            app:tint="@color/black" />
+            app:tint="@color/primary_text" />
 
         <ImageView
             android:id="@+id/hexagon_dot"
@@ -268,7 +276,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="10dp"
             app:srcCompat="@drawable/eraser"
-            app:tint="@color/black" />
+            app:tint="@color/primary_text" />
 
         <ImageView
             android:id="@+id/eraser_dot"
@@ -300,7 +308,8 @@
             android:layout_height="match_parent"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="10dp"
-            app:srcCompat="@drawable/outline_add_photo_alternate_24" />
+            app:srcCompat="@drawable/outline_add_photo_alternate_24"
+            app:tint="@color/primary_text" />
     </FrameLayout>
 
 </androidx.gridlayout.widget.GridLayout>

@@ -14,7 +14,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/font_name_placeholder"
-            android:textColor="@android:color/black"
+            android:textColor="@color/primary_text"
             android:textSize="18sp" />
 
     <ImageButton
@@ -23,5 +23,5 @@
         android:layout_height="40dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_delete_outline"
-        app:tint="@android:color/black" />
+        app:tint="@color/primary_text" />
 </LinearLayout>

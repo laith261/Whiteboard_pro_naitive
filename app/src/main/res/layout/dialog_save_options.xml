@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/save_options_title"
-        android:textColor="@color/black"
+        android:textColor="@color/primary_text"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/btnClose"
@@ -28,7 +28,7 @@
         android:src="@drawable/ic_cancel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/black" />
+        app:tint="@color/primary_text" />
 
     <RadioGroup
         android:id="@+id/rgFormat"

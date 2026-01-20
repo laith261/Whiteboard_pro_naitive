@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
-    app:cardBackgroundColor="@color/white"
+    app:cardBackgroundColor="@color/dialog_background"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
     app:strokeColor="#E0E0E0"
@@ -15,24 +15,63 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/ivWork"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:contentDescription="@string/app_name"
-            android:background="#F0F0F0"
-            android:scaleType="centerCrop" />
+            android:layout_height="160dp">
 
-        <TextView
-            android:id="@+id/tvName"
+            <ImageView
+                android:id="@+id/ivWork"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#F0F0F0"
+                android:contentDescription="@string/app_name"
+                android:scaleType="centerCrop" />
+
+            <View
+                android:id="@+id/viewSelectionOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#665369E7"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/ivCheck"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_check"
+                android:visibility="gone"
+                app:tint="@android:color/white" />
+        </FrameLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="@string/default_project_name"
-            android:textColor="@color/black"
-            android:textSize="14sp"
-            android:maxLines="1"
-            android:ellipsize="end"/>
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/default_project_name"
+                android:textColor="@color/primary_text"
+                android:textSize="14sp" />
+
+            <ImageButton
+                android:id="@+id/btnOptions"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="options"
+                android:src="@drawable/ic_more_vert"
+                app:tint="@color/primary_text" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

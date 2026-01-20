@@ -28,6 +28,9 @@
     <string name="empty_title">No masterpieces yet</string>
     <string name="empty_subtitle">Tap the + button to create your first artwork!</string>
     <string name="content_description_new_whiteboard">New Whiteboard</string>
+    <string name="selected_count">%d Selected</string>
+    <string name="msg_delete_selected_confirm">Delete %d selected projects? This cannot be undone.</string>
+    <string name="msg_projects_deleted">%d projects deleted</string>
 
     <!-- Dialogs & Actions -->
     <string name="action_rename">Rename</string>

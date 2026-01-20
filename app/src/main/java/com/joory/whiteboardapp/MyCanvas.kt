@@ -47,6 +47,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
     private val drawMatrix = android.graphics.Matrix()
     private val inverseMatrix = android.graphics.Matrix()
     private val scaleDetector: android.view.ScaleGestureDetector
+    private val gestureDetector: android.view.GestureDetector
     private var lastFocusX = 0f
     private var lastFocusY = 0f
 
@@ -109,6 +110,32 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         duplicateBmp = duplicateBmp?.scale(40, 40, true)
         rotateBmp = rotateBmp?.scale(40, 40, true)
         resizeBmp = resizeBmp?.scale(40, 40, true)
+
+        gestureDetector =
+                android.view.GestureDetector(
+                        context,
+                        object : android.view.GestureDetector.SimpleOnGestureListener() {
+                            override fun onDoubleTap(e: MotionEvent): Boolean {
+                                // Transform event to canvas coordinates
+                                drawMatrix.invert(inverseMatrix)
+                                val transformedEvent = MotionEvent.obtain(e)
+                                transformedEvent.transform(inverseMatrix)
+
+                                for (i in draws.indices.reversed()) {
+                                    val shape = draws[i]
+                                    if (shape is com.joory.whiteboardapp.shapes.Texts &&
+                                                    shape.isTouchingObject(transformedEvent)
+                                    ) {
+                                        editTextDialog(i)
+                                        transformedEvent.recycle()
+                                        return true
+                                    }
+                                }
+                                transformedEvent.recycle()
+                                return super.onDoubleTap(e)
+                            }
+                        }
+                )
     }
 
     private fun getBitmapFromVectorDrawable(context: Context?, drawableId: Int): Bitmap? {
@@ -154,6 +181,7 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
         if (e == null) return false
 
         scaleDetector.onTouchEvent(e)
+        gestureDetector.onTouchEvent(e)
         if (scaleDetector.isInProgress) return true
 
         // Transform event to canvas coordinates
@@ -375,11 +403,31 @@ class MyCanvas(context: Context?, args: AttributeSet?) : View(context, args) {
                 newText.text = text.text.toString()
                 newText.point = android.graphics.PointF(x, y)
                 newText.paint.textSize = 50f
+                // Apply current canvas color style logic if desired, or keep default
+                newText.paint.color = paint.color
 
                 draws.add(newText)
                 objectIndex = draws.size - 1
             }
             invalidate()
+            myMain!!.dialogs.dismiss()
+        }
+    }
+
+    private fun editTextDialog(index: Int) {
+        if (myMain == null || index !in draws.indices) return
+        val shape = draws[index] as? com.joory.whiteboardapp.shapes.Texts ?: return
+
+        myMain!!.dialogs.showDialog(R.layout.text_dialog)
+        val text = myMain!!.dialogs.dialog.findViewById<EditText>(R.id.theText)
+        text.setText(shape.text)
+        text.setSelection(shape.text.length)
+
+        myMain!!.dialogs.dialog.findViewById<ImageView>(R.id.addText).setOnClickListener {
+            if (text.text.isNotEmpty()) {
+                shape.text = text.text.toString()
+                invalidate()
+            }
             myMain!!.dialogs.dismiss()
         }
     }

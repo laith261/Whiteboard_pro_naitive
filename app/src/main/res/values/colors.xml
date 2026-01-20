@@ -18,4 +18,5 @@
     <color name="floating_toolbar_background">@color/prem</color>
     <color name="home_background">#F8F9FE</color>
     <color name="search_hint_text">#9E9E9E</color>
+    <color name="empty_state_tint">@color/purple_700</color>
 </resources>
